@@ -144,6 +144,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
         //roomType 分"singleUser"和"multiUsers"用來區別是單人使用或者多人使用的地圖
         roomType = pref.getString("roomType", "multiUsers");
+
         //如果是單人地圖的話，需要處理按鈕佈局
         if (roomType != null) {
             if (roomType.equals("singleUser")) {

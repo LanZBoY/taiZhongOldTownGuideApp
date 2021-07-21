@@ -44,6 +44,7 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCus
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
+import com.usrProject.taizhongoldtownguideapp.model.mapclick.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     //記錄照片中心
     private MapType currentMapType;
 
+//    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
     //設置地圖上有效點擊範圍
     private final int[][] objList = {
             {303, 1045, 387, 1960},//四維街日式招待所
@@ -134,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
 
+//        mapClicks.add(new MapClick("四維街日式招待所",303,1045,387,1960));
+//        mapClicks.add(new MapClick("彰化銀行繼光街宿舍",856,1015,916,4062));
+//        mapClicks.add(new MapClick("合作金庫銀行",906,912,976,964));
+//        mapClicks.add(new MapClick("彰化銀行舊總行",1172,734,1234,778));
+//        mapClicks.add(new MapClick("中山綠橋",1294,918,1357,972));
+//        mapClicks.add(new MapClick("台中車站後站",1560,1086,1631,1137));
     }
 
     public void goTeamTracker(View view) {

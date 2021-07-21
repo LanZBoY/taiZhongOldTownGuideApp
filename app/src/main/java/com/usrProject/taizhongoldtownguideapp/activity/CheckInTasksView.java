@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -82,6 +83,7 @@ public class CheckInTasksView extends AppCompatActivity {
                 super(view);
                 // Define click listener for the ViewHolder's View
                 taskTitle = view.findViewById(R.id.post_title);
+                taskTitle.setBackgroundResource(R.drawable.info_window_background);
 //                taskDesc = view.findViewById(R.id.taskDesc);
             }
 

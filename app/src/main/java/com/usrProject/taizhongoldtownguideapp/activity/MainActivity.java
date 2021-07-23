@@ -12,11 +12,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,6 +29,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -35,6 +39,7 @@ import android.view.GestureDetector;
 import android.widget.Toast;
 
 
+import com.google.api.Http;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,7 +60,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     //記錄照片中心
     private MapType currentMapType;
 
-//    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
+    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
     //設置地圖上有效點擊範圍
     private final int[][] objList = {
             {303, 1045, 387, 1960},//四維街日式招待所
@@ -148,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         //請求獲取位置permission
 
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         } else {
 
             final LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -222,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler() {
             @Override
             public void handleMessage(@NotNull Message msg) {
+
                 if (msg.what == 1) {
                     cloudImageViews = new ArrayList<>();
                     cloudImageViews.add((ImageView) findViewById(R.id.cloudView_1));
@@ -327,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //手勢控制，目前只做拖移，後續還有縮放要做
+    //TODO:手勢控制，目前只做拖移，後續還有縮放要做
     class AndroidGestureDectector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
         @Override
@@ -578,6 +587,7 @@ public class MainActivity extends AppCompatActivity {
     private JsonReader getJsonReaderByUrl(String urlPath, int timeout) throws IOException {
         JsonReader result = null;
         URL url = new URL(urlPath);
+
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -586,6 +596,7 @@ public class MainActivity extends AppCompatActivity {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(timeout);
             connection.setReadTimeout(timeout);
+
             connection.connect();
         } catch (IOException e) {
             e.printStackTrace();

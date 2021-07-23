@@ -7,15 +7,21 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
@@ -62,9 +68,10 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopU
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
-import com.usrProject.taizhongoldtownguideapp.schema.type.MarkTask;
 import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.serivce.NotificationService;
+import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,10 +85,19 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * The type Team tracker.
+ */
 public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    /**
+     * The M current location.
+     */
     Location mCurrentLocation = null;
+    /**
+     * The M fused location provider client.
+     */
     FusedLocationProviderClient mFusedLocationProviderClient;
     private WindowManager.LayoutParams params;
     private String teamID;
@@ -119,6 +135,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     private boolean isCheckPopUp = false;
 
     private TextView checkTestDistance;
+
+    private ServiceConnection notificationServiceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,15 +181,16 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         checkInProcessBotton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(pref.contains(MarkTask.CURRENT_TASK.key)){
+                if (pref.contains(TaskSchema.CURRENT_TASK)) {
 //                    popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
                     popWindow(PopWindowType.CHECK_IN_COMPLETED);
-                }else{
-                    Toast.makeText(getApplicationContext(),"你尚未接取打卡任務，請至任務列表選擇並接取打卡任務",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "你尚未接取打卡任務，請至任務列表選擇並接取打卡任務", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
+        createNotificationChannel();
 
         locationInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,17 +235,68 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (notificationServiceConnection != null) {
+            Intent intent = new Intent(this, NotificationService.class);
+            unbindService(notificationServiceConnection);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if(pref.contains(TaskSchema.CURRENT_TASK)){
+            notificationServiceConnection = new ServiceConnection() {
+                NotificationService notificationService;
+
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    notificationService = ((NotificationService.NotificationBinder) iBinder).getService();
+                    notificationService.runBackTask();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+
+                }
+            };
+            Intent intent = new Intent(this, NotificationService.class);
+            bindService(intent, notificationServiceConnection, BIND_AUTO_CREATE);
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = getString(R.string.ChannelID);
+            String name = getString(R.string.ChannelName);
+            String desc = getString(R.string.ChannelDesc);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(desc);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
     @SuppressLint("HandlerLeak")
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        checkPermission();
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+
                 return false;
             }
         });
@@ -335,12 +405,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //使用坐標資料api
         getPointJson(url);
 
-        if(pref.contains(MarkTask.CURRENT_TASK.key)){
+        if (pref.contains(TaskSchema.CURRENT_TASK)) {
             Log.d(TaskSchema.TASK_SYSTEM, "觸發任務系統");
-            if(currentTaskProcess == null){
-                currentTaskProcess = new Gson().fromJson(pref.getString(MarkTask.CURRENT_TASK.key, null), CurrentTaskProcess.class);
+            if (currentTaskProcess == null) {
+                currentTaskProcess = new Gson().fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
             }
-            if(currentTaskProcess.contents != null &&!currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag){
+            if (currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
                 setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
             }
         }
@@ -404,11 +474,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    private void setTaskMark(CheckInMarkerObject checkTask){
-        if(checkTask.markLatitude == null || checkTask.markLongitude == null){
+    private void setTaskMark(CheckInMarkerObject checkTask) {
+        if (checkTask.markLatitude == null || checkTask.markLongitude == null) {
             return;
         }
-        currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude,checkTask.markLongitude)).title(checkTask.markTitle));
+        currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude, checkTask.markLongitude)).title(checkTask.markTitle));
     }
 
     //等待使用者在createNewMarker頁面把增加marker的資訊返回
@@ -429,7 +499,10 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     //獲取使用者裝置現在的位置
     private void getDeviceLocation() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        checkPermission();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         final Task<Location> location = mFusedLocationProviderClient.getLastLocation();
         if (!isExiting) {
             location.addOnSuccessListener(new OnSuccessListener<Location>() {
@@ -453,7 +526,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         moveCamera(new LatLng(location.getLatitude(), location.getLongitude()), 15f);
 
 
-
                     } else {
                         //如果用戶進入app後才開啟GPS定位的話，會需要重啟location的資料才會正常
                         finish();
@@ -465,62 +537,57 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void checkPermission(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-        }
-    }
-//    TODO:打卡系統進入點 目前彈出視窗問題還沒解決
+    //    TODO:打卡系統進入點 目前彈出視窗問題還沒解決
     private void checkTaskDone(Location mCurrentLocation) {
-        if(currentTaskMarker == null){
+        if (currentTaskMarker == null || currentTaskProcess == null) {
             return;
         }
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        Double distance = getDistanceMeterByLatLng(currentPosition, currentTaskMarker.getPosition());
+        Double distance = LocationUtils.getDistance(currentPosition, currentTaskMarker.getPosition());
         checkTestDistance.setText(String.valueOf(distance));
-        if(distance < 15.0f && !isCheckPopUp && !currentTaskProcess.doneFlag){
+//        if(distance < 15.0f && !currentTaskProcess.doneFlag){
+//            Notification.Builder builder = new Notification.Builder(this, getString(R.string.ChannelID))
+//                    .setSmallIcon(R.drawable.check_in_record_icon)
+//                    .setContentTitle("到達打卡地點")
+//                    .setContentText(String.format("你已經到達 %s 任務地點",currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
+//                    .setAutoCancel(true);
+//            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//            notificationManager.notify(R.string.ChannelID,builder.build());
+//        }
+        if (distance < 15.0f && !currentTaskProcess.doneFlag) {
             Log.d(TaskSchema.TASK_SYSTEM, "觸發任務");
-            new AlertDialog.Builder(TeamTracker.this)
-                    .setTitle("打卡提醒")
-                    .setMessage(String.format("正在接近任務地點 %s ", currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
-                    .setPositiveButton("打卡", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialogInterface) {
-                            isCheckPopUp = false;
-                        }
-                    })
-                    .create()
-                    .show();
-        }
-        isCheckPopUp = true;
-    }
+            if (!isCheckPopUp) {
+                new AlertDialog.Builder(TeamTracker.this)
+                        .setTitle("打卡提醒")
+                        .setMessage(String.format("正在接近任務地點 %s ", currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
+                        .setPositiveButton("打卡", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
+                            }
+                        })
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                isCheckPopUp = true;
+                            }
+                        })
+                        .create()
+                        .show();
+            }
 
-    private Double getDistanceMeterByLatLng(LatLng p1, LatLng p2){
-        Double EARTH_RADIUS = 6378.137;
-        Double latr1 = p1.latitude * Math.PI / 180.0;
-        Double latr2 = p2.latitude * Math.PI / 180.0;
-        Double lngr1 = p1.longitude * Math.PI / 180.0;
-        Double lngr2 = p2.longitude * Math.PI / 180.0;
-        Double a = latr1 - latr2;
-        Double b = lngr1 - lngr2;
-        Double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2)
-                + Math.cos(latr1) * Math.cos(latr2)
-                * Math.pow(Math.sin(b / 2), 2)));
-        s = s * EARTH_RADIUS  * 1000;
-        Log.i("距離",s+"公尺");
-        return s;
+        } else {
+            isCheckPopUp = false;
+        }
     }
 
     //    TODO:打卡任務列表的東西
     private void checkLocationChange() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        checkPermission();
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         final Task<Location> location = mFusedLocationProviderClient.getLastLocation();
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
@@ -565,6 +632,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
     }
 
+    /**
+     * 挑出視窗
+     * @param popWindowType 跳出視窗的型態
+     */
+//
     public void popWindow(PopWindowType popWindowType) {
         if(popWindowType == PopWindowType.LOCATION_INFO){
             LocationInfoPopUpWin locationInfoPopWin = new LocationInfoPopUpWin(this, R.layout.location_info_pop_win, mMap, this);
@@ -639,11 +711,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     isCheckPopUp = false;
 
                     if(!currentTaskProcess.doneFlag){
-                        pref.edit().putString(MarkTask.CURRENT_TASK.key, new Gson().toJson(currentTaskProcess)).apply();
+                        pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess)).apply();
                         setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
                     }else{
 //                      TODO:打卡任務完成
-                        pref.edit().remove(MarkTask.CURRENT_TASK.key).apply();
+                        pref.edit().remove(TaskSchema.CURRENT_TASK).apply();
                         currentTaskProcess = null;
                         currentTaskMarker = null;
                         checkTestDistance.setText("距離初始化中...");
@@ -653,6 +725,9 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Exit team.
+     */
     public void exitTeam() {
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("是否要退出團隊？");
@@ -677,7 +752,13 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         });
         alert.create().show();
     }
-    //給其他layout用的
+
+    /**
+     * Exit team.
+     *
+     * @param view the view
+     */
+//給其他layout用的
     public void exitTeam(View view) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("是否要退出團隊？");
@@ -703,6 +784,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         alert.create().show();
     }
 
+    /**
+     * Add location.
+     *
+     * @param latitude  the latitude
+     * @param longitude the longitude
+     */
     public void addLocation(double latitude, double longitude) {
         //pref.edit().putFloat("Latitude",(float)mCurrentLocation.getLatitude()).putFloat("Longitude",(float)mCurrentLocation.getLongitude()).commit();
         params = getWindow().getAttributes();
@@ -713,6 +800,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         intent.putExtra("longitude", longitude);
         startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
+
+    /**
+     * Get point json.
+     *
+     * @param url the url
+     */
     void getPointJson(String url){
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
@@ -734,6 +827,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * Switch layer.
+     *
+     * @param view the view
+     */
     public void switchLayer(View view) {
 
         boolean checked = ((CheckBox) view).isChecked();

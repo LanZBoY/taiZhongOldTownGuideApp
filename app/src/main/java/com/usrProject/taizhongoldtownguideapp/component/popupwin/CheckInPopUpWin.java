@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
-import com.usrProject.taizhongoldtownguideapp.schema.type.MarkTask;
+import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -38,7 +38,7 @@ public class CheckInPopUpWin extends CustomPopUpWin {
 
         final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
         Gson gson = new Gson();
-        currentTaskProcess = gson.fromJson(pref.getString(MarkTask.CURRENT_TASK.key, null), CurrentTaskProcess.class);
+        currentTaskProcess = gson.fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
 
         View.OnClickListener listener;
 
@@ -51,7 +51,7 @@ public class CheckInPopUpWin extends CustomPopUpWin {
             listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    pref.edit().remove(MarkTask.CURRENT_TASK.key).commit();
+                    pref.edit().remove(TaskSchema.CURRENT_TASK).commit();
                     Toast.makeText(getView().getContext(),"完成進度",Toast.LENGTH_SHORT).show();
                     dismiss();
                 }

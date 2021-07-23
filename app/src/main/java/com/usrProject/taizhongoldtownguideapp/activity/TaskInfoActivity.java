@@ -23,7 +23,6 @@ import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckTasks;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.ContentDTO;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTask;
-import com.usrProject.taizhongoldtownguideapp.schema.type.MarkTask;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
@@ -48,7 +47,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskDescView = findViewById(R.id.taskDescView);
 
         Intent intent = this.getIntent();
-        tasksInfo = (CheckTasks) intent.getSerializableExtra(MarkTask.TASK_INFO.key);
+        tasksInfo = (CheckTasks) intent.getSerializableExtra(TaskSchema.TASK_INFO);
 
         taskTitleView.setText(tasksInfo.taskTitle);
         taskDescView.setText(tasksInfo.taskDesc);
@@ -63,8 +62,8 @@ public class TaskInfoActivity extends AppCompatActivity {
         Gson gson = new Gson();
         currentTask = gson.fromJson(gson.toJson(tasksInfo), CurrentTask.class);
         currentTask.contents = new ArrayList<CheckInMarkerObject>();
-        if(pref.contains(MarkTask.CURRENT_TASK.key)){
-            String json = pref.getString(MarkTask.CURRENT_TASK.key, null);
+        if(pref.contains(TaskSchema.CURRENT_TASK)){
+            String json = pref.getString(TaskSchema.CURRENT_TASK, null);
             CurrentTask exsitTask = new Gson().fromJson(json, CurrentTask.class);
 
             new AlertDialog.Builder(TaskInfoActivity.this)
@@ -105,13 +104,13 @@ public class TaskInfoActivity extends AppCompatActivity {
                             DocumentSnapshot contentDoc = task.getResult();
                             ContentDTO contentDTO = contentDoc.toObject(ContentDTO.class);
                             currentTask.contents = contentDTO.contents;
-                            pref.edit().putString(MarkTask.CURRENT_TASK.key, new Gson().toJson(currentTask)).apply();
+                            pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTask)).apply();
                             Toast.makeText(getApplicationContext(),String.format("成功接取 %s 任務",currentTask.taskTitle),Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(getApplicationContext(),TeamTracker.class));
                         }
                     });
                 }else{
-                    pref.edit().putString(MarkTask.CURRENT_TASK.key, new Gson().toJson(currentTask)).apply();
+                    pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTask)).apply();
                     Toast.makeText(getApplicationContext(),String.format("成功接取 %s 任務",currentTask.taskTitle),Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getApplicationContext(),TeamTracker.class));
                 }

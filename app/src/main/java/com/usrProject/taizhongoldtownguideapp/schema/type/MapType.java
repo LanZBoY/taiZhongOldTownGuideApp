@@ -35,8 +35,8 @@ public enum MapType {
                 y = 768;
                 break;
             case R.drawable.new_map_now:
-                x = 7972;
-                y = 4429;
+                x = 2825;
+                y = 1453;
                 break;
         }
         this.resId = resId;

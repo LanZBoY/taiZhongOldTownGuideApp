@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.drawable.BitmapDrawable;
@@ -53,6 +55,7 @@ import com.usrProject.taizhongoldtownguideapp.component.NewsList;
 import com.usrProject.taizhongoldtownguideapp.model.mapclick.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
+import com.usrProject.taizhongoldtownguideapp.utils.ImageLoader;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
 import org.jetbrains.annotations.NotNull;
@@ -126,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
         phoneWidthPixels = metric.widthPixels;
 
         //宣告並初始化地圖底圖
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = false;
-        BitmapFactory.decodeResource(getResources(), R.drawable.map_now, options);
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = false;
+//        Bitmap bigMap = BitmapFactory.decodeResource(getResources(), R.drawable.new_map_now, options);
 
         //宣告手勢
         AndroidGestureDectector androidGestureDectector = new AndroidGestureDectector();
@@ -139,7 +142,8 @@ public class MainActivity extends AppCompatActivity {
 
         mapImageView = findViewById(R.id.mapView);
         //預設是第四張照片
-        changeImage(MapType.MAP_NOW);
+        mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels));
+        changeImage(MapType.NEW_MAP_NOW);
         meibianzhiyuan = findViewById(R.id.meibianzhiyuan_textView);
         goTeamTrackerBtn = findViewById(R.id.team_tracker_btn);
         goNewsBtn = findViewById(R.id.news_btn);
@@ -154,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 //        mapClicks.add(new MapClick("台中車站後站",1560,1086,1631,1137));
     }
 
+//
     public void goTeamTracker(View view) {
         //請求獲取位置permission
 
@@ -405,16 +410,11 @@ public class MainActivity extends AppCompatActivity {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             int goX = (int) distanceX;
             int goY = (int) distanceY;
+            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
             mapImageView.scrollBy(goX, 0);
             mapImageView.scrollBy(0, goY);
-//            if ((curPointX + goX) / phoneDensity >= 0 && (currentMapType.x + goX) / phoneDensity <= (curPointX * 2 - phoneWidthPixels / phoneDensity)) {
-//
-//                curPointX += goX;
-//            }
-//            if ((curPointY + goY) / phoneDensity >= 0 && (currentMapType.y + goY) / phoneDensity <= (curPointY * 2 - phoneHeightPixels / phoneDensity)) {
-//
-//                curPointY += goY;
-//            }
+            int maxWeight = currentMapType.x * 2 ;
+
 
             return false;
         }
@@ -514,7 +514,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     seekBarTextView.setText(new SimpleDateFormat("yyyy").format(new Date()) + "年");
-                    changeImage(MapType.MAP_NOW);
+                    changeImage(MapType.NEW_MAP_NOW);
                     meibianzhiyuan.setText(R.string.laoshi_meibianzhiyuan);
                     clickFlag = true;
                 }
@@ -544,18 +544,19 @@ public class MainActivity extends AppCompatActivity {
 
     //更換地圖用
     private void changeImage(MapType changeType) {
-        if(mapImageView == null){
-            mapImageView = findViewById(R.id.mapView);
+        if(mapImageView == null || currentMapType == changeType){
+            return;
         }
-        mapImageView.setImageResource(changeType.resId);
+        mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
+        Log.d(ImageView.class.getSimpleName(),String.format("maxSize(%d,%d)",mapImageView.getDrawable().getIntrinsicWidth(),mapImageView.getDrawable().getIntrinsicHeight()));
 //            {540, 507},//map_51
 //            {540, 415},//map_1911
 //            {540, 433},//map_1937
 //            {960, 768}//map_now
         currentMapType = changeType;
-        curPointX = Math.round(currentMapType.x * phoneDensity - phoneWidthPixels / 2);
-        curPointY = Math.round(currentMapType.y * phoneDensity - phoneHeightPixels / 2);
-        mapImageView.scrollTo(curPointX, curPointY);
+//        curPointX = Math.round(currentMapType.x * phoneDensity - phoneWidthPixels / 2);
+//        curPointY = Math.round(currentMapType.y * phoneDensity - phoneHeightPixels / 2);
+        mapImageView.scrollTo(currentMapType.x, currentMapType.y);
     }
 
     //到氣象資料開放平台拿取資料

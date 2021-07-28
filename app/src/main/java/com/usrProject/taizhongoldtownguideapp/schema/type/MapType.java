@@ -15,30 +15,7 @@ public enum MapType {
 //            {540, 433},//map_1937
 //            {960, 768}//map_now
     public int resId;
-    public int x,y;
     MapType(int resId){
-        switch (resId){
-            case R.drawable.map_51:
-                x = 540;
-                y = 507;
-                break;
-            case R.drawable.map_1911:
-                x = 540;
-                y = 415;
-                break;
-            case R.drawable.map_1937:
-                x = 540;
-                y = 433;
-                break;
-            case R.drawable.map_now:
-                x = 960;
-                y = 768;
-                break;
-            case R.drawable.new_map_now:
-                x = 2825;
-                y = 1453;
-                break;
-        }
         this.resId = resId;
     }
 

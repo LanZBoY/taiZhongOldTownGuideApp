@@ -3,6 +3,9 @@ package com.usrProject.taizhongoldtownguideapp.utils;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 
 public class ImageLoader {
 
@@ -12,6 +15,7 @@ public class ImageLoader {
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
+        Log.d(MapType.class.getSimpleName(),String.format("原圖大小(%d, %d)",options.outWidth,options.outHeight));
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
@@ -24,7 +28,7 @@ public class ImageLoader {
                 inSampleSize *= 2;
             }
         }
-
+        Log.d(MapType.class.getSimpleName(), String.format("inSampleSize = %d", inSampleSize));
         return inSampleSize;
     }
 

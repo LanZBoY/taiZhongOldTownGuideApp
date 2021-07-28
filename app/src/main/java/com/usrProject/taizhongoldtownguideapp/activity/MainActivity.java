@@ -91,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
     private float phoneWidthPixels;
     private float phoneHeightPixels;
     private float phoneDensity;
-    private int curPointX;
-    private int curPointY;
     private String weather;//1：晴天，2：陰天，3：小雨天，4： 雷雨天
     private SharedPreferences pref;
     private Handler handler;
@@ -128,11 +126,6 @@ public class MainActivity extends AppCompatActivity {
         phoneHeightPixels = metric.heightPixels;
         phoneWidthPixels = metric.widthPixels;
 
-        //宣告並初始化地圖底圖
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inJustDecodeBounds = false;
-//        Bitmap bigMap = BitmapFactory.decodeResource(getResources(), R.drawable.new_map_now, options);
-
         //宣告手勢
         AndroidGestureDectector androidGestureDectector = new AndroidGestureDectector();
         GD = new GestureDetector(MainActivity.this, androidGestureDectector);
@@ -145,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels));
         changeImage(MapType.NEW_MAP_NOW);
         meibianzhiyuan = findViewById(R.id.meibianzhiyuan_textView);
+        meibianzhiyuan.setVisibility(View.INVISIBLE);
         goTeamTrackerBtn = findViewById(R.id.team_tracker_btn);
         goNewsBtn = findViewById(R.id.news_btn);
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
@@ -348,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+
             if (clickFlag) {
                 checkPointIf(e.getX() / phoneDensity, ((e.getY() / phoneDensity) - 80));
             }
@@ -410,12 +405,26 @@ public class MainActivity extends AppCompatActivity {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             int goX = (int) distanceX;
             int goY = (int) distanceY;
-            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+
             mapImageView.scrollBy(goX, 0);
             mapImageView.scrollBy(0, goY);
-            int maxWeight = currentMapType.x * 2 ;
+            int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() - phoneWidthPixels);
+            int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() - phoneHeightPixels);
+            if(mapImageView.getScrollX() > maxWidth){
+                mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
+            }
+            if(mapImageView.getScrollX() < 0){
+                mapImageView.scrollTo(0, mapImageView.getScrollY());
+            }
+            if(mapImageView.getScrollY() > maxHeight){
+                mapImageView.scrollTo(mapImageView.getScrollX(),maxHeight);
+            }
+            if(mapImageView.getScrollY() < 0){
+                mapImageView.scrollTo(mapImageView.getScrollX(),0);
+            }
 
 
+            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
             return false;
         }
 
@@ -476,8 +485,9 @@ public class MainActivity extends AppCompatActivity {
 
     //監控地圖上制定地點有效區用
     private void checkPointIf(float xPoint, float yPoint) {
-        double finalPointX = xPoint + curPointX / phoneDensity;
-        double finalPointY = yPoint + curPointY / phoneDensity;
+        double finalPointX = xPoint + mapImageView.getScrollX();
+        double finalPointY = yPoint + mapImageView.getScrollY();
+        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
         for (int i = 0; i < objList.length; i++) {
             if (finalPointX > objList[i][0] && finalPointY > objList[i][1]) {
                 if (finalPointX < objList[i][2] && finalPointY < objList[i][3]) {
@@ -547,16 +557,14 @@ public class MainActivity extends AppCompatActivity {
         if(mapImageView == null || currentMapType == changeType){
             return;
         }
-        mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
-        Log.d(ImageView.class.getSimpleName(),String.format("maxSize(%d,%d)",mapImageView.getDrawable().getIntrinsicWidth(),mapImageView.getDrawable().getIntrinsicHeight()));
-//            {540, 507},//map_51
-//            {540, 415},//map_1911
-//            {540, 433},//map_1937
-//            {960, 768}//map_now
+        if(changeType == MapType.NEW_MAP_NOW){
+            mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
+        }else{
+            mapImageView.setImageResource(changeType.resId);
+        }
+        Log.d(MapType.class.getSimpleName(),String.format("%s,真實寬高(%d,%d)",changeType.name(),mapImageView.getDrawable().getIntrinsicWidth(),mapImageView.getDrawable().getIntrinsicHeight()));
         currentMapType = changeType;
-//        curPointX = Math.round(currentMapType.x * phoneDensity - phoneWidthPixels / 2);
-//        curPointY = Math.round(currentMapType.y * phoneDensity - phoneHeightPixels / 2);
-        mapImageView.scrollTo(currentMapType.x, currentMapType.y);
+        mapImageView.scrollTo( (int)(mapImageView.getDrawable().getIntrinsicWidth() - phoneWidthPixels) / 2,(int) (mapImageView.getDrawable().getIntrinsicHeight() - phoneHeightPixels) / 2);
     }
 
     //到氣象資料開放平台拿取資料

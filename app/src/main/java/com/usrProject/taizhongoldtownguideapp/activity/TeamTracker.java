@@ -259,7 +259,17 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
         super.onStop();
+//        if(currentTaskMarker != null){
+//            currentTaskMarker.remove();
+//            currentTaskMarker = null;
+//        }
         isStopped = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 
     private void createNotificationChannel() {
@@ -297,7 +307,15 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(TeamTracker.this));
         mMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
             @Override
-            public void onInfoWindowLongClick(Marker marker) {
+            public void onInfoWindowLongClick(Marker marker) {boolean newUser = pref.getBoolean("inTeam", false);
+                //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
+                if (newUser) {
+                    Intent intent = new Intent(getApplicationContext(), TeamTracker.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), CreateNewUser.class);
+                    startActivity(intent);
+                }
                 LatLng position = marker.getPosition();
                 addLocation(position.latitude, position.longitude);
             }
@@ -399,15 +417,22 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //使用坐標資料api
         getPointJson(url);
 
-        if (pref.contains(TaskSchema.CURRENT_TASK)) {
-            Log.d(TaskSchema.TASK_SYSTEM, "觸發任務系統");
-            if (currentTaskProcess == null) {
-                currentTaskProcess = new Gson().fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
-            }
-            if (currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
-                setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
-            }
+
+
+        currentTaskProcess = new Gson().fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
+
+        if(currentTaskProcess != null && currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
+            setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
         }
+//        if (pref.contains(TaskSchema.CURRENT_TASK)) {
+//            Log.d(TaskSchema.TASK_SYSTEM, "觸發任務系統");
+//            if (currentTaskProcess == null) {
+//                currentTaskProcess = new Gson().fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
+//            }
+//            if (currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
+//                setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
+//            }
+//        }
 
         //每次fireBase裡朋友資料更新時，更新本地朋友資料
         usersRef.addValueEventListener(new ValueEventListener() {
@@ -534,11 +559,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     //    TODO:打卡系統進入點 目前彈出視窗問題還沒解決
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkTaskDone(Location mCurrentLocation) {
-        if (mCurrentLocation == null ||currentTaskMarker == null || currentTaskProcess == null) {
+        if (mCurrentLocation == null || currentTaskProcess == null || currentTaskProcess.contents == null || currentTaskProcess.contents.isEmpty()) {
             return;
         }
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        Double distance = LocationUtils.getDistance(currentPosition, currentTaskMarker.getPosition());
+        LatLng taskPosition = new LatLng(currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLatitude,currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLongitude);
+        Double distance = LocationUtils.getDistance(currentPosition, taskPosition);
         checkTestDistance.setText(String.valueOf(distance));
         if (distance < 15.0f && !currentTaskProcess.doneFlag) {
             if(isStopped){

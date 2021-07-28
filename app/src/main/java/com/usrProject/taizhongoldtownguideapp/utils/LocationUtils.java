@@ -7,9 +7,6 @@ import com.google.android.gms.maps.model.LatLng;
 public class LocationUtils {
 
     public static double getDistance(LatLng p1, LatLng p2){
-        if(p1 == null || p2 == null){
-            return 0.0f;
-        }
         Double EARTH_RADIUS = 6378.137;
         Double latr1 = p1.latitude * Math.PI / 180.0;
         Double latr2 = p2.latitude * Math.PI / 180.0;

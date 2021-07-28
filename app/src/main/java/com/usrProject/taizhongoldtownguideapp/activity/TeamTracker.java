@@ -1,18 +1,13 @@
 package com.usrProject.taizhongoldtownguideapp.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ComponentName;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,7 +16,6 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
@@ -32,6 +26,13 @@ import android.widget.CheckBox;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -59,18 +60,17 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.usrProject.taizhongoldtownguideapp.Loading;
 import com.usrProject.taizhongoldtownguideapp.R;
+import com.usrProject.taizhongoldtownguideapp.component.CustomInfoWindowAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInOnCompletePopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInPopUpWin;
-import com.usrProject.taizhongoldtownguideapp.component.CustomInfoWindowAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.LocationInfoPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.PersonInfoPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
-import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
-import com.usrProject.taizhongoldtownguideapp.serivce.NotificationService;
+import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
 
 import org.json.JSONArray;
@@ -121,7 +121,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     HashMap<String, Marker> trafficMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> serviceMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> religionMarkerHashMap = new HashMap<>();
-    private String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
+    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
     private Button switchLayerBtn;
     private Button checkInRecordBtn;
     private Button checkInProcessBotton;
@@ -136,13 +136,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     private TextView checkTestDistance;
 
-    private ServiceConnection notificationServiceConnection;
+    private boolean isStopped;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_tracker);
-
 //      TODO:  for testing
         checkTestDistance = findViewById(R.id.checkDistanceTextView);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -158,7 +157,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         switchLayerBtn = findViewById(R.id.layer_btn);
         checkInRecordBtn = findViewById(R.id.checkIn_record_btn);
         checkInProcessBotton = findViewById(R.id.checkInBotton);
-
 
         //roomType 分"singleUser"和"multiUsers"用來區別是單人使用或者多人使用的地圖
         roomType = pref.getString("roomType", "multiUsers");
@@ -215,9 +213,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //存起來，別的layout會用到
         pref.edit().putStringSet("checkedLayer", checkedLayerSet).apply();
 
-        timer = new Timer();
-        //固定每5秒檢查用戶坐標是否有移動
-        timer.schedule(checkTask, 1000, 5000);
+
 
         mDatabase = FirebaseDatabase.getInstance();
         teamRef = mDatabase.getReference("team").child(teamID);
@@ -233,39 +229,37 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (notificationServiceConnection != null) {
-            Intent intent = new Intent(this, NotificationService.class);
-            unbindService(notificationServiceConnection);
+
+        if(timer != null){
+            timer.cancel();
         }
+        timer = new Timer();
+        isStopped = false;
+        isCheckPopUp = false;
+        //固定每5秒檢查用戶坐標是否有移動
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                checkLocationChange();
+            }
+        },1000,5000);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+    }
 
-        if(pref.contains(TaskSchema.CURRENT_TASK)){
-            notificationServiceConnection = new ServiceConnection() {
-                NotificationService notificationService;
-
-                @Override
-                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                    notificationService = ((NotificationService.NotificationBinder) iBinder).getService();
-                    notificationService.runBackTask();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName componentName) {
-
-                }
-            };
-            Intent intent = new Intent(this, NotificationService.class);
-            bindService(intent, notificationServiceConnection, BIND_AUTO_CREATE);
-        }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isStopped = true;
     }
 
     private void createNotificationChannel() {
@@ -538,44 +532,47 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //    TODO:打卡系統進入點 目前彈出視窗問題還沒解決
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkTaskDone(Location mCurrentLocation) {
-        if (currentTaskMarker == null || currentTaskProcess == null) {
+        if (mCurrentLocation == null ||currentTaskMarker == null || currentTaskProcess == null) {
             return;
         }
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         Double distance = LocationUtils.getDistance(currentPosition, currentTaskMarker.getPosition());
         checkTestDistance.setText(String.valueOf(distance));
-//        if(distance < 15.0f && !currentTaskProcess.doneFlag){
-//            Notification.Builder builder = new Notification.Builder(this, getString(R.string.ChannelID))
-//                    .setSmallIcon(R.drawable.check_in_record_icon)
-//                    .setContentTitle("到達打卡地點")
-//                    .setContentText(String.format("你已經到達 %s 任務地點",currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
-//                    .setAutoCancel(true);
-//            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-//            notificationManager.notify(R.string.ChannelID,builder.build());
-//        }
         if (distance < 15.0f && !currentTaskProcess.doneFlag) {
-            Log.d(TaskSchema.TASK_SYSTEM, "觸發任務");
-            if (!isCheckPopUp) {
-                new AlertDialog.Builder(TeamTracker.this)
-                        .setTitle("打卡提醒")
-                        .setMessage(String.format("正在接近任務地點 %s ", currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
-                        .setPositiveButton("打卡", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
-                            }
-                        })
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                isCheckPopUp = true;
-                            }
-                        })
-                        .create()
-                        .show();
+            if(isStopped){
+                PendingIntent pendingIntent = PendingIntent.getActivity(this,100,new Intent(this,TeamTracker.class),PendingIntent.FLAG_ONE_SHOT);
+                Notification.Builder builder = new Notification.Builder(this, getString(R.string.ChannelID))
+                        .setSmallIcon(R.drawable.check_in_record_icon)
+                        .setContentTitle("到達打卡地點")
+                        .setContentText(String.format("你已經到達 %s 任務地點",currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
+                        .setContentIntent(pendingIntent)
+                        .setOnlyAlertOnce(true)
+                        .setAutoCancel(true);
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.notify(R.string.ChannelID,builder.build());
+            }else{
+                if (!isCheckPopUp) {
+                    new AlertDialog.Builder(TeamTracker.this)
+                            .setTitle("打卡提醒")
+                            .setMessage(String.format("到達任務地點 %s ", currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
+                            .setPositiveButton("打卡", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
+                                }
+                            })
+                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialogInterface) {
+                                    isCheckPopUp = true;
+                                }
+                            })
+                            .create()
+                            .show();
+                }
             }
-
         } else {
             isCheckPopUp = false;
         }
@@ -596,6 +593,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
         if(!isExiting){
             location.addOnSuccessListener(new OnSuccessListener<Location>() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
                 public void onSuccess(Location location) {
                     mCurrentLocation = location;
@@ -619,13 +617,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             });
         }
     }
-
-    private TimerTask checkTask = new TimerTask() {
-        @Override
-        public void run() {
-            checkLocationChange();
-        }
-    };
 
     //用來移動你的攝像機
     private void moveCamera(LatLng latLng, float zoom){
@@ -791,7 +782,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
      * @param longitude the longitude
      */
     public void addLocation(double latitude, double longitude) {
-        //pref.edit().putFloat("Latitude",(float)mCurrentLocation.getLatitude()).putFloat("Longitude",(float)mCurrentLocation.getLongitude()).commit();
         params = getWindow().getAttributes();
         params.alpha=1f;
         getWindow().setAttributes(params);

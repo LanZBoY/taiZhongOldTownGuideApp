@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         //宣告並初始化地圖底圖
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
         BitmapFactory.decodeResource(getResources(), R.drawable.map_now, options);
 
         //宣告手勢
@@ -403,14 +405,16 @@ public class MainActivity extends AppCompatActivity {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             int goX = (int) distanceX;
             int goY = (int) distanceY;
-            if ((curPointX + goX) / phoneDensity >= 0 && (currentMapType.x + goX) / phoneDensity <= (curPointX * 2 - phoneWidthPixels / phoneDensity)) {
-                mapImageView.scrollBy(goX, 0);
-                curPointX += goX;
-            }
-            if ((curPointY + goY) / phoneDensity >= 0 && (currentMapType.y + goY) / phoneDensity <= (curPointY * 2 - phoneHeightPixels / phoneDensity)) {
-                mapImageView.scrollBy(0, goY);
-                curPointY += goY;
-            }
+            mapImageView.scrollBy(goX, 0);
+            mapImageView.scrollBy(0, goY);
+//            if ((curPointX + goX) / phoneDensity >= 0 && (currentMapType.x + goX) / phoneDensity <= (curPointX * 2 - phoneWidthPixels / phoneDensity)) {
+//
+//                curPointX += goX;
+//            }
+//            if ((curPointY + goY) / phoneDensity >= 0 && (currentMapType.y + goY) / phoneDensity <= (curPointY * 2 - phoneHeightPixels / phoneDensity)) {
+//
+//                curPointY += goY;
+//            }
 
             return false;
         }

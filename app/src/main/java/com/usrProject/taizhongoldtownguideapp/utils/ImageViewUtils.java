@@ -8,8 +8,14 @@ import android.widget.ImageView;
 
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 
-public class ImageLoader {
+public class ImageViewUtils {
 
+    public static double getRatio(Resources res, int resId, ImageView imageView){
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+        return (double) imageView.getDrawable().getIntrinsicHeight()/options.outHeight;
+    }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
@@ -29,14 +35,6 @@ public class ImageLoader {
         }
         Log.d(MapType.class.getSimpleName(), String.format("inSampleSize = %d", inSampleSize));
         return inSampleSize;
-    }
-
-    public static int getInSampleSize(Resources res, int resId, int reqWidth, int reqHeight){
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        return calculateInSampleSize(options, reqWidth, reqHeight);
     }
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {

@@ -41,13 +41,13 @@ public class MapClick {
      * @param endX   the end x
      * @param endY   the end y
      */
-    public MapClick(ViewSpotType clickType,String desc, double startX, double startY, double endX, double endY, int inSampleSize, double phoneDensity){
+    public MapClick(ViewSpotType clickType,String desc, double startX, double startY, double endX, double endY){
         this.clickType = clickType;
         this.desc = desc;
-        this.startX = startX / inSampleSize * phoneDensity;
-        this.endX = endX / inSampleSize * phoneDensity;
-        this.startY = startY / inSampleSize * phoneDensity;
-        this.endY = endY / inSampleSize * phoneDensity;
+        this.startX = startX;
+        this.endX = endX;
+        this.startY = startY;
+        this.endY = endY;
     }
 
 }

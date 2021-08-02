@@ -11,18 +11,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapRegionDecoder;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
-import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -32,7 +25,6 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -42,7 +34,6 @@ import android.view.GestureDetector;
 import android.widget.Toast;
 
 
-import com.google.api.Http;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -56,7 +47,6 @@ import com.usrProject.taizhongoldtownguideapp.model.mapclick.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.ViewSpotType;
-import com.usrProject.taizhongoldtownguideapp.utils.ImageLoader;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
 import org.jetbrains.annotations.NotNull;
@@ -65,10 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -139,13 +126,13 @@ public class MainActivity extends AppCompatActivity {
 //        mapImageView.setImageBitmap(initImage);
 //        mapImageView.setImageResource(R.drawable.new_map_now);
         changeImage(MapType.NEW_MAP_NOW);
-        int inSampleSize = ImageLoader.getInSampleSize(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
-        mapClicks.add(new MapClick(ViewSpotType.SIWEI_ST_JPANESE_COURTYARD,"四維街日式招待所",2965.0,4849.0,3257.0,5077.0,inSampleSize,phoneDensity));
-        mapClicks.add(new MapClick(ViewSpotType.YSBANK_DORMITORY,"彰化銀行繼光街宿舍",856.0,1015.0,916.0,4062.0,inSampleSize,phoneDensity));
-        mapClicks.add(new MapClick(ViewSpotType.COOPERATIVE_BANK,"合作金庫銀行",906.0,912.0,976.0,964.0,inSampleSize,phoneDensity));
-        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"彰化銀行舊總行",1172.0,734.0,1234.0,778.0,inSampleSize,phoneDensity));
-        mapClicks.add(new MapClick(ViewSpotType.XIN_CHENG_BRIDGE,"中山綠橋",1294.0,918.0,1357.0,972.0,inSampleSize,phoneDensity));
-        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"台中車站後站",1560.0,1086.0,1631.0,1137.0,inSampleSize,phoneDensity));
+//        double ratio = ImageViewUtils.getRatio(getResources(),R.drawable.new_map_now, mapImageView);
+        mapClicks.add(new MapClick(ViewSpotType.SIWEI_ST_JPANESE_COURTYARD,"四維街日式招待所",1025.0,1886.0,1193.0,2030.0));
+        mapClicks.add(new MapClick(ViewSpotType.YSBANK_DORMITORY,"彰化銀行繼光街宿舍",2168.0,1717.0,2207.0,1470.0));
+        mapClicks.add(new MapClick(ViewSpotType.COOPERATIVE_BANK,"合作金庫銀行",2272.0,1582.0,2333.0,1615.0));
+        mapClicks.add(new MapClick(ViewSpotType.YSBANK_OLDBANK,"彰化銀行舊總行",2567.0,1361.0,2677.0,1438.0));
+        mapClicks.add(new MapClick(ViewSpotType.XIN_CHENG_BRIDGE,"中山綠橋",2728.0,1582.0,2847.0,1636.0));
+        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"台中車站後站",3150.0,1683.0,3271.0,1737.0));
     }
 
 //
@@ -272,8 +259,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     //彈出介紹視窗
-    public void popWindow(int i) {
-        IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, i);
+    public void popWindow(ViewSpotType viewSpotType) {
+        IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, viewSpotType);
         //设置Popupwindow显示位置（从底部弹出）
         popUpWin.showAtLocation(findViewById(R.id.mapView), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         params = getWindow().getAttributes();
@@ -340,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onSingleTapConfirmed(MotionEvent e) {
 
             if (clickFlag) {
-                checkPointIf(e.getX() / phoneDensity, ((e.getY() / phoneDensity) - 80));
+                checkInRange(e.getX() ,e.getY());
             }
             return false;
         }
@@ -418,9 +405,7 @@ public class MainActivity extends AppCompatActivity {
             if(mapImageView.getScrollY() < 0){
                 mapImageView.scrollTo(mapImageView.getScrollX(),0);
             }
-
-
-            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+//            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
             return false;
         }
 
@@ -480,23 +465,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //監控地圖上制定地點有效區用
-    private void checkPointIf(float xPoint, float yPoint) {
-        double finalPointX = xPoint + mapImageView.getScrollX();
-        double finalPointY = yPoint + mapImageView.getScrollY();
-        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
+    private void checkInRange(float xPoint, float yPoint) {
+        double finalPointX = (xPoint + mapImageView.getScrollX()) / phoneDensity;
+        double finalPointY = (yPoint + mapImageView.getScrollY()) / phoneDensity - 80;
+//        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
         for(MapClick mapClick : mapClicks){
             if(inRange(mapClick, finalPointX, finalPointY)){
-                Log.d(MapClick.class.getSimpleName(),String.format("地點 %s",getString(mapClick.clickType.titleId)));
+//                Log.d(MapClick.class.getSimpleName(),String.format("地點 %s",getString(mapClick.clickType.titleId)));
+                popWindow(mapClick.clickType);
+                break;
             }
         }
-//        for (int i = 0; i < objList.length; i++) {
-//            if (finalPointX > objList[i][0] && finalPointY > objList[i][1]) {
-//                if (finalPointX < objList[i][2] && finalPointY < objList[i][3]) {
-//                    popWindow(i);
-//                    break;
-//                }
-//            }
-//        }
     }
 
     private boolean inRange(MapClick mapClick , double x, double y){
@@ -563,7 +542,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(changeType == MapType.NEW_MAP_NOW){
-            mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
+//            mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
+            mapImageView.setImageResource(changeType.resId);
         }else{
             mapImageView.setImageResource(changeType.resId);
         }

@@ -55,6 +55,7 @@ import com.usrProject.taizhongoldtownguideapp.component.NewsList;
 import com.usrProject.taizhongoldtownguideapp.model.mapclick.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
+import com.usrProject.taizhongoldtownguideapp.schema.type.ViewSpotType;
 import com.usrProject.taizhongoldtownguideapp.utils.ImageLoader;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
@@ -97,17 +98,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean clickFlag = true;
     //記錄照片中心
     private MapType currentMapType;
-
-    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
     //設置地圖上有效點擊範圍
-    private final int[][] objList = {
-            {303, 1045, 387, 1960},//四維街日式招待所
-            {856, 1015, 916, 1062},//彰化銀行繼光街宿舍
-            {906, 912, 976, 964},//合作金庫銀行
-            {1172, 734, 1234, 778},//彰化銀行舊總行
-            {1294, 918, 1357, 972},//中山綠橋
-            {1560, 1086, 1631, 1137},//台中車站後站
-    };
+    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
+
 
 
     @Override
@@ -133,10 +126,6 @@ public class MainActivity extends AppCompatActivity {
         //設置滑軌監聽
         seekBarController();
 
-        mapImageView = findViewById(R.id.mapView);
-        //預設是第四張照片
-        mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels));
-        changeImage(MapType.NEW_MAP_NOW);
         meibianzhiyuan = findViewById(R.id.meibianzhiyuan_textView);
         meibianzhiyuan.setVisibility(View.INVISIBLE);
         goTeamTrackerBtn = findViewById(R.id.team_tracker_btn);
@@ -144,12 +133,19 @@ public class MainActivity extends AppCompatActivity {
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
 
-//        mapClicks.add(new MapClick("四維街日式招待所",303,1045,387,1960));
-//        mapClicks.add(new MapClick("彰化銀行繼光街宿舍",856,1015,916,4062));
-//        mapClicks.add(new MapClick("合作金庫銀行",906,912,976,964));
-//        mapClicks.add(new MapClick("彰化銀行舊總行",1172,734,1234,778));
-//        mapClicks.add(new MapClick("中山綠橋",1294,918,1357,972));
-//        mapClicks.add(new MapClick("台中車站後站",1560,1086,1631,1137));
+        mapImageView = findViewById(R.id.mapView);
+        //預設是第四張照片
+//        Bitmap initImage = ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
+//        mapImageView.setImageBitmap(initImage);
+//        mapImageView.setImageResource(R.drawable.new_map_now);
+        changeImage(MapType.NEW_MAP_NOW);
+        int inSampleSize = ImageLoader.getInSampleSize(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
+        mapClicks.add(new MapClick(ViewSpotType.SIWEI_ST_JPANESE_COURTYARD,"四維街日式招待所",2965.0,4849.0,3257.0,5077.0,inSampleSize,phoneDensity));
+        mapClicks.add(new MapClick(ViewSpotType.YSBANK_DORMITORY,"彰化銀行繼光街宿舍",856.0,1015.0,916.0,4062.0,inSampleSize,phoneDensity));
+        mapClicks.add(new MapClick(ViewSpotType.COOPERATIVE_BANK,"合作金庫銀行",906.0,912.0,976.0,964.0,inSampleSize,phoneDensity));
+        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"彰化銀行舊總行",1172.0,734.0,1234.0,778.0,inSampleSize,phoneDensity));
+        mapClicks.add(new MapClick(ViewSpotType.XIN_CHENG_BRIDGE,"中山綠橋",1294.0,918.0,1357.0,972.0,inSampleSize,phoneDensity));
+        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"台中車站後站",1560.0,1086.0,1631.0,1137.0,inSampleSize,phoneDensity));
     }
 
 //
@@ -488,14 +484,23 @@ public class MainActivity extends AppCompatActivity {
         double finalPointX = xPoint + mapImageView.getScrollX();
         double finalPointY = yPoint + mapImageView.getScrollY();
         Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
-        for (int i = 0; i < objList.length; i++) {
-            if (finalPointX > objList[i][0] && finalPointY > objList[i][1]) {
-                if (finalPointX < objList[i][2] && finalPointY < objList[i][3]) {
-                    popWindow(i);
-                    break;
-                }
+        for(MapClick mapClick : mapClicks){
+            if(inRange(mapClick, finalPointX, finalPointY)){
+                Log.d(MapClick.class.getSimpleName(),String.format("地點 %s",getString(mapClick.clickType.titleId)));
             }
         }
+//        for (int i = 0; i < objList.length; i++) {
+//            if (finalPointX > objList[i][0] && finalPointY > objList[i][1]) {
+//                if (finalPointX < objList[i][2] && finalPointY < objList[i][3]) {
+//                    popWindow(i);
+//                    break;
+//                }
+//            }
+//        }
+    }
+
+    private boolean inRange(MapClick mapClick , double x, double y){
+        return (mapClick.startX < x && x < mapClick.endX ) && (mapClick.startY < y && y < mapClick.endY);
     }
 
     //拖移bar控制
@@ -600,7 +605,6 @@ public class MainActivity extends AppCompatActivity {
     private JsonReader getJsonReaderByUrl(String urlPath, int timeout) throws IOException {
         JsonReader result = null;
         URL url = new URL(urlPath);
-
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();

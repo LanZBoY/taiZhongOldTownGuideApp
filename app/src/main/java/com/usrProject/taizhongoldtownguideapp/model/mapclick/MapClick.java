@@ -1,10 +1,14 @@
 package com.usrProject.taizhongoldtownguideapp.model.mapclick;
 
 
+import com.usrProject.taizhongoldtownguideapp.schema.type.ViewSpotType;
+
 /**
  * 宣告地圖中可點擊的物件
  */
 public class MapClick {
+
+    public ViewSpotType clickType;
     /**
      * 地點描述
      */
@@ -13,20 +17,20 @@ public class MapClick {
      * 開始 x軸
      */
 //  起始點位置
-    public int startX;
+    public double startX;
     /**
      * 開始 y軸
      */
-    public int startY;
+    public double startY;
     /**
      * 結束 x軸
      */
 //    結束位置
-    public int endX;
+    public double endX;
     /**
      * 結束 y軸
      */
-    public int endY;
+    public double endY;
 
     /**
      * 建立物件
@@ -37,21 +41,13 @@ public class MapClick {
      * @param endX   the end x
      * @param endY   the end y
      */
-    public MapClick(String desc, int startX, int startY, int endX, int endY){
+    public MapClick(ViewSpotType clickType,String desc, double startX, double startY, double endX, double endY, int inSampleSize, double phoneDensity){
+        this.clickType = clickType;
         this.desc = desc;
-        this.startX = startX;
-        this.endX = endX;
-        this.startY = startY;
-        this.endY = endY;
-    }
-
-    /**
-     * Get range int [ ].
-     *
-     * @return the int [ ]
-     */
-    public int[] getRange(){
-        return new int[]{startX, startY, endX, endY};
+        this.startX = startX / inSampleSize * phoneDensity;
+        this.endX = endX / inSampleSize * phoneDensity;
+        this.startY = startY / inSampleSize * phoneDensity;
+        this.endY = endY / inSampleSize * phoneDensity;
     }
 
 }

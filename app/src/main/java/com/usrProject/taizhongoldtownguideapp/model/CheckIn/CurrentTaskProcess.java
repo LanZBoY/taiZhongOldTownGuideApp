@@ -1,8 +1,9 @@
 package com.usrProject.taizhongoldtownguideapp.model.CheckIn;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CurrentTaskProcess {
+public class CurrentTaskProcess implements Serializable {
     public String taskTitle;
 
     public String taskDesc;

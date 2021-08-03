@@ -1,6 +1,8 @@
 package com.usrProject.taizhongoldtownguideapp.model.CheckIn;
 
-public class CheckInMarkerObject {
+import java.io.Serializable;
+
+public class CheckInMarkerObject implements Serializable {
     public String markTitle;
     public String markContent;
     public Double markLatitude;

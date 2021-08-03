@@ -2,6 +2,7 @@ package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,17 +25,17 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
     private ImageView checkInImageView;
     private Button checkInDoneButton;
 
-    public CheckInOnCompletePopUpWin(final Context mContext, int xmlLayout, boolean fullWidth, @NotNull final CurrentTaskProcess currentTaskProcess) {
+    public CheckInOnCompletePopUpWin(final Context mContext, int xmlLayout, boolean fullWidth, Bundle bundle) {
         super(mContext, xmlLayout, fullWidth);
         final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, Context.MODE_PRIVATE);
-        this.currentTaskProcess = currentTaskProcess;
+        this.currentTaskProcess = (CurrentTaskProcess) bundle.getSerializable(TaskSchema.CURRENT_TASK);
         checkInDesc = getView().findViewById(R.id.check_in_oncomplete_desc);
         checkInDoneButton = getView().findViewById(R.id.check_in_oncomplete_done_button);
         checkInImageView = getView().findViewById(R.id.check_In_ImageView);
         if(currentTaskProcess.contents != null || !currentTaskProcess.contents.isEmpty()){
             checkInMarkerObject = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
         }
-        checkInImageView.setVisibility(View.INVISIBLE);
+//        checkInImageView.setVisibility(View.INVISIBLE);
         checkInDesc.setText(checkInMarkerObject.markTitle);
         checkInDoneButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -141,6 +142,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_team_tracker);
 //      TODO:  for testing
         checkTestDistance = findViewById(R.id.checkDistanceTextView);
@@ -157,7 +159,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         switchLayerBtn = findViewById(R.id.layer_btn);
         checkInRecordBtn = findViewById(R.id.checkIn_record_btn);
         checkInProcessBotton = findViewById(R.id.checkInBotton);
-
         //roomType 分"singleUser"和"multiUsers"用來區別是單人使用或者多人使用的地圖
         roomType = pref.getString("roomType", "multiUsers");
 
@@ -697,7 +698,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     getWindow().setAttributes(params);
                 }
             });
-        }else if (popWindowType==PopWindowType.CHECK_IN_COMPLETED){
+        }else if (popWindowType == PopWindowType.CHECK_IN_COMPLETED){
             CheckInPopUpWin checkInPopUpWin = new CheckInPopUpWin(this,R.layout.check_in_completed_pop_up_win);
             checkInPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
@@ -712,7 +713,9 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
         }else if(popWindowType == PopWindowType.CHECK_IN_ON_COMPLETE){
-            CheckInOnCompletePopUpWin checkInOnCompletePopUpWin = new CheckInOnCompletePopUpWin(this,R.layout.check_in_oncomplete_win,false, currentTaskProcess);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(TaskSchema.CURRENT_TASK,currentTaskProcess);;
+            CheckInOnCompletePopUpWin checkInOnCompletePopUpWin = new CheckInOnCompletePopUpWin(this,R.layout.check_in_oncomplete_win,false, bundle);
             checkInOnCompletePopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
             params.alpha = 0.7f;

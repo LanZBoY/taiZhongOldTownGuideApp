@@ -165,7 +165,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //如果是單人地圖的話，需要處理按鈕佈局
         if (roomType != null) {
             if (roomType.equals("singleUser")) {
-                personInfoButton.setBackgroundResource(R.drawable.exit_icon);
+                personInfoButton.setBackgroundResource(R.mipmap.ic_exit);
             }
         }
 //      打卡任務列表

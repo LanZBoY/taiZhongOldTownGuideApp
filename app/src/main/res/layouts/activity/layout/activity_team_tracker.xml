@@ -14,42 +14,42 @@
 
     <Button
         android:id="@+id/whereIsMyFriend_location_btn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="112dp"
         android:layout_marginBottom="60dp"
-        android:background="@drawable/location_icon"
+        android:background="@mipmap/ic_marker"
         android:padding="8dp"
         android:textColor="#ffffff" />
 
     <Button
         android:id="@+id/whereIsMyFriend_person_btn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="112dp"
         android:layout_marginBottom="60dp"
-        android:background="@drawable/person_icon"
+        android:background="@mipmap/ic_person"
         android:padding="8dp"
         android:textColor="#ffffff" />
 
     <Button
         android:id="@+id/layer_btn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="34dp"
         android:layout_marginBottom="163dp"
-        android:background="@drawable/layer_btn" />
+        android:background="@mipmap/ic_layer" />
 
     <Button
         android:id="@+id/checkIn_record_btn"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="34dp"
@@ -64,7 +64,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="21dp"
         android:layout_marginEnd="15dp"
-        android:background="@drawable/check_in_record_icon" />
+        android:background="@mipmap/ic_check" />
 
     <TextView
         android:id="@+id/checkDistanceTextView"

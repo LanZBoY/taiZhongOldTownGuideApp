@@ -43,10 +43,9 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCus
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
-import com.usrProject.taizhongoldtownguideapp.model.mapclick.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
-import com.usrProject.taizhongoldtownguideapp.schema.type.ViewSpotType;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MapClick;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
 import org.jetbrains.annotations.NotNull;
@@ -85,10 +84,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean clickFlag = true;
     //記錄照片中心
     private MapType currentMapType;
-    //設置地圖上有效點擊範圍
-    private final ArrayList<MapClick> mapClicks = new ArrayList<>();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,13 +121,6 @@ public class MainActivity extends AppCompatActivity {
 //        mapImageView.setImageBitmap(initImage);
 //        mapImageView.setImageResource(R.drawable.new_map_now);
         changeImage(MapType.NEW_MAP_NOW);
-//        double ratio = ImageViewUtils.getRatio(getResources(),R.drawable.new_map_now, mapImageView);
-        mapClicks.add(new MapClick(ViewSpotType.SIWEI_ST_JPANESE_COURTYARD,"四維街日式招待所",1025.0,1886.0,1193.0,2030.0));
-        mapClicks.add(new MapClick(ViewSpotType.YSBANK_DORMITORY,"彰化銀行繼光街宿舍",2168.0,1717.0,2207.0,1470.0));
-        mapClicks.add(new MapClick(ViewSpotType.COOPERATIVE_BANK,"合作金庫銀行",2272.0,1582.0,2333.0,1615.0));
-        mapClicks.add(new MapClick(ViewSpotType.YSBANK_OLDBANK,"彰化銀行舊總行",2567.0,1361.0,2677.0,1438.0));
-        mapClicks.add(new MapClick(ViewSpotType.XIN_CHENG_BRIDGE,"中山綠橋",2728.0,1582.0,2847.0,1636.0));
-        mapClicks.add(new MapClick(ViewSpotType.TAICHUNG_OLD_STATION,"台中車站後站",3150.0,1683.0,3271.0,1737.0));
     }
 
 //
@@ -259,8 +247,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     //彈出介紹視窗
-    public void popWindow(ViewSpotType viewSpotType) {
-        IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, viewSpotType);
+    public void popWindow(MapClick mapClick) {
+        IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, mapClick);
         //设置Popupwindow显示位置（从底部弹出）
         popUpWin.showAtLocation(findViewById(R.id.mapView), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         params = getWindow().getAttributes();
@@ -469,18 +457,17 @@ public class MainActivity extends AppCompatActivity {
         double finalPointX = (xPoint + mapImageView.getScrollX()) / phoneDensity;
         double finalPointY = (yPoint + mapImageView.getScrollY()) / phoneDensity - 80;
 //        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
-        for(MapClick mapClick : mapClicks){
-            if(inRange(mapClick, finalPointX, finalPointY)){
-//                Log.d(MapClick.class.getSimpleName(),String.format("地點 %s",getString(mapClick.clickType.titleId)));
-                popWindow(mapClick.clickType);
+        for(MapClick mapClick : MapClick.values()){
+            if(inRange(mapClick,finalPointX,finalPointY)){
+                popWindow(mapClick);
                 break;
             }
         }
     }
-
-    private boolean inRange(MapClick mapClick , double x, double y){
-        return (mapClick.startX < x && x < mapClick.endX ) && (mapClick.startY < y && y < mapClick.endY);
+    private boolean inRange(MapClick mapClick, double x, double y){
+         return (mapClick.startX < x && x < mapClick.endX ) && (mapClick.startY < y && y < mapClick.endY);
     }
+
 
     //拖移bar控制
     private void seekBarController() {

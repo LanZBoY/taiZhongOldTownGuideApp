@@ -107,7 +107,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     private DatabaseReference teamRef;
     private DatabaseReference usersRef;
     private DatabaseReference markersRef;
-    private DatabaseReference checkInMarkerRef;
     private Timer timer;
     private SharedPreferences pref;
     private static final int ADD_LOCATION_ACTIVITY_REQUEST_CODE = 0;
@@ -218,8 +217,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
         mDatabase = FirebaseDatabase.getInstance();
         teamRef = mDatabase.getReference("team").child(teamID);
-//        打卡系統
-        checkInMarkerRef = mDatabase.getReference("checkInMarker");
         usersRef = teamRef.child("userData");
         markersRef = teamRef.child("marker");
 
@@ -569,9 +566,9 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         checkTestDistance.setText(String.valueOf(distance));
         if (distance < 15.0f && !currentTaskProcess.doneFlag) {
             if(isStopped){
-                PendingIntent pendingIntent = PendingIntent.getActivity(this,100,new Intent(this,TeamTracker.class),PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this,100,new Intent(getBaseContext(),TeamTracker.class),PendingIntent.FLAG_ONE_SHOT);
                 Notification.Builder builder = new Notification.Builder(this, getString(R.string.ChannelID))
-                        .setSmallIcon(R.drawable.check_in_record_icon)
+                        .setSmallIcon(R.mipmap.ic_launcher_round)
                         .setContentTitle("到達打卡地點")
                         .setContentText(String.format("你已經到達 %s 任務地點",currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
                         .setContentIntent(pendingIntent)
@@ -579,6 +576,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         .setAutoCancel(true);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                 notificationManager.notify(R.string.ChannelID,builder.build());
+//              偵測到就立刻將activity摧毀掉
+                onDestroy();
             }else{
                 if (!isCheckPopUp) {
                     new AlertDialog.Builder(TeamTracker.this)
@@ -593,12 +592,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                             .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                 @Override
                                 public void onCancel(DialogInterface dialogInterface) {
-                                    isCheckPopUp = true;
                                 }
                             })
                             .create()
                             .show();
                 }
+                isCheckPopUp = true;
             }
         } else {
             isCheckPopUp = false;

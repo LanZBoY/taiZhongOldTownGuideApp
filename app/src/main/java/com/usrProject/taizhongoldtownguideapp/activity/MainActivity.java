@@ -67,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private Button navBtn;
     private GestureDetector GD;
     private ImageView mapImageView;
-    private ArrayList<ImageView> cloudImageViews;
     private ImageView backgroundImageView;
+    private ArrayList<ImageView> cloudImageViews;
     private SeekBar seekBar;
     private TextView seekBarTextView;
     private TextView meibianzhiyuan;
@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private float phoneWidthPixels;
     private float phoneHeightPixels;
     private float phoneDensity;
-    private String weather;//1：晴天，2：陰天，3：小雨天，4： 雷雨天
     private SharedPreferences pref;
     private Handler handler;
     public boolean clickFlag = true;
@@ -101,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
         phoneWidthPixels = metric.widthPixels;
 
         //宣告手勢
-        AndroidGestureDectector androidGestureDectector = new AndroidGestureDectector();
-        GD = new GestureDetector(MainActivity.this, androidGestureDectector);
+        AndroidGestureDetector androidGestureDetector = new AndroidGestureDetector();
+        GD = new GestureDetector(MainActivity.this, androidGestureDetector);
 
         //設置滑軌監聽
         seekBarController();
@@ -191,14 +190,14 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler() {
             @Override
             public void handleMessage(@NotNull Message msg) {
-
                 if (msg.what == 1) {
+                    String weather = msg.getData().getString("WEATHER");
                     cloudImageViews = new ArrayList<>();
-                    cloudImageViews.add((ImageView) findViewById(R.id.cloudView_1));
-                    cloudImageViews.add((ImageView) findViewById(R.id.cloudView_2));
-                    cloudImageViews.add((ImageView) findViewById(R.id.cloudView_3));
-                    cloudImageViews.add((ImageView) findViewById(R.id.cloudView_4));
-                    cloudImageViews.add((ImageView) findViewById(R.id.cloudView_5));
+                    cloudImageViews.add(findViewById(R.id.cloudView_1));
+                    cloudImageViews.add(findViewById(R.id.cloudView_2));
+                    cloudImageViews.add(findViewById(R.id.cloudView_3));
+                    cloudImageViews.add(findViewById(R.id.cloudView_4));
+                    cloudImageViews.add(findViewById(R.id.cloudView_5));
                     backgroundImageView = findViewById(R.id.backGroundImageView);
                     if (weather.equals("陰")) {
                         String uri = "@drawable/black_clound";
@@ -265,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 alert.setMessage("是否前往開啟GPS定位？");
                 alert.setPositiveButton("是", (dialog, which) -> {
                     //前往開啟GPS定位
-                    //startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                 });
                 alert.setNegativeButton("否", (dialog, which) -> Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show());
                 alert.create().show();
@@ -287,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //TODO:手勢控制，目前只做拖移，後續還有縮放要做
-    class AndroidGestureDectector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+    class AndroidGestureDetector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -300,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+
             return false;
         }
 
@@ -514,23 +514,25 @@ public class MainActivity extends AppCompatActivity {
 
     //到氣象資料開放平台拿取資料
     private void getWeather() {
-
         new Thread(() -> {
             try {
-
                 URLBuilder builder = new URLBuilder();
                 String URL = builder.getOpenDataUrl(getApplicationContext(),"CWB-55466E79-2D5C-4102-B476-5B001C263F2A","Weather","CITY","臺中");
                 JsonReader jsonReader = getJsonReaderByUrl(URL);
                 JsonObject jsonObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
                 Log.d("Json", jsonObject.toString());
                 JsonArray jsonArray = jsonObject.getAsJsonObject("records").getAsJsonArray("location");
+
+                Message msg = new Message();
+                Bundle bundle = new Bundle();
                 for (JsonElement member : jsonArray) {
                     JsonObject jsonLocation = member.getAsJsonObject();
                     JsonObject jsonWeather = jsonLocation.get("weatherElement").getAsJsonArray().get(0).getAsJsonObject();
-                    weather = jsonWeather.get("elementValue").getAsString();
+                    //1：晴天，2：陰天，3：小雨天，4： 雷雨天
+                    bundle.putString("WEATHER", jsonWeather.get("elementValue").getAsString());
                 }
-                Message msg = new Message();
                 msg.what = 1;
+                msg.setData(bundle);
                 handler.sendMessage(msg);
 
             } catch (Exception e) {

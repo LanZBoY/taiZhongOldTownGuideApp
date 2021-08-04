@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +18,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.gson.Gson;
+import com.usrProject.taizhongoldtownguideapp.GlideApp;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckTasks;
@@ -26,6 +29,7 @@ import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTask;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -35,6 +39,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private CurrentTask currentTask;
     private TextView taskTitleView;
     private TextView taskDescView;
+    private ImageView taskImageView;
     private SharedPreferences pref;
 
     @Override
@@ -45,12 +50,20 @@ public class TaskInfoActivity extends AppCompatActivity {
 //        init
         taskTitleView = findViewById(R.id.taskTitleView);
         taskDescView = findViewById(R.id.taskDescView);
+        taskImageView = findViewById(R.id.taskImgView);
 
         Intent intent = this.getIntent();
         tasksInfo = (CheckTasks) intent.getSerializableExtra(TaskSchema.TASK_INFO);
 
         taskTitleView.setText(tasksInfo.taskTitle);
         taskDescView.setText(tasksInfo.taskDesc);
+
+        if(StringUtils.isNotBlank(tasksInfo.taskImg)){
+            FirebaseStorage storage = FirebaseStorage.getInstance(getString(R.string.firestore));
+            GlideApp.with(this)
+                    .load(storage.getReference(tasksInfo.taskImg))
+                    .into(taskImageView);
+        }
     }
 
     public void onCancel(View view) {

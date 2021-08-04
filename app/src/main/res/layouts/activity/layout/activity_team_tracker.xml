@@ -66,10 +66,4 @@
         android:layout_marginEnd="15dp"
         android:background="@mipmap/ic_check" />
 
-    <TextView
-        android:id="@+id/checkDistanceTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="距離初始化中..." />
-
 </RelativeLayout>

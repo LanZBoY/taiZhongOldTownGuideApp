@@ -52,6 +52,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -67,8 +69,10 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.PersonInfoPopUp
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
+import com.usrProject.taizhongoldtownguideapp.schema.ServiceSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
 
@@ -109,7 +113,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     private SharedPreferences pref;
     private static final int ADD_LOCATION_ACTIVITY_REQUEST_CODE = 0;
     private Handler messageHandler = null;
-    private String responseJsonString = "";
+//    private String responseJsonString = "";
     HashMap<String, Marker> hashMapMarker = new HashMap<>();
     HashMap<String, Marker> foodMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> shoppingMarkerHashMap = new HashMap<>();
@@ -119,21 +123,18 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     HashMap<String, Marker> trafficMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> serviceMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> religionMarkerHashMap = new HashMap<>();
-    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
+//    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
     private Button switchLayerBtn;
     private Button checkInRecordBtn;
     private Button checkInProcessBotton;
-    Set<String> checkedLayerSet = new HashSet<>();
-    private String roomType;
     private Button locationInfoButton;
     private Button personInfoButton;
+    Set<String> checkedLayerSet = new HashSet<>();
+    private String roomType;
     private Boolean isExiting = false;//判斷使用者是否正在退出團隊
     private CurrentTaskProcess currentTaskProcess;
     private Marker currentTaskMarker;
     private boolean isCheckPopUp = false;
-
-    private TextView checkTestDistance;
-
     private boolean isStopped;
 
     @Override
@@ -141,8 +142,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_team_tracker);
-//      TODO:  for testing
-        checkTestDistance = findViewById(R.id.checkDistanceTextView);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
@@ -278,7 +277,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setOnMarkerClickListener(marker -> false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(TeamTracker.this));
-        mMap.setOnInfoWindowLongClickListener(marker -> {boolean newUser = pref.getBoolean("inTeam", false);
+        mMap.setOnInfoWindowLongClickListener(marker -> {
+            boolean newUser = pref.getBoolean("inTeam", false);
             //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
             if (newUser) {
                 Intent intent = new Intent(getApplicationContext(), TeamTracker.class);
@@ -295,97 +295,90 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == 1) {
-                    String jsonString = JsonParser.parseString(responseJsonString).getAsString();
-
-                    try {
-                        JSONArray jsonArray = new JSONArray(jsonString);
-                        Double xPoint;
-                        Double yPoint = 0.0;
-                        String title = "";
-                        String type = "";
-                        String content = "";
-                        String id = "";
-                        float markerColor = 0;
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            xPoint = Double.parseDouble(jsonObject.get("PO_X").toString());
-                            yPoint = Double.parseDouble(jsonObject.get("PO_Y").toString());
-                            title = jsonObject.get("PO_TITLE").toString();
-                            type = jsonObject.get("PO_TYPES").toString();
-                            content = jsonObject.get("PO_CONTENT").toString();
-                            id = jsonObject.get("PO_ID").toString();
+                    Bundle bundle = msg.getData();
+                    JsonArray jsonArray = JsonParser.parseString(bundle.getString(ServiceSchema.LOCATION_MARK)).getAsJsonArray();
+//                        Double xPoint;
+//                        Double yPoint = 0.0;
+//                        String title = "";
+//                        String type = "";
+//                        String content = "";
+//                        String id = "";
+//                        float markerColor = 0;
+                        for (JsonElement jsonElement : jsonArray) {
+                            Log.d("LOCATION",jsonElement.getAsString());
+//                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                            xPoint = Double.parseDouble(jsonObject.get("PO_X").toString());
+//                            yPoint = Double.parseDouble(jsonObject.get("PO_Y").toString());
+//                            title = jsonObject.get("PO_TITLE").toString();
+//                            type = jsonObject.get("PO_TYPES").toString();
+//                            content = jsonObject.get("PO_CONTENT").toString();
+//                            id = jsonObject.get("PO_ID").toString();
                             Marker marker = null;
-
-                            switch (Integer.parseInt(type)) {
-                                case 0://美食
-                                    markerColor = BitmapDescriptorFactory.HUE_AZURE;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("food");
-                                    foodMarkerHashMap.put(id, marker);
-                                    break;
-                                case 1://購物
-                                    markerColor = BitmapDescriptorFactory.HUE_BLUE;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("shopping");
-                                    shoppingMarkerHashMap.put(id, marker);
-                                    break;
-                                case 2://住宿
-                                    markerColor = BitmapDescriptorFactory.HUE_CYAN;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("room");
-                                    roomMarkerHashMap.put(id, marker);
-                                    break;
-                                case 3://歷史
-                                    markerColor = BitmapDescriptorFactory.HUE_RED;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setTag("history");
-                                    historyMarkerHashMap.put(id, marker);
-                                    break;
-                                case 4://遊憩
-                                    markerColor = BitmapDescriptorFactory.HUE_MAGENTA;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("play");
-                                    playMarkerHashMap.put(id, marker);
-                                    break;
-                                case 5://交通
-                                    markerColor = BitmapDescriptorFactory.HUE_ORANGE;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("traffic");
-                                    trafficMarkerHashMap.put(id, marker);
-                                    break;
-                                case 6://服務
-                                    markerColor = BitmapDescriptorFactory.HUE_GREEN;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("service");
-                                    serviceMarkerHashMap.put(id, marker);
-                                    break;
-                                case 7://宗教
-                                    markerColor = BitmapDescriptorFactory.HUE_ROSE;
-                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-                                    marker.setVisible(false);
-                                    marker.setTag("religion");
-                                    religionMarkerHashMap.put(id, marker);
-                                    break;
-                            }
+//                            switch (Integer.parseInt(type)) {
+//                                case 0://美食
+//                                    markerColor = BitmapDescriptorFactory.HUE_AZURE;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("food");
+//                                    foodMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 1://購物
+//                                    markerColor = BitmapDescriptorFactory.HUE_BLUE;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("shopping");
+//                                    shoppingMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 2://住宿
+//                                    markerColor = BitmapDescriptorFactory.HUE_CYAN;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("room");
+//                                    roomMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 3://歷史
+//                                    markerColor = BitmapDescriptorFactory.HUE_RED;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setTag("history");
+//                                    historyMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 4://遊憩
+//                                    markerColor = BitmapDescriptorFactory.HUE_MAGENTA;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("play");
+//                                    playMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 5://交通
+//                                    markerColor = BitmapDescriptorFactory.HUE_ORANGE;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("traffic");
+//                                    trafficMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 6://服務
+//                                    markerColor = BitmapDescriptorFactory.HUE_GREEN;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("service");
+//                                    serviceMarkerHashMap.put(id, marker);
+//                                    break;
+//                                case 7://宗教
+//                                    markerColor = BitmapDescriptorFactory.HUE_ROSE;
+//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
+//                                    marker.setVisible(false);
+//                                    marker.setTag("religion");
+//                                    religionMarkerHashMap.put(id, marker);
+//                                    break;
+//                            }
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("seeMarkerLoad", "markerLoadFail");
-                    }
                 }
-
             }
         };
         //獲得自己裝置的位置
         getDeviceLocation();
         //使用坐標資料api
-        getPointJson(url);
+        getPointJson();
 
 
 
@@ -523,7 +516,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         LatLng taskPosition = new LatLng(currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLatitude,currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLongitude);
         Double distance = LocationUtils.getDistance(currentPosition, taskPosition);
-        checkTestDistance.setText(String.valueOf(distance));
         if (distance < 15.0f && !currentTaskProcess.doneFlag) {
             if(isStopped){
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,100,new Intent(getBaseContext(),TeamTracker.class),PendingIntent.FLAG_ONE_SHOT);
@@ -677,7 +669,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         pref.edit().remove(TaskSchema.CURRENT_TASK).apply();
                         currentTaskProcess = null;
                         currentTaskMarker = null;
-                        checkTestDistance.setText("距離初始化中...");
                     }
                 }
             });
@@ -753,24 +744,25 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
 
-    /**
-     * Get point json.
-     *
-     * @param url the url
-     */
-    void getPointJson(String url){
+    void getPointJson(){
+        String url = getString(R.string.USR_API);
+        Log.d("USR_API",url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
+
                 e.printStackTrace();
             }
             @Override
             public void onResponse(Response response) throws IOException {
                 if(response.isSuccessful()){
-                    responseJsonString = response.body().string();
+//                    responseJsonString = response.body().string();
                     Message msg = new Message();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ServiceSchema.LOCATION_MARK, response.body().string());
+                    msg.setData(bundle);
                     msg.what = 1;
                     messageHandler.sendMessage(msg);
                 }

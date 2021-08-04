@@ -7,6 +7,8 @@ public class CheckInMarkerObject implements Serializable {
     public String markContent;
     public Double markLatitude;
     public Double markLongitude;
+
+    public String markImg;
     private boolean checked = false;
 
     public boolean isChecked() {

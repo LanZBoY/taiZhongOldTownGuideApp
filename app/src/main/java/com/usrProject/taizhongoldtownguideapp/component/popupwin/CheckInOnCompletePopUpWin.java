@@ -2,20 +2,29 @@ package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
+import com.usrProject.taizhongoldtownguideapp.GlideApp;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
@@ -35,8 +44,10 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
         if(currentTaskProcess.contents != null || !currentTaskProcess.contents.isEmpty()){
             checkInMarkerObject = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
         }
-//        checkInImageView.setVisibility(View.INVISIBLE);
         checkInDesc.setText(checkInMarkerObject.markTitle);
+
+
+        loadImageFromDatabae(mContext);
         checkInDoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,5 +62,17 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
             }
         });
 
+    }
+
+    private void loadImageFromDatabae(Context mContext){
+        if(checkInMarkerObject == null || StringUtils.isBlank(checkInMarkerObject.markImg)){
+            return;
+        }
+        FirebaseStorage storage = FirebaseStorage.getInstance(mContext.getString(R.string.firestore));
+        StorageReference storageReference = storage.getReference(checkInMarkerObject.markImg);
+        Log.d(StorageReference.class.getSimpleName(), storageReference.getPath());
+        GlideApp.with(mContext)
+                .load(storageReference)
+                .into(checkInImageView);
     }
 }

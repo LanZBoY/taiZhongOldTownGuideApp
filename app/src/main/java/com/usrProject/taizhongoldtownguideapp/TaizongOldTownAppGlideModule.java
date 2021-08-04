@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 
 @GlideModule
-public class TaizonOldTownAppGlideModule extends AppGlideModule {
+public class TaizongOldTownAppGlideModule extends AppGlideModule {
 
     @Override
     public void registerComponents(@NonNull @NotNull Context context, @NonNull @NotNull Glide glide, @NonNull @NotNull Registry registry) {

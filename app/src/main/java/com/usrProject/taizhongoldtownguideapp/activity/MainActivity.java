@@ -1,23 +1,20 @@
 package com.usrProject.taizhongoldtownguideapp.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,25 +24,27 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.view.GestureDetector;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCustomPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
+import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCustomPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
-import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapClick;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
 import org.jetbrains.annotations.NotNull;
@@ -124,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 //
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public void goTeamTracker(View view) {
         //請求獲取位置permission
 
@@ -136,30 +136,19 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setTitle("使用此功能需要開啟GPS定位");
                 alert.setMessage("是否前往開啟GPS定位？");
-                alert.setPositiveButton("是", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //前往開啟GPS定位
-                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                });
-                alert.setNegativeButton("否", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show();
-                    }
-                });
+                alert.setPositiveButton("是", (dialog, which) -> startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)));
+                alert.setNegativeButton("否", (dialog, which) -> Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show());
                 alert.create().show();
             } else {
                 boolean newUser = pref.getBoolean("inTeam", false);
                 //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
+                Intent intent;
                 if (newUser) {
-                    Intent intent = new Intent(getApplicationContext(), TeamTracker.class);
-                    startActivity(intent);
+                    intent = new Intent(getApplicationContext(), TeamTracker.class);
                 } else {
-                    Intent intent = new Intent(getApplicationContext(), CreateNewUser.class);
-                    startActivity(intent);
+                    intent = new Intent(getApplicationContext(), CreateNewUser.class);
                 }
+                startActivity(intent);
             }
         }
     }
@@ -257,13 +246,10 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setAttributes(params);
 
         //设置Popupwindow关闭监听，当Popupwindow关闭，背景恢复1f
-        popUpWin.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                params = getWindow().getAttributes();
-                params.alpha = 1f;
-                getWindow().setAttributes(params);
-            }
+        popUpWin.setOnDismissListener(() -> {
+            params = getWindow().getAttributes();
+            params.alpha = 1f;
+            getWindow().setAttributes(params);
         });
     }
 
@@ -277,30 +263,22 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setTitle("使用此功能需要開啟GPS定位");
                 alert.setMessage("是否前往開啟GPS定位？");
-                alert.setPositiveButton("是", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //前往開啟GPS定位
-                        //startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
+                alert.setPositiveButton("是", (dialog, which) -> {
+                    //前往開啟GPS定位
+                    //startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                 });
-                alert.setNegativeButton("否", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show();
-                    }
-                });
+                alert.setNegativeButton("否", (dialog, which) -> Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show());
                 alert.create().show();
             } else {
                 //查看使用者是否已經加入團隊
                 boolean newUser = pref.getBoolean("inTeam", false);
+                Intent intent;
                 if(newUser) {
-                    Intent intent = new Intent(this, TeamTracker.class);
-                    startActivity(intent);
+                    intent = new Intent(this, TeamTracker.class);
                 } else {
-                    Intent intent = new Intent(this, CreateNewUser.class);
-                    startActivity(intent);
+                    intent = new Intent(this, CreateNewUser.class);
                 }
+                startActivity(intent);
             }
         } else {
             Toast.makeText(MainActivity.this, "獲取裝置GPS權限失敗", Toast.LENGTH_LONG).show();
@@ -528,12 +506,7 @@ public class MainActivity extends AppCompatActivity {
         if(mapImageView == null || currentMapType == changeType){
             return;
         }
-        if(changeType == MapType.NEW_MAP_NOW){
-//            mapImageView.setImageBitmap(ImageLoader.decodeSampledBitmapFromResource(getResources(),changeType.resId,(int)phoneWidthPixels,(int)phoneHeightPixels));
-            mapImageView.setImageResource(changeType.resId);
-        }else{
-            mapImageView.setImageResource(changeType.resId);
-        }
+        mapImageView.setImageResource(changeType.resId);
         Log.d(MapType.class.getSimpleName(),String.format("%s,真實寬高(%d,%d)",changeType.name(),mapImageView.getDrawable().getIntrinsicWidth(),mapImageView.getDrawable().getIntrinsicHeight()));
         currentMapType = changeType;
         mapImageView.scrollTo( (int)(mapImageView.getDrawable().getIntrinsicWidth() - phoneWidthPixels) / 2,(int) (mapImageView.getDrawable().getIntrinsicHeight() - phoneHeightPixels) / 2);
@@ -542,34 +515,31 @@ public class MainActivity extends AppCompatActivity {
     //到氣象資料開放平台拿取資料
     private void getWeather() {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
+        new Thread(() -> {
+            try {
 
-                    URLBuilder builder = new URLBuilder();
-                    String URL = builder.getOpenDataUrl(getApplicationContext(),"CWB-55466E79-2D5C-4102-B476-5B001C263F2A","Weather","CITY","臺中");
-                    JsonReader jsonReader = getJsonReaderByUrl(URL, 9000);
-                    JsonObject jsonObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
-                    Log.d("Json", jsonObject.toString());
-                    JsonArray jsonArray = jsonObject.getAsJsonObject("records").getAsJsonArray("location");
-                    for (JsonElement member : jsonArray) {
-                        JsonObject jsonLocation = member.getAsJsonObject();
-                        JsonObject jsonWeather = jsonLocation.get("weatherElement").getAsJsonArray().get(0).getAsJsonObject();
-                        weather = jsonWeather.get("elementValue").getAsString();
-                    }
-                    Message msg = new Message();
-                    msg.what = 1;
-                    handler.sendMessage(msg);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                URLBuilder builder = new URLBuilder();
+                String URL = builder.getOpenDataUrl(getApplicationContext(),"CWB-55466E79-2D5C-4102-B476-5B001C263F2A","Weather","CITY","臺中");
+                JsonReader jsonReader = getJsonReaderByUrl(URL);
+                JsonObject jsonObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
+                Log.d("Json", jsonObject.toString());
+                JsonArray jsonArray = jsonObject.getAsJsonObject("records").getAsJsonArray("location");
+                for (JsonElement member : jsonArray) {
+                    JsonObject jsonLocation = member.getAsJsonObject();
+                    JsonObject jsonWeather = jsonLocation.get("weatherElement").getAsJsonArray().get(0).getAsJsonObject();
+                    weather = jsonWeather.get("elementValue").getAsString();
                 }
+                Message msg = new Message();
+                msg.what = 1;
+                handler.sendMessage(msg);
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }).start();
     }
 
-    private JsonReader getJsonReaderByUrl(String urlPath, int timeout) throws IOException {
+    private JsonReader getJsonReaderByUrl(String urlPath) throws IOException {
         JsonReader result = null;
         URL url = new URL(urlPath);
         HttpURLConnection connection = null;
@@ -578,8 +548,8 @@ public class MainActivity extends AppCompatActivity {
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(timeout);
-            connection.setReadTimeout(timeout);
+            connection.setConnectTimeout(9000);
+            connection.setReadTimeout(9000);
 
             connection.connect();
         } catch (IOException e) {

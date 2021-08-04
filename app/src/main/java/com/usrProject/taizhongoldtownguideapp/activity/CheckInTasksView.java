@@ -75,7 +75,7 @@ public class CheckInTasksView extends AppCompatActivity {
                 super(view);
                 // Define click listener for the ViewHolder's View
                 taskTitle = view.findViewById(R.id.post_title);
-                taskTitle.setBackgroundResource(R.drawable.info_window_background);
+                taskTitle.setBackgroundResource(R.drawable.task_background);
 //                taskDesc = view.findViewById(R.id.taskDesc);
             }
 
@@ -98,14 +98,11 @@ public class CheckInTasksView extends AppCompatActivity {
         public void onBindViewHolder(@NonNull TaskAdapter.ViewHolder holder, final int position) {
             holder.taskTitle.setText(dataset.get(position).taskTitle);
 //            holder.taskDesc.setText(dataset.get(position).taskDesc);
-            holder.taskTitle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            holder.taskTitle.setOnClickListener(view -> {
 //                    Log.d("onClick", dataset.get(position).taskTitle);
-                    Intent intent = new Intent(getApplicationContext(), TaskInfoActivity.class);
-                    intent.putExtra(TaskSchema.TASK_INFO, dataset.get(position));
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(getApplicationContext(), TaskInfoActivity.class);
+                intent.putExtra(TaskSchema.TASK_INFO, dataset.get(position));
+                startActivity(intent);
             });
         }
 

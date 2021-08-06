@@ -7,13 +7,14 @@ import android.widget.CheckBox;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CustomPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import java.util.Set;
 
 
 public class SwitchLayerPopUpWin extends CustomPopUpWin {
 
-    private SharedPreferences pref;
+//    private SharedPreferences pref;
     Set<String> checkedLayerSet;
     CheckBox foodCheckBox;
     CheckBox shoppingCheckBox;
@@ -27,9 +28,9 @@ public class SwitchLayerPopUpWin extends CustomPopUpWin {
     public SwitchLayerPopUpWin(Context mContext, int xmlLayout) {
         super(mContext, xmlLayout,true);
 
-        pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, mContext.MODE_PRIVATE);
-        checkedLayerSet = pref.getStringSet("checkedLayer",null);
-
+//        pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, mContext.MODE_PRIVATE);
+//        checkedLayerSet = pref.getStringSet("checkedLayer",null);
+        checkedLayerSet = SharedPreferencesManager.getCheckedLayer(mContext);
         foodCheckBox = getView().findViewById(R.id.foodCheckBox);
         shoppingCheckBox = getView().findViewById(R.id.shoppingCheckBox);
         roomCheckBox = getView().findViewById(R.id.roomCheckBox);

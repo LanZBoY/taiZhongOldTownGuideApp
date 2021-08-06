@@ -16,6 +16,7 @@ import android.widget.TimePicker;
 import com.google.firebase.database.FirebaseDatabase;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.activity.ChangeMarkerIcon;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class CreateNewMarker extends AppCompatActivity {
     private TimePicker picker;
     private EditText editText;
     private Switch aSwitch;
-    private String teamID;
+
     private Boolean setNotice;
     private Button confirmButton;
     private double longitude;
@@ -34,7 +35,8 @@ public class CreateNewMarker extends AppCompatActivity {
     final int PICK_IMAGE_REQUEST = 2;
     private ImageView markerIcon;
     private String markerPath;
-    private SharedPreferences pref;
+    //    private String teamID;
+    //    private SharedPreferences pref;
     private FirebaseDatabase mDatabase;
 
     @Override
@@ -43,12 +45,13 @@ public class CreateNewMarker extends AppCompatActivity {
         setContentView(R.layout.activity_create_new_marker);
 
         Intent intent = getIntent();
+        User user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         latitude =  intent.getDoubleExtra("latitude",0);
         longitude = intent.getDoubleExtra("longitude", 0);
         mDatabase = FirebaseDatabase.getInstance();
 
-        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-        teamID = pref.getString("teamID","error");
+//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
+//        teamID = pref.getString("teamID","error");
         markerPath = "location_icon";
 
         markerIcon = findViewById(R.id.addIcon_iconView);
@@ -94,7 +97,7 @@ public class CreateNewMarker extends AppCompatActivity {
                 newMark.put("markSetTime",picker.getHour()+" "+picker.getMinute());
                 newMark.put("markPath",markerPath);
 
-                mDatabase.getReference().child("team").child(teamID).child("marker").push().setValue(newMark);
+                mDatabase.getReference().child("team").child(user.teamId).child("marker").push().setValue(newMark);
                 finish();
             }
         });

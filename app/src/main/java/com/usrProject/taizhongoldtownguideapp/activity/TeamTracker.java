@@ -8,7 +8,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,7 +23,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,7 +49,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -69,16 +66,14 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.PersonInfoPopUp
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.ServiceSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
-import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
+import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -103,17 +98,15 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
      */
     FusedLocationProviderClient mFusedLocationProviderClient;
     private WindowManager.LayoutParams params;
-    private String teamID;
-    private String userID;
     private FirebaseDatabase mDatabase;
     private DatabaseReference teamRef;
     private DatabaseReference usersRef;
     private DatabaseReference markersRef;
     private Timer timer;
-    private SharedPreferences pref;
+
     private static final int ADD_LOCATION_ACTIVITY_REQUEST_CODE = 0;
     private Handler messageHandler = null;
-//    private String responseJsonString = "";
+    //    private String responseJsonString = "";
     HashMap<String, Marker> hashMapMarker = new HashMap<>();
     HashMap<String, Marker> foodMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> shoppingMarkerHashMap = new HashMap<>();
@@ -123,47 +116,49 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     HashMap<String, Marker> trafficMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> serviceMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> religionMarkerHashMap = new HashMap<>();
-//    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
+    //    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
     private Button switchLayerBtn;
     private Button checkInRecordBtn;
     private Button checkInProcessBotton;
     private Button locationInfoButton;
     private Button personInfoButton;
     Set<String> checkedLayerSet = new HashSet<>();
-    private String roomType;
+
     private Boolean isExiting = false;//判斷使用者是否正在退出團隊
     private CurrentTaskProcess currentTaskProcess;
     private Marker currentTaskMarker;
     private boolean isCheckPopUp = false;
     private boolean isStopped;
 
+    private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_team_tracker);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
-        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-
-        teamID = pref.getString("teamID", "000000");
-        userID = pref.getString("userID", "null");
+        user = (User) getIntent().getSerializableExtra(UserSchema.USER_DATA);
+        currentTaskProcess = (CurrentTaskProcess) getIntent().getSerializableExtra(TaskSchema.CURRENT_TASK);
+        if (user == null) {
+            user = SharedPreferencesManager.getUser(this);
+        }
+        if (currentTaskProcess == null) {
+            currentTaskProcess = SharedPreferencesManager.getCurrentTaskProcess(this);
+        }
 
         personInfoButton = findViewById(R.id.whereIsMyFriend_person_btn);
         locationInfoButton = findViewById(R.id.whereIsMyFriend_location_btn);
         switchLayerBtn = findViewById(R.id.layer_btn);
         checkInRecordBtn = findViewById(R.id.checkIn_record_btn);
         checkInProcessBotton = findViewById(R.id.checkInBotton);
-        //roomType 分"singleUser"和"multiUsers"用來區別是單人使用或者多人使用的地圖
-        roomType = pref.getString("roomType", "multiUsers");
+
 
         //如果是單人地圖的話，需要處理按鈕佈局
-        if (roomType != null) {
-            if (roomType.equals("singleUser")) {
-                personInfoButton.setBackgroundResource(R.mipmap.ic_exit);
-            }
+        if (user.teamType != null && user.teamType == TeamType.SINGLE) {
+            personInfoButton.setBackgroundResource(R.mipmap.ic_exit);
         }
 //      打卡任務列表
         checkInRecordBtn.setOnClickListener(v -> {
@@ -172,8 +167,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         });
 //        TODO:打卡任務進度確認
         checkInProcessBotton.setOnClickListener(v -> {
-            if (pref.contains(TaskSchema.CURRENT_TASK)) {
-//                    popWindow(PopWindowType.CHECK_IN_ON_COMPLETE);
+            if (SharedPreferencesManager.contains(this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK)) {
                 popWindow(PopWindowType.CHECK_IN_COMPLETED);
             } else {
                 Toast.makeText(getApplicationContext(), "你尚未接取打卡任務，請至任務列表選擇並接取打卡任務", Toast.LENGTH_SHORT).show();
@@ -185,35 +179,40 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         locationInfoButton.setOnClickListener(v -> popWindow(PopWindowType.LOCATION_INFO));
 
         personInfoButton.setOnClickListener(v -> {
-            if (roomType.equals("singleUser")) {
-                exitTeam();
-            } else {
-                popWindow(PopWindowType.PERSON_INFO);
+            switch (user.teamType) {
+                case SINGLE:
+                    exitTeam();
+                    break;
+                case MULTI:
+                    popWindow(PopWindowType.PERSON_INFO);
+                    break;
             }
+
         });
 
         //預設popupwin裡的checkbox history元件是已經勾選的
         checkedLayerSet.add("history");
         //存起來，別的layout會用到
-        pref.edit().putStringSet("checkedLayer", checkedLayerSet).apply();
-
-
+        SharedPreferencesManager.setCheckedLayer(this, checkedLayerSet);
 
         mDatabase = FirebaseDatabase.getInstance();
-        teamRef = mDatabase.getReference("team").child(teamID);
+        teamRef = mDatabase.getReference("team").child(user.teamId);
         usersRef = teamRef.child("userData");
         markersRef = teamRef.child("marker");
 
         switchLayerBtn.setOnClickListener(v -> popWindow(PopWindowType.SWITCH_LAYER));
-
-
+        SharedPreferencesManager.setUser(this, user);
+        SharedPreferencesManager.setCurrentTaskProcess(this, currentTaskProcess);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        if(timer != null){
+        if (user == null) {
+            Log.d("NULL", "USER");
+        }
+        if (timer != null) {
             timer.cancel();
         }
         timer = new Timer();
@@ -226,7 +225,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             public void run() {
                 checkLocationChange();
             }
-        },1000,5000);
+        }, 1000, 5000);
     }
 
     @Override
@@ -237,10 +236,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onStop() {
         super.onStop();
-//        if(currentTaskMarker != null){
-//            currentTaskMarker.remove();
-//            currentTaskMarker = null;
-//        }
         isStopped = true;
     }
 
@@ -278,9 +273,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(marker -> false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(TeamTracker.this));
         mMap.setOnInfoWindowLongClickListener(marker -> {
-            boolean newUser = pref.getBoolean("inTeam", false);
             //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
-            if (newUser) {
+            if (user.inTeam) {
                 Intent intent = new Intent(getApplicationContext(), TeamTracker.class);
                 startActivity(intent);
             } else {
@@ -304,8 +298,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                        String content = "";
 //                        String id = "";
 //                        float markerColor = 0;
-                        for (JsonElement jsonElement : jsonArray) {
-                            Log.d("LOCATION",jsonElement.getAsString());
+                    for (JsonElement jsonElement : jsonArray) {
+                        Log.d("LOCATION", jsonElement.getAsString());
 //                            JSONObject jsonObject = jsonArray.getJSONObject(i);
 //                            xPoint = Double.parseDouble(jsonObject.get("PO_X").toString());
 //                            yPoint = Double.parseDouble(jsonObject.get("PO_Y").toString());
@@ -313,7 +307,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                            type = jsonObject.get("PO_TYPES").toString();
 //                            content = jsonObject.get("PO_CONTENT").toString();
 //                            id = jsonObject.get("PO_ID").toString();
-                            Marker marker = null;
+                        Marker marker = null;
 //                            switch (Integer.parseInt(type)) {
 //                                case 0://美食
 //                                    markerColor = BitmapDescriptorFactory.HUE_AZURE;
@@ -371,7 +365,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                                    religionMarkerHashMap.put(id, marker);
 //                                    break;
 //                            }
-                        }
+                    }
                 }
             }
         };
@@ -380,11 +374,9 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //使用坐標資料api
         getPointJson();
 
+        currentTaskProcess = SharedPreferencesManager.getCurrentTaskProcess(this);
 
-
-        currentTaskProcess = new Gson().fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
-
-        if(currentTaskProcess != null && currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
+        if (currentTaskProcess != null && currentTaskProcess.contents != null && !currentTaskProcess.contents.isEmpty() && !currentTaskProcess.doneFlag) {
             setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
         }
 
@@ -400,8 +392,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
                     if (userName != null && userIconPath != null && userID != null) {
                         Bitmap userBitmap = new BitmapFactory().decodeResource(getResources(), userIconPath);
-                        Double userLatitude = data.child("userLatitude").getValue(Double.class);
-                        Double userLongitude = data.child("userLongitude").getValue(Double.class);
+                        Double userLatitude = data.child("latitude").getValue(Double.class);
+                        Double userLongitude = data.child("longitude").getValue(Double.class);
 
                         if (userLatitude != null && userLongitude != null) {
                             marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
@@ -430,7 +422,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 if (snapshot.exists()) {
                     for (DataSnapshot data : snapshot.getChildren()) {
                         String markContext = data.child("markContext").getValue(String.class);
-                        //String userIconPath = data.child("userIconPath").getValue(String.class);
+                        int userIconPath = data.child("userIconPath").getValue(Integer.class);
                         Double markLatitude = data.child("markLatitude").getValue(Double.class);
                         Double markLongitude = data.child("markLongitude").getValue(Double.class);
 
@@ -478,23 +470,23 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
         final Task<Location> location = mFusedLocationProviderClient.getLastLocation();
         if (!isExiting) {
-            location.addOnSuccessListener(location1 -> {
+            location.addOnSuccessListener(currentLocation -> {
                 Map<String, Object> userLocations = new HashMap<>();
-                DatabaseReference myRef = usersRef.child(userID);
-                mCurrentLocation = (Location) location1;
+                DatabaseReference myRef = usersRef.child(user.userId);
+                mCurrentLocation = (Location) currentLocation;
 
                 if (mCurrentLocation != null) {
 
                     //檢查user有沒有移動
-                    userLocations.put("userLatitude", mCurrentLocation.getLatitude());
-                    userLocations.put("userLongitude", mCurrentLocation.getLongitude());
+                    userLocations.put("latitude", mCurrentLocation.getLatitude());
+                    userLocations.put("longitude", mCurrentLocation.getLongitude());
 
                     myRef.updateChildren(userLocations);
-                    //地圖addMarker時可以使用到
-                    pref.edit().putLong("mLatitude", Double.doubleToLongBits(location1.getLatitude())).apply();
-                    pref.edit().putLong("mLongitude", Double.doubleToLongBits(location1.getLongitude())).apply();
 
-                    moveCamera(new LatLng(location1.getLatitude(), location1.getLongitude()), 15f);
+                    //地圖addMarker時可以使用到
+                    user.latitude = currentLocation.getLatitude();
+                    user.longitude = currentLocation.getLongitude();
+                    moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
 
 
                 } else {
@@ -514,23 +506,25 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        LatLng taskPosition = new LatLng(currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLatitude,currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLongitude);
+        LatLng taskPosition = new LatLng(currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLatitude, currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLongitude);
         Double distance = LocationUtils.getDistance(currentPosition, taskPosition);
         if (distance < 15.0f && !currentTaskProcess.doneFlag) {
-            if(isStopped){
-                PendingIntent pendingIntent = PendingIntent.getActivity(this,100,new Intent(getBaseContext(),TeamTracker.class),PendingIntent.FLAG_ONE_SHOT);
+            if (isStopped) {
+                Intent intent = getIntent();
+                intent.setClass(getBaseContext(), TeamTracker.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, intent, PendingIntent.FLAG_ONE_SHOT);
                 Notification.Builder builder = new Notification.Builder(this, getString(R.string.ChannelID))
                         .setSmallIcon(R.mipmap.ic_launcher_round)
                         .setContentTitle("到達打卡地點")
-                        .setContentText(String.format("你已經到達 %s 任務地點",currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
+                        .setContentText(String.format("你已經到達 %s 任務地點", currentTaskProcess.contents.get(currentTaskProcess.currentTask).markTitle))
                         .setContentIntent(pendingIntent)
                         .setOnlyAlertOnce(true)
                         .setAutoCancel(true);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                notificationManager.notify(R.string.ChannelID,builder.build());
+                notificationManager.notify(R.string.ChannelID, builder.build());
 //              偵測到就立刻將activity摧毀掉
-                onDestroy();
-            }else{
+                timer.cancel();
+            } else {
                 if (!isCheckPopUp) {
                     new AlertDialog.Builder(TeamTracker.this)
                             .setTitle("打卡提醒")
@@ -559,22 +553,20 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         final Task<Location> location = mFusedLocationProviderClient.getLastLocation();
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        final float preLatitude = pref.getFloat("userLatitude",0);
-        final float preLongitude = pref.getFloat("userLongitude",0);
 
-        if(!isExiting){
-            location.addOnSuccessListener(location1 -> {
-                mCurrentLocation = location1;
-                if(mCurrentLocation != null){
+        if (!isExiting) {
+            location.addOnSuccessListener(currentLocation -> {
+                mCurrentLocation = currentLocation;
+                if (mCurrentLocation != null) {
                     //檢查位置
-                    if(preLatitude != (float)mCurrentLocation.getLatitude() || preLongitude != (float)mCurrentLocation.getLongitude()){
+                    if (user.latitude != mCurrentLocation.getLatitude() || user.longitude != mCurrentLocation.getLongitude()) {
                         Map<String, Object> userLocations = new HashMap<>();
-                        userLocations.put("userLatitude",mCurrentLocation.getLatitude());
-                        userLocations.put("userLongitude",mCurrentLocation.getLongitude());
+                        userLocations.put("latitude", mCurrentLocation.getLatitude());
+                        userLocations.put("longitude", mCurrentLocation.getLongitude());
                         //地圖addMarker時可以使用到
-                        pref.edit().putLong("mLatitude",Double.doubleToLongBits(location1.getLatitude())).apply();
-                        pref.edit().putLong("mLongitude",Double.doubleToLongBits(location1.getLongitude())).apply();
-                        usersRef.child(userID).updateChildren(userLocations);
+                        user.latitude = currentLocation.getLatitude();
+                        user.longitude = currentLocation.getLongitude();
+                        usersRef.child(user.userId).updateChildren(userLocations);
                     }
 //                      檢查下個任務點距離
                     checkTaskDone(mCurrentLocation);
@@ -586,19 +578,22 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //用來移動你的攝像機
-    private void moveCamera(LatLng latLng, float zoom){
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+    private void moveCamera(LatLng latLng, float zoom) {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
     /**
      * 挑出視窗
+     *
      * @param popWindowType 跳出視窗的型態
      */
 //
     public void popWindow(PopWindowType popWindowType) {
-        if(popWindowType == PopWindowType.LOCATION_INFO){
-            LocationInfoPopUpWin locationInfoPopWin = new LocationInfoPopUpWin(this, R.layout.location_info_pop_win, mMap, this);
-            locationInfoPopWin.showAtLocation(findViewById(R.id.map), Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+        if (popWindowType == PopWindowType.LOCATION_INFO) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(UserSchema.USER_DATA, user);
+            LocationInfoPopUpWin locationInfoPopWin = new LocationInfoPopUpWin(this, R.layout.location_info_pop_win, mMap, this, bundle);
+            locationInfoPopWin.showAtLocation(findViewById(R.id.map), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
             params.alpha = 0.7f;
             getWindow().setAttributes(params);
@@ -607,20 +602,22 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
             });
-        } else if (popWindowType == PopWindowType.PERSON_INFO){
-            PersonInfoPopUpWin personInfoPopWin = new PersonInfoPopUpWin(this, R.layout.person_info_pop_win, mMap);
-            personInfoPopWin.showAtLocation(findViewById(R.id.map), Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+        } else if (popWindowType == PopWindowType.PERSON_INFO) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(UserSchema.USER_DATA, user);
+            PersonInfoPopUpWin personInfoPopWin = new PersonInfoPopUpWin(this, R.layout.person_info_pop_win, mMap, bundle);
+            personInfoPopWin.showAtLocation(findViewById(R.id.map), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
             params.alpha = 0.7f;
             getWindow().setAttributes(params);
-           personInfoPopWin.setOnDismissListener(() -> {
-               params = getWindow().getAttributes();
-               params.alpha = 1f;
-               getWindow().setAttributes(params);
-           });
-        } else if (popWindowType == PopWindowType.SWITCH_LAYER){
+            personInfoPopWin.setOnDismissListener(() -> {
+                params = getWindow().getAttributes();
+                params.alpha = 1f;
+                exitTeam();
+            });
+        } else if (popWindowType == PopWindowType.SWITCH_LAYER) {
             SwitchLayerPopUpWin switchLayerPopUpWin = new SwitchLayerPopUpWin(this, R.layout.switch_layer_pop_up_win);
-            switchLayerPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 0);
+            switchLayerPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER | Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
             params.alpha = 0.7f;
             getWindow().setAttributes(params);
@@ -629,47 +626,44 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
             });
-        }else if (popWindowType == PopWindowType.CHECK_IN_COMPLETED){
-            CheckInPopUpWin checkInPopUpWin = new CheckInPopUpWin(this,R.layout.check_in_completed_pop_up_win);
-            checkInPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 0);
-            params = getWindow().getAttributes();
-            params.alpha = 0.7f;
-            getWindow().setAttributes(params);
-            checkInPopUpWin.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    params = getWindow().getAttributes();
-                    params.alpha = 1f;
-                    getWindow().setAttributes(params);
-                }
-            });
-        }else if(popWindowType == PopWindowType.CHECK_IN_ON_COMPLETE){
+        } else if (popWindowType == PopWindowType.CHECK_IN_COMPLETED) {
             Bundle bundle = new Bundle();
-            bundle.putSerializable(TaskSchema.CURRENT_TASK,currentTaskProcess);;
-            CheckInOnCompletePopUpWin checkInOnCompletePopUpWin = new CheckInOnCompletePopUpWin(this,R.layout.check_in_oncomplete_win,false, bundle);
-            checkInOnCompletePopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 0);
+            bundle.putSerializable(TaskSchema.CURRENT_TASK, currentTaskProcess);
+            CheckInPopUpWin checkInPopUpWin = new CheckInPopUpWin(this, R.layout.check_in_completed_pop_up_win, bundle);
+            checkInPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER | Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();
             params.alpha = 0.7f;
             getWindow().setAttributes(params);
-            checkInOnCompletePopUpWin.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    params = getWindow().getAttributes();
-                    params.alpha = 1f;
-                    getWindow().setAttributes(params);
+            checkInPopUpWin.setOnDismissListener(() -> {
+                params = getWindow().getAttributes();
+                params.alpha = 1f;
+                getWindow().setAttributes(params);
+            });
+        } else if (popWindowType == PopWindowType.CHECK_IN_ON_COMPLETE) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(TaskSchema.CURRENT_TASK, currentTaskProcess);
+            ;
+            CheckInOnCompletePopUpWin checkInOnCompletePopUpWin = new CheckInOnCompletePopUpWin(this, R.layout.check_in_oncomplete_win, false, bundle);
+            checkInOnCompletePopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER | Gravity.CENTER_HORIZONTAL, 0, 0);
+            params = getWindow().getAttributes();
+            params.alpha = 0.7f;
+            getWindow().setAttributes(params);
+            checkInOnCompletePopUpWin.setOnDismissListener(() -> {
+                params = getWindow().getAttributes();
+                params.alpha = 1f;
+                getWindow().setAttributes(params);
 //                  初始化所有狀態
-                    currentTaskMarker.remove();
-                    isCheckPopUp = false;
+                currentTaskMarker.remove();
+                isCheckPopUp = false;
 
-                    if(!currentTaskProcess.doneFlag){
-                        pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess)).apply();
-                        setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
-                    }else{
+                if (!currentTaskProcess.doneFlag) {
+                    SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
+                    setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
+                } else {
 //                      TODO:打卡任務完成
-                        pref.edit().remove(TaskSchema.CURRENT_TASK).apply();
-                        currentTaskProcess = null;
-                        currentTaskMarker = null;
-                    }
+                    SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
+                    currentTaskProcess = null;
+                    currentTaskMarker = null;
                 }
             });
         }
@@ -684,46 +678,18 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         alert.setPositiveButton("是", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //isLeader ,roomnumber
                 isExiting = true;
-                pref.edit().putBoolean("inTeam",false).commit();
-                usersRef.child(userID).removeValue();
+                user.inTeam = false;
+                usersRef.child(user.userId).removeValue();
+                SharedPreferencesManager.setUser(TeamTracker.this, user);
                 alert.setView(null);
-                //TODO:這裡要去firebase刪掉相關用戶的資料，現在還沒實作
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.putExtra(UserSchema.USER_DATA, user);
                 startActivity(intent);
                 finish();
             }
         });
-        alert.setNegativeButton("否", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        alert.create().show();
-    }
-
-    /**
-     * Exit team.
-     *
-     * @param view the view
-     */
-//給其他layout用的
-    public void exitTeam(View view) {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("是否要退出團隊？");
-        alert.setPositiveButton("是", (dialog, which) -> {
-            isExiting = true;
-            pref.edit().putBoolean("inTeam",false).commit();
-            //這裡要去firebase刪掉相關用戶的資料
-            usersRef.child(userID).removeValue();
-            alert.setView(null);
-            Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-            startActivity(intent);
-            finish();
-        });
         alert.setNegativeButton("否", (dialog, which) -> {
-
         });
         alert.create().show();
     }
@@ -736,28 +702,29 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
      */
     public void addLocation(double latitude, double longitude) {
         params = getWindow().getAttributes();
-        params.alpha=1f;
+        params.alpha = 1f;
         getWindow().setAttributes(params);
         Intent intent = new Intent(this, CreateNewMarker.class);
+        intent.putExtra(UserSchema.USER_DATA, user);
         intent.putExtra("latitude", latitude);
         intent.putExtra("longitude", longitude);
-        startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
+        startActivityForResult(intent, ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
 
-    void getPointJson(){
+    void getPointJson() {
         String url = getString(R.string.USR_API);
-        Log.d("USR_API",url);
+        Log.d("USR_API", url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-
                 e.printStackTrace();
             }
+
             @Override
             public void onResponse(Response response) throws IOException {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
 //                    responseJsonString = response.body().string();
                     Message msg = new Message();
                     Bundle bundle = new Bundle();
@@ -780,46 +747,63 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
         boolean checked = ((CheckBox) view).isChecked();
         String boxName = "";
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.foodCheckBox:
                 boxName = "food";
-                for(Map.Entry<String, Marker> entry : foodMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : foodMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.shoppingCheckBox:
                 boxName = "shopping";
-                for(Map.Entry<String, Marker> entry : shoppingMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : shoppingMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.roomCheckBox:
                 boxName = "room";
-                for(Map.Entry<String, Marker> entry : roomMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : roomMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.historyCheckBox:
                 boxName = "history";
-                for(Map.Entry<String, Marker> entry : historyMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : historyMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.playCheckBox:
                 boxName = "play";
-                for(Map.Entry<String, Marker> entry : playMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : playMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.trafficCheckBox:
                 boxName = "traffic";
-                for(Map.Entry<String, Marker> entry : trafficMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : trafficMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.serviceCheckBox:
                 boxName = "service";
-                for(Map.Entry<String, Marker> entry : serviceMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : serviceMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
             case R.id.religionCheckBox:
                 boxName = "religion";
-                for(Map.Entry<String, Marker> entry : religionMarkerHashMap.entrySet()){ entry.getValue().setVisible(checked);}
+                for (Map.Entry<String, Marker> entry : religionMarkerHashMap.entrySet()) {
+                    entry.getValue().setVisible(checked);
+                }
                 break;
         }
-        if(checked){
+        if (checked) {
             checkedLayerSet.add(boxName);
         } else {
             checkedLayerSet.remove(boxName);
         }
-        pref.edit().putStringSet("checkedLayer", checkedLayerSet).apply();
+        SharedPreferencesManager.setCheckedLayer(this, checkedLayerSet);
+//        pref.edit().putStringSet("checkedLayer", checkedLayerSet).apply();
 
     }
 }

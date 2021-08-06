@@ -2,6 +2,7 @@ package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -14,6 +15,7 @@ import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -28,7 +30,7 @@ public class CheckInPopUpWin extends CustomPopUpWin {
     private TextView titleTextView;
     private ProgressBar progressBar;
 
-    public CheckInPopUpWin(Context mContext, int xmlLayout) {
+    public CheckInPopUpWin(Context mContext, int xmlLayout, Bundle bundle) {
         super(mContext, xmlLayout, false);
         closeWinButton = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_close_btn);
         cancelButton = this.getView().findViewById(R.id.check_in_record_pop_up_win_cancel_button);
@@ -36,10 +38,10 @@ public class CheckInPopUpWin extends CustomPopUpWin {
         titleTextView = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_title_textView);
         progressBar = this.getView().findViewById(R.id.check_in_record_pop_up_win_progressBar);
 
-        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-        Gson gson = new Gson();
-        currentTaskProcess = gson.fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
-
+//        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
+//        Gson gson = new Gson();
+//        currentTaskProcess = gson.fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
+        currentTaskProcess = (CurrentTaskProcess) bundle.getSerializable(TaskSchema.CURRENT_TASK);
         View.OnClickListener listener;
 
 //      透過if else決定listener行為
@@ -51,7 +53,8 @@ public class CheckInPopUpWin extends CustomPopUpWin {
             listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    pref.edit().remove(TaskSchema.CURRENT_TASK).commit();
+                    SharedPreferencesManager.remove(mContext, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
+//                    pref.edit().remove(TaskSchema.CURRENT_TASK).commit();
                     Toast.makeText(getView().getContext(),"完成進度",Toast.LENGTH_SHORT).show();
                     dismiss();
                 }

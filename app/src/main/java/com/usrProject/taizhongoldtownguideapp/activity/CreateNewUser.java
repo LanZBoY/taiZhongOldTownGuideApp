@@ -11,21 +11,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.usrProject.taizhongoldtownguideapp.R;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 public class CreateNewUser extends AppCompatActivity {
     private EditText editText;
     private int userIconPath;
     private ImageView userIcon;
-    private SharedPreferences pref;
+//    private SharedPreferences pref;
+    private User user;
     final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_user);
-
-        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA ,MODE_PRIVATE);
+        Intent intent = getIntent();
+        user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
+//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA ,MODE_PRIVATE);
 
         editText = findViewById(R.id.newUser_editText);
         userIcon = findViewById(R.id.userIcon);
@@ -35,10 +38,13 @@ public class CreateNewUser extends AppCompatActivity {
 
     public void goSelect(View view) {
         String newUserName = editText.getText().toString();
-        pref.edit().putString("userName", newUserName).apply();
-        pref.edit().putInt("userIconPath", userIconPath).apply();
+        user.userName = newUserName;
+        user.userIconPath = userIconPath;
+//        pref.edit().putString("userName", newUserName).apply();
+//        pref.edit().putInt("userIconPath", userIconPath).apply();
 
         Intent intent = new Intent(this, TeamEntry.class);
+        intent.putExtra(UserSchema.USER_DATA, user);
         startActivity(intent);
         finish();
     }

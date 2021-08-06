@@ -31,7 +31,7 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
 
     public CheckInOnCompletePopUpWin(final Context mContext, int xmlLayout, boolean fullWidth, Bundle bundle) {
         super(mContext, xmlLayout, fullWidth);
-        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, Context.MODE_PRIVATE);
+//        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, Context.MODE_PRIVATE);
         this.currentTaskProcess = (CurrentTaskProcess) bundle.getSerializable(TaskSchema.CURRENT_TASK);
         checkInDesc = getView().findViewById(R.id.check_in_oncomplete_desc);
         checkInDoneButton = getView().findViewById(R.id.check_in_oncomplete_done_button);
@@ -52,7 +52,7 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
                     currentTaskProcess.doneFlag = true;
                     Toast.makeText(mContext, String.format("恭喜你完成 %s 任務",currentTaskProcess.taskTitle),Toast.LENGTH_LONG).show();
                 }
-                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
+//                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
                 dismiss();
             }
         });

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
@@ -42,9 +41,11 @@ import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCustomPopUpWin;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapClick;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
+import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
 import org.jetbrains.annotations.NotNull;
@@ -72,22 +73,26 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private TextView seekBarTextView;
     private TextView meibianzhiyuan;
-
     private WindowManager.LayoutParams params;
     private float phoneWidthPixels;
     private float phoneHeightPixels;
     private float phoneDensity;
-    private SharedPreferences pref;
+//    private SharedPreferences pref;
     private Handler handler;
     public boolean clickFlag = true;
     //記錄照片中心
     private MapType currentMapType;
-
+    //  個人資料
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
+        user = SharedPreferencesManager.getUser(this);
+//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
+//        SharedPreferences sharedPreferences = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA,MODE_PRIVATE);
+//        String json = sharedPreferences.getString(User.class.getSimpleName(),"{}");
+//        User user = new Gson().fromJson(json, User.class);
         initSeekBar();
         initWeather();
 
@@ -102,17 +107,14 @@ public class MainActivity extends AppCompatActivity {
         //宣告手勢
         AndroidGestureDetector androidGestureDetector = new AndroidGestureDetector();
         GD = new GestureDetector(MainActivity.this, androidGestureDetector);
-
         //設置滑軌監聽
         seekBarController();
-
         meibianzhiyuan = findViewById(R.id.meibianzhiyuan_textView);
         meibianzhiyuan.setVisibility(View.INVISIBLE);
         goTeamTrackerBtn = findViewById(R.id.team_tracker_btn);
         goNewsBtn = findViewById(R.id.news_btn);
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
-
         mapImageView = findViewById(R.id.mapView);
         //預設是第四張照片
 //        Bitmap initImage = ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
@@ -121,7 +123,19 @@ public class MainActivity extends AppCompatActivity {
         changeImage(MapType.NEW_MAP_NOW);
     }
 
-//
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferencesManager.setUser(this, user);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferencesManager.setUser(this, user);
+    }
+
+    //
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void goTeamTracker(View view) {
         //請求獲取位置permission
@@ -139,14 +153,15 @@ public class MainActivity extends AppCompatActivity {
                 alert.setNegativeButton("否", (dialog, which) -> Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show());
                 alert.create().show();
             } else {
-                boolean newUser = pref.getBoolean("inTeam", false);
+//                boolean newUser = pref.getBoolean("inTeam", false);
                 //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
                 Intent intent;
-                if (newUser) {
+                if (user.inTeam) {
                     intent = new Intent(getApplicationContext(), TeamTracker.class);
                 } else {
                     intent = new Intent(getApplicationContext(), CreateNewUser.class);
                 }
+                intent.putExtra(UserSchema.USER_DATA, user);
                 startActivity(intent);
             }
         }
@@ -270,13 +285,14 @@ public class MainActivity extends AppCompatActivity {
                 alert.create().show();
             } else {
                 //查看使用者是否已經加入團隊
-                boolean newUser = pref.getBoolean("inTeam", false);
+//                boolean newUser = pref.getBoolean("inTeam", false);
                 Intent intent;
-                if(newUser) {
+                if(user.inTeam) {
                     intent = new Intent(this, TeamTracker.class);
                 } else {
                     intent = new Intent(this, CreateNewUser.class);
                 }
+                intent.putExtra(UserSchema.USER_DATA, user);
                 startActivity(intent);
             }
         } else {
@@ -285,111 +301,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //TODO:手勢控制，目前只做拖移，後續還有縮放要做
-    class AndroidGestureDetector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-
-            if (clickFlag) {
-                checkInRange(e.getX() ,e.getY());
-            }
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTapEvent(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            //設置scrollBar的animation
-            Animation inAnim = new AlphaAnimation(0f, 1.0f);
-            Animation outAnim = new AlphaAnimation(1.0f, 0f);
-            inAnim.setDuration(500);
-            outAnim.setDuration(500);
-            inAnim.setFillAfter(true);
-            outAnim.setFillAfter(true);
-
-            if (e.getY() <= phoneHeightPixels * 0.7) {
-                if (seekBar.getVisibility() != View.INVISIBLE) {
-                    seekBar.startAnimation(outAnim);
-                    seekBarTextView.startAnimation(outAnim);
-                    seekBar.setVisibility(View.INVISIBLE);
-                    seekBarTextView.setVisibility(View.INVISIBLE);
-                    seekBar.setEnabled(false);
-                }
-            }
-            if (e.getY() > phoneHeightPixels * 0.7) {
-                if (seekBar.getVisibility() != View.VISIBLE) {
-                    seekBar.startAnimation(inAnim);
-                    seekBarTextView.startAnimation(inAnim);
-                    seekBar.setVisibility(View.VISIBLE);
-                    seekBarTextView.setVisibility(View.VISIBLE);
-                    seekBar.setEnabled(true);
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-
-            return false;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            int goX = (int) distanceX;
-            int goY = (int) distanceY;
-
-            mapImageView.scrollBy(goX, 0);
-            mapImageView.scrollBy(0, goY);
-            int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() - phoneWidthPixels);
-            int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() - phoneHeightPixels);
-            if(mapImageView.getScrollX() > maxWidth){
-                mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
-            }
-            if(mapImageView.getScrollX() < 0){
-                mapImageView.scrollTo(0, mapImageView.getScrollY());
-            }
-            if(mapImageView.getScrollY() > maxHeight){
-                mapImageView.scrollTo(mapImageView.getScrollX(),maxHeight);
-            }
-            if(mapImageView.getScrollY() < 0){
-                mapImageView.scrollTo(mapImageView.getScrollX(),0);
-            }
-//            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        GD.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
 
     //對雲朵進行操控
     @SuppressLint("NonConstantResourceId")
@@ -567,6 +479,113 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        GD.onTouchEvent(event);
+
+        return super.onTouchEvent(event);
+    }
+
+    //TODO:手勢控制，目前只做拖移，後續還有縮放要做
+    class AndroidGestureDetector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+
+            if (clickFlag) {
+                checkInRange(e.getX() ,e.getY());
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            //設置scrollBar的animation
+            Animation inAnim = new AlphaAnimation(0f, 1.0f);
+            Animation outAnim = new AlphaAnimation(1.0f, 0f);
+            inAnim.setDuration(500);
+            outAnim.setDuration(500);
+            inAnim.setFillAfter(true);
+            outAnim.setFillAfter(true);
+
+            if (e.getY() <= phoneHeightPixels * 0.7) {
+                if (seekBar.getVisibility() != View.INVISIBLE) {
+                    seekBar.startAnimation(outAnim);
+                    seekBarTextView.startAnimation(outAnim);
+                    seekBar.setVisibility(View.INVISIBLE);
+                    seekBarTextView.setVisibility(View.INVISIBLE);
+                    seekBar.setEnabled(false);
+                }
+            }
+            if (e.getY() > phoneHeightPixels * 0.7) {
+                if (seekBar.getVisibility() != View.VISIBLE) {
+                    seekBar.startAnimation(inAnim);
+                    seekBarTextView.startAnimation(inAnim);
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBarTextView.setVisibility(View.VISIBLE);
+                    seekBar.setEnabled(true);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            int goX = (int) distanceX;
+            int goY = (int) distanceY;
+
+            mapImageView.scrollBy(goX, 0);
+            mapImageView.scrollBy(0, goY);
+            int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() - phoneWidthPixels);
+            int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() - phoneHeightPixels);
+            if(mapImageView.getScrollX() > maxWidth){
+                mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
+            }
+            if(mapImageView.getScrollX() < 0){
+                mapImageView.scrollTo(0, mapImageView.getScrollY());
+            }
+            if(mapImageView.getScrollY() > maxHeight){
+                mapImageView.scrollTo(mapImageView.getScrollX(),maxHeight);
+            }
+            if(mapImageView.getScrollY() < 0){
+                mapImageView.scrollTo(mapImageView.getScrollX(),0);
+            }
+//            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
     }
 
 }

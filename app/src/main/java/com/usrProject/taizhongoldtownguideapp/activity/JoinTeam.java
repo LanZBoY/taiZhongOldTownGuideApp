@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -16,32 +15,24 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.usrProject.taizhongoldtownguideapp.R;
-import com.usrProject.taizhongoldtownguideapp.activity.TeamTracker;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 public class JoinTeam extends AppCompatActivity {
     private EditText editText;
     private String teamID;
-    private String userName;
-    private String userID;
-    private int userIconPath;
     private FirebaseDatabase mDatabase;
     private DatabaseReference teamRef;
-    private SharedPreferences pref;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_team);
         editText = (EditText)findViewById(R.id.joinTeam_editText);
-        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-
-        userName = pref.getString("userName","error");
-        userIconPath = pref.getInt("userIconPath",R.drawable.user_icon1);
-
+        Intent intent = getIntent();
+        user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         mDatabase = FirebaseDatabase.getInstance();
         teamRef = mDatabase.getReference("team");
     }
@@ -55,29 +46,13 @@ public class JoinTeam extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.child(teamID).getValue() != null){
-                    Map<String, Object> user = new HashMap<>();
-                    user.put("userName",userName);
-                    user.put("isLeader",false);
-                    user.put("userLatitude",0.00);
-                    user.put("userLongitude",0.00);
-                    user.put("userIconPath", userIconPath);
-
-                    userID = teamRef.child("userData").push().getKey();
-                    teamRef.child(teamID).child("userData").child(userID).setValue(user);
-
-                    pref.edit()
-                            .putString("userName",userName)
-                            .putString("userID",userID)
-                            .putString("teamID",teamID)
-                            .putBoolean("inTeam",true)
-                            .putBoolean("isLeader",false)
-                            .putFloat("userLatitude",0)
-                            .putFloat("userLongitude",0)
-                            .putInt("userIconPath", userIconPath)
-                            .apply();
-
+                    user.userId = teamRef.child("userData").push().getKey();
+                    user.inTeam = true;
+                    teamRef.child(teamID).child("userData").child(user.userId).setValue(user);
+                    SharedPreferencesManager.setUser(JoinTeam.this, user);
                     teamRef.removeEventListener(this);
                     Intent intent = new Intent(getApplicationContext(), TeamTracker.class);
+                    intent.putExtra(UserSchema.USER_DATA, user);
                     startActivity(intent);
                     finish();
                 }
@@ -91,6 +66,5 @@ public class JoinTeam extends AppCompatActivity {
 
             }
         });
-
     }
 }

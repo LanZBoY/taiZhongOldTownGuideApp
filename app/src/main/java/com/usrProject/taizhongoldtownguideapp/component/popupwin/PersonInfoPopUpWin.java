@@ -23,6 +23,8 @@ import com.usrProject.taizhongoldtownguideapp.model.User.OtherUser;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +75,9 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                OtherUser user = snapshot.getValue(OtherUser.class);
+                removeFriendList(friendList, user);
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -87,8 +92,17 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
         });
         exitImageView = getView().findViewById(R.id.exitTeam_imageView);
         exitImageView.setOnClickListener(view -> {
+            bundle.putBoolean("leavingFLag", true);
             dismiss();
         });
     }
-
+    private void removeFriendList(List<OtherUser> friendList,OtherUser targetUser){
+        for (int i = 0; i < friendList.size(); i++){
+            OtherUser user = friendList.get(i);
+            if(StringUtils.equals(user.userId, targetUser.userId)){
+                friendList.remove(i);
+                break;
+            }
+        }
+    }
 }

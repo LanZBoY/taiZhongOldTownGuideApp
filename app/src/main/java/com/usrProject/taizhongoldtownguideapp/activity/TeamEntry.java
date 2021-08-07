@@ -48,7 +48,6 @@ public class TeamEntry extends AppCompatActivity {
 
     //如果使用者選擇創建團隊
     public void goCreateTeam(View view) {
-//        Map<String, Object> user = new HashMap<>();
         DatabaseReference teamRef = FirebaseDatabase.getInstance().getReference("team");
 
         //這裡要check teamID有沒有相撞

@@ -613,7 +613,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             personInfoPopWin.setOnDismissListener(() -> {
                 params = getWindow().getAttributes();
                 params.alpha = 1f;
-                exitTeam();
+                getWindow().setAttributes(params);
+                if(bundle.containsKey("leavingFLag")){
+                    exitTeam();
+                }
+
             });
         } else if (popWindowType == PopWindowType.SWITCH_LAYER) {
             SwitchLayerPopUpWin switchLayerPopUpWin = new SwitchLayerPopUpWin(this, R.layout.switch_layer_pop_up_win);

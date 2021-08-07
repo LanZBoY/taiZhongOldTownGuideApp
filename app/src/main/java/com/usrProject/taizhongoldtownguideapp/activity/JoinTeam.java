@@ -17,11 +17,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 public class JoinTeam extends AppCompatActivity {
     private EditText editText;
-    private String teamID;
+//    private String teamID;
     private FirebaseDatabase mDatabase;
     private DatabaseReference teamRef;
     private User user;
@@ -40,15 +41,16 @@ public class JoinTeam extends AppCompatActivity {
     public void quickJoin(View view) {
 
         //這裡離要檢查輸入碼對不對
-        teamID = editText.getText().toString();
+        user.teamId = editText.getText().toString();
 
         teamRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.child(teamID).getValue() != null){
+                if(snapshot.child( user.teamId).getValue() != null){
                     user.userId = teamRef.child("userData").push().getKey();
                     user.inTeam = true;
-                    teamRef.child(teamID).child("userData").child(user.userId).setValue(user);
+                    user.teamType = TeamType.MULTI;
+                    teamRef.child(user.teamId).child("userData").child(user.userId).setValue(user);
                     SharedPreferencesManager.setUser(JoinTeam.this, user);
                     teamRef.removeEventListener(this);
                     Intent intent = new Intent(getApplicationContext(), TeamTracker.class);

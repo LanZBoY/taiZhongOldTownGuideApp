@@ -23,6 +23,11 @@ public class CreateNewUser extends AppCompatActivity {
     final int PICK_IMAGE_REQUEST = 1;
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_user);
@@ -37,8 +42,7 @@ public class CreateNewUser extends AppCompatActivity {
     }
 
     public void goSelect(View view) {
-        String newUserName = editText.getText().toString();
-        user.userName = newUserName;
+        user.userName = editText.getText().toString();
         user.userIconPath = userIconPath;
 //        pref.edit().putString("userName", newUserName).apply();
 //        pref.edit().putInt("userIconPath", userIconPath).apply();
@@ -61,6 +65,7 @@ public class CreateNewUser extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK){
+            assert data != null;
             userIconPath = data.getIntExtra("userPickedIcon", 0);
             userIcon.setImageResource(userIconPath);
         }

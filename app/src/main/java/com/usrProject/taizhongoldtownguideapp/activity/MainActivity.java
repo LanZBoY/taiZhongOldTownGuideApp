@@ -89,10 +89,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         user = SharedPreferencesManager.getUser(this);
-//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-//        SharedPreferences sharedPreferences = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA,MODE_PRIVATE);
-//        String json = sharedPreferences.getString(User.class.getSimpleName(),"{}");
-//        User user = new Gson().fromJson(json, User.class);
         initSeekBar();
         initWeather();
 

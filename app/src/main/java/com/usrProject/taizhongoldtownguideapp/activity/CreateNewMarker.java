@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.activity.ChangeMarkerIcon;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
+import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import java.util.HashMap;
@@ -30,8 +31,8 @@ public class CreateNewMarker extends AppCompatActivity {
 
     private Boolean setNotice;
     private Button confirmButton;
-    private double longitude;
-    private double latitude;
+//    private double longitude;
+//    private double latitude;
     final int PICK_IMAGE_REQUEST = 2;
     private ImageView markerIcon;
     private String markerPath;
@@ -46,8 +47,9 @@ public class CreateNewMarker extends AppCompatActivity {
 
         Intent intent = getIntent();
         User user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
-        latitude =  intent.getDoubleExtra("latitude",0);
-        longitude = intent.getDoubleExtra("longitude", 0);
+        UserMarker userMarker = (UserMarker) intent.getSerializableExtra(UserSchema.USER_MARKER);
+//        latitude =  intent.getDoubleExtra("latitude",0);
+//        longitude = intent.getDoubleExtra("longitude", 0);
         mDatabase = FirebaseDatabase.getInstance();
 
 //        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
@@ -58,7 +60,7 @@ public class CreateNewMarker extends AppCompatActivity {
         editText = findViewById(R.id.addIcon_editText);
         aSwitch = findViewById(R.id.setNotice_switch);
         confirmButton = findViewById(R.id.addLocation_button);
-        picker = (TimePicker)findViewById(R.id.timePicker);
+        picker = findViewById(R.id.timePicker);
         picker.setIs24HourView(true);
         picker.setEnabled(false);
 
@@ -79,27 +81,25 @@ public class CreateNewMarker extends AppCompatActivity {
         });
         */
 
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Map<String, Object> newMark = new HashMap<>();
+        confirmButton.setOnClickListener(v -> {
+//                Map<String, Object> newMark = new HashMap<>();
+            Intent intent1 = new Intent();
+            userMarker.context = editText.getText().toString();
+//                intent.putExtra("markContext", editText.getText().toString());
+//                intent.putExtra("latitude", latitude);
+//                intent.putExtra("longitude", longitude);
+            intent1.putExtra(UserSchema.USER_MARKER, userMarker);
+            setResult(RESULT_OK, intent1);
 
-                Intent intent = new Intent();
-                intent.putExtra("markContext", editText.getText().toString());
-                intent.putExtra("latitude", latitude);
-                intent.putExtra("longitude", longitude);
-                setResult(RESULT_OK, intent);
+//                newMark.put("markContext",editText.getText().toString());
+//                newMark.put("markLatitude",latitude);
+//                newMark.put("markLongitude",longitude);
+//                newMark.put("setRemind",true);
+//                newMark.put("markSetTime",picker.getHour()+" "+picker.getMinute());
+//                newMark.put("markPath",markerPath);
 
-                newMark.put("markContext",editText.getText().toString());
-                newMark.put("markLatitude",latitude);
-                newMark.put("markLongitude",longitude);
-                newMark.put("setRemind",true);
-                newMark.put("markSetTime",picker.getHour()+" "+picker.getMinute());
-                newMark.put("markPath",markerPath);
-
-                mDatabase.getReference().child("team").child(user.teamId).child("marker").push().setValue(newMark);
-                finish();
-            }
+            mDatabase.getReference().child("team").child(user.teamId).child("marker").push().setValue(userMarker);
+            finish();
         });
     }
 
@@ -114,6 +114,7 @@ public class CreateNewMarker extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK){
+            assert data != null;
             markerPath = data.getStringExtra("userPickedMarker");
             int imageResource = getResources().getIdentifier("@drawable/" + markerPath, null, getPackageName());
             markerIcon.setImageResource(imageResource);

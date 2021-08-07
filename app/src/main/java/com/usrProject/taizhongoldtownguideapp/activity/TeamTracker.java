@@ -67,6 +67,7 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopU
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
+import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.ServiceSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
@@ -74,6 +75,8 @@ import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -287,7 +290,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
         messageHandler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(@NotNull Message msg) {
                 if (msg.what == 1) {
                     Bundle bundle = msg.getData();
                     JsonArray jsonArray = JsonParser.parseString(bundle.getString(ServiceSchema.LOCATION_MARK)).getAsJsonArray();
@@ -415,18 +418,14 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        //每次firebase裡有marker更新時，更新本地所有marker資料
+        //TODO:每次firebase裡有marker更新時，更新本地所有marker資料
         markersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot data : snapshot.getChildren()) {
-                        String markContext = data.child("markContext").getValue(String.class);
-                        int userIconPath = data.child("userIconPath").getValue(Integer.class);
-                        Double markLatitude = data.child("markLatitude").getValue(Double.class);
-                        Double markLongitude = data.child("markLongitude").getValue(Double.class);
-
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(markLatitude, markLongitude)).title(markContext));
+                        UserMarker userMarker = data.getValue(UserMarker.class);
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.context));
                         marker.setTag("customize");
                     }
                 }
@@ -448,14 +447,15 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     //等待使用者在createNewMarker頁面把增加marker的資訊返回
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == ADD_LOCATION_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                String returnString = data.getStringExtra("markContext");
-                Double latitude = data.getDoubleExtra("latitude", 0);
-                Double longitude = data.getDoubleExtra("longitude", 0);
-                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(returnString).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                UserMarker userMarker = (UserMarker) intent.getSerializableExtra(UserSchema.USER_MARKER);
+//                String returnString = intent.getStringExtra("markContext");
+//                Double latitude = intent.getDoubleExtra("latitude", 0);
+//                Double longitude = intent.getDoubleExtra("longitude", 0);
+                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.context).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 marker.setTag("customize");
             }
         }

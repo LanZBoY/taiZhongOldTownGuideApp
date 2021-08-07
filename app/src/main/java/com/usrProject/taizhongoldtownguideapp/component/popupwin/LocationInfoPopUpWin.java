@@ -24,6 +24,7 @@ import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.component.LocationInfoPopUpWinRecycleViewAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CustomPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
+import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import java.util.ArrayList;
@@ -62,12 +63,9 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
         createMarkerBtn = getView().findViewById(R.id.create_marker_btn);
         //必須在getDeviceLocation()後面，因為會需要用到getDeviceLocation獲取的使用者位置mCurrentLocation
 
-        createMarkerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addLocation(user.latitude, user.longitude);
-                //Log.d("sayHello","sayHello");
-            }
+        createMarkerBtn.setOnClickListener(v -> {
+            addLocation(user.latitude, user.longitude);
+            //Log.d("sayHello","sayHello");
         });
 
         mDatabase.getReference().child("team").child(user.teamId).child("marker");
@@ -75,13 +73,12 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
         mRecyclerView = getView().findViewById(R.id.showLocation_recyclerView);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-
+        mAdapter = new LocationInfoPopUpWinRecycleViewAdapter(mContext,locationList,teamMarkerRef,map);
+        mRecyclerView.setAdapter(mAdapter);
         teamMarkerRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 locationList.add(snapshot.getKey());
-                mAdapter = new LocationInfoPopUpWinRecycleViewAdapter(mContext,locationList,teamMarkerRef,map);
-                mRecyclerView.setAdapter(mAdapter);
             }
 
             @Override
@@ -108,13 +105,15 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
     }
 
     public void addLocation(double latitude, double longitude) {
+        UserMarker userMarker = new UserMarker();
+        userMarker.latitude = latitude;
+        userMarker.longitude = longitude;
         Intent intent = new Intent(this.activity, CreateNewMarker.class);
         intent.putExtra(UserSchema.USER_DATA, user);
-        intent.putExtra("latitude", latitude);
-        intent.putExtra("longitude", longitude);
+        intent.putExtra(UserSchema.USER_MARKER, userMarker);
+//        intent.putExtra("latitude", latitude);
+//        intent.putExtra("longitude", longitude);
         this.activity.startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
-
-
     }
 
 }

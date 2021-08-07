@@ -1,4 +1,4 @@
-package com.usrProject.taizhongoldtownguideapp.model;
+package com.usrProject.taizhongoldtownguideapp.model.service;
 
 public class LocationDTO {
 

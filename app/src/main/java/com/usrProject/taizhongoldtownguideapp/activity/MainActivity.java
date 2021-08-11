@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private MapType currentMapType;
     //  個人資料
     private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

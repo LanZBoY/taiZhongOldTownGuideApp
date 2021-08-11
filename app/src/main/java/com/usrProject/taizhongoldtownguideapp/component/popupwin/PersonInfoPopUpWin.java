@@ -1,9 +1,7 @@
 package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -18,8 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.component.PersonalInfoPopUpWinRecycleViewAdapter;
-import com.usrProject.taizhongoldtownguideapp.component.popupwin.CustomPopUpWin;
-import com.usrProject.taizhongoldtownguideapp.model.User.OtherUser;
+import com.usrProject.taizhongoldtownguideapp.model.User.UserDTO;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
@@ -30,7 +27,7 @@ import java.util.List;
 
 public class PersonInfoPopUpWin extends CustomPopUpWin {
 
-    private List<OtherUser> friendList = new ArrayList<>();
+    private List<UserDTO> friendList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private PersonalInfoPopUpWinRecycleViewAdapter mAdapter;//    private SharedPreferences pref;
 
@@ -63,7 +60,7 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
         teamMemberRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                OtherUser user = snapshot.getValue(OtherUser.class);
+                UserDTO user = snapshot.getValue(UserDTO.class);
                 friendList.add(user);
                 mAdapter.notifyDataSetChanged();
             }
@@ -75,7 +72,7 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                OtherUser user = snapshot.getValue(OtherUser.class);
+                UserDTO user = snapshot.getValue(UserDTO.class);
                 removeFriendList(friendList, user);
                 mAdapter.notifyDataSetChanged();
             }
@@ -96,9 +93,9 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
             dismiss();
         });
     }
-    private void removeFriendList(List<OtherUser> friendList,OtherUser targetUser){
+    private void removeFriendList(List<UserDTO> friendList, UserDTO targetUser){
         for (int i = 0; i < friendList.size(); i++){
-            OtherUser user = friendList.get(i);
+            UserDTO user = friendList.get(i);
             if(StringUtils.equals(user.userId, targetUser.userId)){
                 friendList.remove(i);
                 break;

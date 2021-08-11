@@ -18,14 +18,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.usrProject.taizhongoldtownguideapp.R;
-import com.usrProject.taizhongoldtownguideapp.model.User.OtherUser;
+import com.usrProject.taizhongoldtownguideapp.model.User.UserDTO;
 
 import java.util.List;
 
 
 public class PersonalInfoPopUpWinRecycleViewAdapter extends RecyclerView.Adapter<PersonalInfoPopUpWinRecycleViewAdapter.FriendListRecycleViewHolder> {
 
-    private List<OtherUser> friendList;
+    private List<UserDTO> friendList;
     private DatabaseReference teamMemberRef;
     private final LayoutInflater mInflater;
     private GoogleMap mMap;
@@ -39,7 +39,6 @@ public class PersonalInfoPopUpWinRecycleViewAdapter extends RecyclerView.Adapter
 
         public FriendListRecycleViewHolder(View itemView, PersonalInfoPopUpWinRecycleViewAdapter adapter) {
             super(itemView);
-
             wordItemView = itemView.findViewById(R.id.user_context);
             userIcon = itemView.findViewById(R.id.user_icon);
             isLeaderIcon = itemView.findViewById(R.id.isLeaderIcon);
@@ -68,7 +67,7 @@ public class PersonalInfoPopUpWinRecycleViewAdapter extends RecyclerView.Adapter
         }
     }
 
-    public PersonalInfoPopUpWinRecycleViewAdapter(Context context, List<OtherUser> friendList, DatabaseReference teamMemberRef, GoogleMap map) {
+    public PersonalInfoPopUpWinRecycleViewAdapter(Context context, List<UserDTO> friendList, DatabaseReference teamMemberRef, GoogleMap map) {
         mInflater = LayoutInflater.from(context);
         this.mMap = map;
         this.friendList = friendList;
@@ -87,6 +86,10 @@ public class PersonalInfoPopUpWinRecycleViewAdapter extends RecyclerView.Adapter
     public void onBindViewHolder(@NonNull final FriendListRecycleViewHolder holder, final int position) {
         holder.wordItemView.setText(friendList.get(position).userName);
         holder.userIcon.setImageResource(friendList.get(position).userIconPath);
+        UserDTO user = friendList.get(position);
+        if(!user.isLeader){
+            holder.isLeaderIcon.setVisibility(View.INVISIBLE);
+        }
     }
     @Override
     public int getItemCount() {

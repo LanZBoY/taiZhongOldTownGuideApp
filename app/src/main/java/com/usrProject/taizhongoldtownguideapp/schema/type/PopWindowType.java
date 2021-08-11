@@ -5,5 +5,6 @@ public enum PopWindowType {
     PERSON_INFO,
     SWITCH_LAYER,
     CHECK_IN_COMPLETED,
-    CHECK_IN_ON_COMPLETE;
+    CHECK_IN_ON_COMPLETE,
+    NEXT_STOP,
 }

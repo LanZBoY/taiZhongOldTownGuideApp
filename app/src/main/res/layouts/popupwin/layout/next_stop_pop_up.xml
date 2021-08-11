@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/nextStopBackground"
+        android:layout_width="350dp"
+        android:layout_height="580dp"
+        android:background="@drawable/rectangle_solid"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/nextStopButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/info_window_background"
+        android:text="@string/stop_guide"
+        app:layout_constraintBottom_toBottomOf="@+id/nextStopBackground"
+        app:layout_constraintEnd_toEndOf="@+id/nextStopBackground"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/nextStopBackground" />
+
+    <TextView
+        android:id="@+id/nextStopTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next_stop"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="@+id/nextStopBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/nextStopBackground" />
+
+    <TextView
+        android:id="@+id/stopName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_name"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toTopOf="@+id/nextStopButton"
+        app:layout_constraintEnd_toEndOf="@+id/nextStopBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/nextStopBackground" />
+</androidx.constraintlayout.widget.ConstraintLayout>

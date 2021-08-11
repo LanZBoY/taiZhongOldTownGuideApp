@@ -37,6 +37,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -60,6 +61,7 @@ import com.usrProject.taizhongoldtownguideapp.component.CustomInfoWindowAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInOnCompletePopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.LocationInfoPopUpWin;
+import com.usrProject.taizhongoldtownguideapp.component.popupwin.NextStopPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.PersonInfoPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
@@ -147,7 +149,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         //    private final String url = "http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&token=2EV7tVz0Pv6bLgB/aXRURg==";
         Button switchLayerBtn = findViewById(R.id.layer_btn);
         Button checkInRecordBtn = findViewById(R.id.checkIn_record_btn);
-        Button checkInProcessBotton = findViewById(R.id.checkInBotton);
+        Button checkInProcessButton = findViewById(R.id.checkInBotton);
 
 
         //如果是單人地圖的話，需要處理按鈕佈局
@@ -159,15 +161,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             Intent intent = new Intent(getApplicationContext(), CheckInTasksView.class);
             startActivity(intent);
         });
-//        TODO:打卡任務進度確認
-        checkInProcessBotton.setOnClickListener(v -> {
-            if (SharedPreferencesManager.contains(this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK)) {
-                popWindow(PopWindowType.CHECK_IN_COMPLETED);
-            } else {
-                Toast.makeText(getApplicationContext(), "你尚未接取打卡任務，請至任務列表選擇並接取打卡任務", Toast.LENGTH_SHORT).show();
-            }
-
-        });
+//      打卡任務進度確認
+        if(currentTaskProcess == null){
+            checkInProcessButton.setVisibility(View.INVISIBLE);
+        }
+        checkInProcessButton.setOnClickListener(v -> popWindow(PopWindowType.CHECK_IN_COMPLETED));
         createNotificationChannel();
 
         locationInfoButton.setOnClickListener(v -> popWindow(PopWindowType.LOCATION_INFO));
@@ -435,7 +433,16 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         if (checkTask.markLatitude == null || checkTask.markLongitude == null) {
             return;
         }
-        currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude, checkTask.markLongitude)).title(checkTask.markTitle));
+        if(currentTaskMarker == null){
+            currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude, checkTask.markLongitude)).title(checkTask.markTitle));
+            currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            currentTaskMarker.setTitle(checkTask.markTitle);
+//            currentTaskMarker.setSnippet(checkTask.markContent);
+        }else{
+            currentTaskMarker.setPosition(new LatLng(checkTask.markLatitude, checkTask.markLongitude));
+            currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            currentTaskMarker.setTitle(checkTask.markTitle);
+        }
     }
 
     //等待使用者在createNewMarker頁面把增加marker的資訊返回
@@ -479,7 +486,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     //地圖addMarker時可以使用到
                     user.latitude = currentLocation.getLatitude();
                     user.longitude = currentLocation.getLongitude();
-                    moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f));
 
 
                 } else {
@@ -570,9 +577,11 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+
     //用來移動你的攝像機
-    private void moveCamera(LatLng latLng, float zoom) {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    private void animateCameraAndShowInfo(LatLng latLng){
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        currentTaskMarker.showInfoWindow();
     }
 
     /**
@@ -635,6 +644,10 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params = getWindow().getAttributes();
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
+                if(bundle.getBoolean("guideButton")){
+                    CheckInMarkerObject checkInMarkerObject = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
+                    animateCameraAndShowInfo(new LatLng(checkInMarkerObject.markLatitude,checkInMarkerObject.markLongitude));
+                }
             });
         } else if (popWindowType == PopWindowType.CHECK_IN_ON_COMPLETE) {
             Bundle bundle = new Bundle();
@@ -649,18 +662,34 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
 //                  初始化所有狀態
-                currentTaskMarker.remove();
+//                currentTaskMarker.remove();
                 isCheckPopUp = false;
 
                 if (!currentTaskProcess.doneFlag) {
                     SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
                     setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
+//                  引導
+                    popWindow(PopWindowType.NEXT_STOP);
                 } else {
-//                      TODO:打卡任務完成
                     SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
                     currentTaskProcess = null;
                     currentTaskMarker = null;
                 }
+            });
+        }else if(popWindowType == PopWindowType.NEXT_STOP){
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(TaskSchema.CURRENT_TASK, currentTaskProcess.contents.get(currentTaskProcess.currentTask));
+            NextStopPopUpWin nextStopPopUpWin = new NextStopPopUpWin(this, R.layout.next_stop_pop_up,false,bundle);
+            nextStopPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL,0,0);
+            params = getWindow().getAttributes();
+            params.alpha = 0.7f;
+            getWindow().setAttributes(params);
+            nextStopPopUpWin.setOnDismissListener(() ->{
+                params = getWindow().getAttributes();
+                params.alpha = 1f;
+                getWindow().setAttributes(params);
+                CheckInMarkerObject checkInMarkerObject = (CheckInMarkerObject) bundle.getSerializable(TaskSchema.CURRENT_TASK);
+                animateCameraAndShowInfo(new LatLng(checkInMarkerObject.markLatitude,checkInMarkerObject.markLongitude));
             });
         }
     }

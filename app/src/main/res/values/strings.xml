@@ -19,7 +19,7 @@
     <string name="notInTeam_joinTeamButton_text">參加團隊</string>
     <string name="joinTeam_quickJoinButton_text">快速加入</string>
 
-    <string name="Title">標題</string>
+
 
     <string name="Exit">關閉</string>
     <string name="Cancel">取消</string>
@@ -32,4 +32,10 @@
     <string name="CheckDesc">任務指定地點打卡提示</string>
     <string name="CheckHint">打卡提示</string>
     <string name="CheckProcess">打卡進度</string>
+
+    <string name="nextStopTittle">下一站 -> %s</string>
+    <string name="stop_name">站名</string>
+    <string name="next_stop">下一站</string>
+    <string name="stop_guide">引導</string>
+    <string name="todo">TODO</string>
 </resources>

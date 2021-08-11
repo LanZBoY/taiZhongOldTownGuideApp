@@ -26,6 +26,7 @@ public class CheckInPopUpWin extends CustomPopUpWin {
 
     private Button closeWinButton;
     private Button cancelButton;
+    private Button guideButton;
     private TextView completedCountTextView;
     private TextView titleTextView;
     private ProgressBar progressBar;
@@ -34,6 +35,7 @@ public class CheckInPopUpWin extends CustomPopUpWin {
         super(mContext, xmlLayout, false);
         closeWinButton = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_close_btn);
         cancelButton = this.getView().findViewById(R.id.check_in_record_pop_up_win_cancel_button);
+        guideButton = this.getView().findViewById(R.id.check_in_record_pop_up_win_guide_button);
         completedCountTextView = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_textView);
         titleTextView = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_title_textView);
         progressBar = this.getView().findViewById(R.id.check_in_record_pop_up_win_progressBar);
@@ -50,34 +52,26 @@ public class CheckInPopUpWin extends CustomPopUpWin {
             completedCountTextView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
             cancelButton.setText(R.string.DoneDirectly);
-            listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    SharedPreferencesManager.remove(mContext, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
+            listener = view -> {
+                SharedPreferencesManager.remove(mContext, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
 //                    pref.edit().remove(TaskSchema.CURRENT_TASK).commit();
-                    Toast.makeText(getView().getContext(),"完成進度",Toast.LENGTH_SHORT).show();
-                    dismiss();
-                }
+                Toast.makeText(getView().getContext(),"完成進度",Toast.LENGTH_SHORT).show();
+                dismiss();
             };
         }else{
             currentMarker = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
-            titleTextView.setText(currentMarker.markTitle);
+            String title = String.format(titleTextView.getText().toString(), currentMarker.markTitle);
+            titleTextView.setText(title);
             completedCountTextView.setText(String.format("%d/%d",currentTaskProcess.currentTask,currentTaskProcess.contents.size()));
             Double doneProcess = Double.valueOf(currentTaskProcess.currentTask) / Double.valueOf(currentTaskProcess.contents.size());
             progressBar.setProgress((int) (doneProcess * 100.0));
-            listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dismiss();
-                }
-            };
+            listener = view -> dismiss();
         }
-        closeWinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        closeWinButton.setOnClickListener(v -> dismiss());
         cancelButton.setOnClickListener(listener);
+        guideButton.setOnClickListener(v -> {
+            bundle.putBoolean("guideButton", true);
+            dismiss();
+        });
     }
 }

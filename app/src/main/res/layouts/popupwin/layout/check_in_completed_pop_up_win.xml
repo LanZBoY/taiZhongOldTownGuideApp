@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/CheckProcessTitle"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="@+id/check_in_oncomplete_background"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="@+id/check_in_oncomplete_background"
@@ -55,14 +55,15 @@
         app:layout_constraintStart_toStartOf="@+id/check_in_record_pop_up_win_progressBar"
         app:layout_constraintTop_toTopOf="@+id/check_in_record_pop_up_win_progressBar"
         app:layout_constraintVertical_bias="0.506"
-        app:srcCompat="@drawable/marker" />
+        app:srcCompat="@drawable/marker"
+        android:contentDescription="@string/todo" />
 
     <TextView
         android:id="@+id/check_in_record_pop_up_win_completed_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ProcessDesc"
-        android:textSize="35dp"
+        android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="@+id/check_in_oncomplete_background"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="@+id/check_in_oncomplete_background"
@@ -73,8 +74,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="@string/Title"
-        android:textSize="35dp"
+        android:text="@string/nextStopTittle"
+        android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="@+id/check_in_oncomplete_background"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="@+id/check_in_oncomplete_background"
@@ -84,11 +85,24 @@
         android:id="@+id/check_in_record_pop_up_win_cancel_button"
         android:layout_width="144dp"
         android:layout_height="50dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="56dp"
         android:background="@drawable/btn_bg"
         android:text="@string/Exit"
-        app:layout_constraintEnd_toEndOf="@+id/check_in_oncomplete_background"
+        app:layout_constraintBottom_toBottomOf="@+id/check_in_oncomplete_background"
         app:layout_constraintStart_toStartOf="@+id/check_in_oncomplete_background"
+        app:layout_constraintTop_toBottomOf="@+id/check_in_record_pop_up_win_completed_title_textView" />
+
+    <Button
+        android:id="@+id/check_in_record_pop_up_win_guide_button"
+        android:layout_width="144dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="56dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/btn_bg"
+        android:text="@string/stop_guide"
+        app:layout_constraintBottom_toBottomOf="@+id/check_in_oncomplete_background"
+        app:layout_constraintEnd_toEndOf="@+id/check_in_oncomplete_background"
         app:layout_constraintTop_toBottomOf="@+id/check_in_record_pop_up_win_completed_title_textView" />
 
     <Button

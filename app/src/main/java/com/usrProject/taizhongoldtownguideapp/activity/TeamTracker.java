@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -37,7 +36,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -61,7 +59,6 @@ import com.usrProject.taizhongoldtownguideapp.component.CustomInfoWindowAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInOnCompletePopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.LocationInfoPopUpWin;
-import com.usrProject.taizhongoldtownguideapp.component.popupwin.NextStopPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.PersonInfoPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.SwitchLayerPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
@@ -273,8 +270,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 intent = new Intent(getApplicationContext(), CreateNewUser.class);
             }
             startActivity(intent);
-            LatLng position = marker.getPosition();
-            addLocation(position.latitude, position.longitude);
+            addLocation(marker);
         });
 
         messageHandler = new Handler() {
@@ -416,7 +412,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     for (DataSnapshot data : snapshot.getChildren()) {
                         UserMarker userMarker = data.getValue(UserMarker.class);
                         assert userMarker != null;
-                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.context));
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title));
                         marker.setTag("customize");
                     }
                 }
@@ -456,7 +452,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                Double latitude = intent.getDoubleExtra("latitude", 0);
 //                Double longitude = intent.getDoubleExtra("longitude", 0);
                 assert userMarker != null;
-                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.context).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 marker.setTag("customize");
             }
         }
@@ -580,8 +576,18 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
     //用來移動你的攝像機
     private void animateCameraAndShowInfo(LatLng latLng){
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        currentTaskMarker.showInfoWindow();
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), new GoogleMap.CancelableCallback() {
+            @Override
+            public void onFinish() {
+                currentTaskMarker.showInfoWindow();
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
+
     }
 
     /**
@@ -669,27 +675,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
                     setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
 //                  引導
-                    popWindow(PopWindowType.NEXT_STOP);
+                    popWindow(PopWindowType.CHECK_IN_COMPLETED);
                 } else {
                     SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
                     currentTaskProcess = null;
                     currentTaskMarker = null;
                 }
-            });
-        }else if(popWindowType == PopWindowType.NEXT_STOP){
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(TaskSchema.CURRENT_TASK, currentTaskProcess.contents.get(currentTaskProcess.currentTask));
-            NextStopPopUpWin nextStopPopUpWin = new NextStopPopUpWin(this, R.layout.next_stop_pop_up,false,bundle);
-            nextStopPopUpWin.showAtLocation(findViewById(R.id.map), Gravity.CENTER|Gravity.CENTER_HORIZONTAL,0,0);
-            params = getWindow().getAttributes();
-            params.alpha = 0.7f;
-            getWindow().setAttributes(params);
-            nextStopPopUpWin.setOnDismissListener(() ->{
-                params = getWindow().getAttributes();
-                params.alpha = 1f;
-                getWindow().setAttributes(params);
-                CheckInMarkerObject checkInMarkerObject = (CheckInMarkerObject) bundle.getSerializable(TaskSchema.CURRENT_TASK);
-                animateCameraAndShowInfo(new LatLng(checkInMarkerObject.markLatitude,checkInMarkerObject.markLongitude));
             });
         }
     }
@@ -716,20 +707,17 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         alert.create().show();
     }
 
-    /**
-     * Add location.
-     *
-     * @param latitude  the latitude
-     * @param longitude the longitude
-     */
-    public void addLocation(double latitude, double longitude) {
+    public void addLocation(Marker marker) {
         params = getWindow().getAttributes();
         params.alpha = 1f;
         getWindow().setAttributes(params);
+        UserMarker userMarker = new UserMarker();
+        userMarker.title = marker.getTitle();
+        userMarker.latitude = marker.getPosition().latitude;
+        userMarker.longitude = marker.getPosition().longitude;
         Intent intent = new Intent(this, CreateNewMarker.class);
         intent.putExtra(UserSchema.USER_DATA, user);
-        intent.putExtra("latitude", latitude);
-        intent.putExtra("longitude", longitude);
+        intent.putExtra(UserSchema.USER_MARKER, userMarker);
         startActivityForResult(intent, ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
 

@@ -98,7 +98,7 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
             UserDTO user = friendList.get(i);
             if(StringUtils.equals(user.userId, targetUser.userId)){
                 friendList.remove(i);
-                break;
+                return;
             }
         }
     }

@@ -36,6 +36,7 @@ public class JoinTeam extends AppCompatActivity {
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         mDatabase = FirebaseDatabase.getInstance();
         teamRef = mDatabase.getReference("team");
+        SharedPreferencesManager.setUser(this, user);
     }
 
     public void quickJoin(View view) {

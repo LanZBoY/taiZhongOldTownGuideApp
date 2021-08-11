@@ -27,12 +27,14 @@ import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class LocationInfoPopUpWin extends CustomPopUpWin {
 
-    private List<String> locationList = new ArrayList<>();
+    private List<UserMarker> locationList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private LocationInfoPopUpWinRecycleViewAdapter mAdapter;
 //    private String teamID;
@@ -73,12 +75,15 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
         mRecyclerView = getView().findViewById(R.id.showLocation_recyclerView);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mAdapter = new LocationInfoPopUpWinRecycleViewAdapter(mContext,locationList,teamMarkerRef,map);
+        mAdapter = new LocationInfoPopUpWinRecycleViewAdapter(mContext,locationList,teamMarkerRef,map, this);
         mRecyclerView.setAdapter(mAdapter);
         teamMarkerRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                locationList.add(snapshot.getKey());
+                UserMarker userMarker = snapshot.getValue(UserMarker.class);
+                userMarker.id = snapshot.getKey();
+                locationList.add(userMarker);
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -88,7 +93,8 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
+                removeLocation(locationList, snapshot.getKey());
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -104,6 +110,15 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
 
     }
 
+    private void removeLocation(List<UserMarker> locationList, String key){
+        for(int i = 0; i < locationList.size(); i++){
+            UserMarker currentUserMarker = locationList.get(i);
+            if(StringUtils.equals(currentUserMarker.id, key)){
+                locationList.remove(i);
+                return;
+            }
+        }
+    }
     public void addLocation(double latitude, double longitude) {
         UserMarker userMarker = new UserMarker();
         userMarker.latitude = latitude;
@@ -111,8 +126,7 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
         Intent intent = new Intent(this.activity, CreateNewMarker.class);
         intent.putExtra(UserSchema.USER_DATA, user);
         intent.putExtra(UserSchema.USER_MARKER, userMarker);
-//        intent.putExtra("latitude", latitude);
-//        intent.putExtra("longitude", longitude);
+
         this.activity.startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
 

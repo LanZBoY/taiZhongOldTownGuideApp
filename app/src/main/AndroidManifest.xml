@@ -48,32 +48,32 @@
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.ChangeMarkerIcon"
-            android:label="选择标记"
+            android:label="選擇標記"
             android:parentActivityName=".activity.CreateNewMarker"
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.ChangeUserIcon"
-            android:label="选择头框"
+            android:label="選擇頭貼"
             android:parentActivityName=".activity.CreateNewUser"
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.CreateNewUser"
-            android:label="新成员加入"
+            android:label="建立角色"
             android:parentActivityName=".activity.MainActivity"
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.CreateNewMarker"
-            android:label="新增标记"
+            android:label="新增標記"
             android:parentActivityName=".activity.TeamTracker"
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.TeamEntry"
-            android:label="参团方式"
+            android:label="參加方式"
             android:parentActivityName=".activity.CreateNewUser"
             android:screenOrientation="nosensor" />
         <activity
             android:name=".activity.JoinTeam"
-            android:label="快速加入团队"
+            android:label="快速加入團隊"
             android:parentActivityName=".activity.TeamEntry"
             android:screenOrientation="nosensor" />
         <!--
@@ -90,7 +90,7 @@
 
         <activity
             android:name=".activity.TeamTracker"
-            android:label="我的团队"
+            android:label="我的隊伍"
             android:parentActivityName=".activity.MainActivity"
             android:screenOrientation="nosensor" />
         <activity

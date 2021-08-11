@@ -6,5 +6,4 @@ public enum PopWindowType {
     SWITCH_LAYER,
     CHECK_IN_COMPLETED,
     CHECK_IN_ON_COMPLETE,
-    NEXT_STOP,
 }

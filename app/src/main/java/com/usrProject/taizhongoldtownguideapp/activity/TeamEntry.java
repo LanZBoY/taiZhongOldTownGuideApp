@@ -39,6 +39,9 @@ public class TeamEntry extends AppCompatActivity {
         setContentView(R.layout.activity_team_entry);
         Intent intent = getIntent();
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
+        if(user == null){
+            user = SharedPreferencesManager.getUser(this);
+        }
 //        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
 //        userName = pref.getString("userName","None");
         welcomeTitleTextView = findViewById(R.id.notInTeam_textView);
@@ -140,5 +143,4 @@ public class TeamEntry extends AppCompatActivity {
         String uuid = StringUtils.substring(UUID.randomUUID().toString(),0,8);
         return uuid;
     }
-
 }

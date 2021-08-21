@@ -26,12 +26,8 @@ import java.util.UUID;
 
 public class TeamEntry extends AppCompatActivity {
     private TextView welcomeTitleTextView;
-//    private String userName;
-//    private String teamID;
-//    private String userID;
     private int userIconPath;
     private User user;
-//    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +38,6 @@ public class TeamEntry extends AppCompatActivity {
         if(user == null){
             user = SharedPreferencesManager.getUser(this);
         }
-//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-//        userName = pref.getString("userName","None");
         welcomeTitleTextView = findViewById(R.id.notInTeam_textView);
         String wellcomeText = "歡迎你，" + user.userName;
         welcomeTitleTextView.setText(wellcomeText);

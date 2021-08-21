@@ -28,13 +28,9 @@ public class CreateNewMarker extends AppCompatActivity {
 
     private Boolean setNotice;
     private Button confirmButton;
-//    private double longitude;
-//    private double latitude;
+
     final int PICK_IMAGE_REQUEST = 2;
     private ImageView markerIcon;
-//    private String markerPath;
-    //    private String teamID;
-    //    private SharedPreferences pref;
     private FirebaseDatabase mDatabase;
 
     private User user;
@@ -48,17 +44,21 @@ public class CreateNewMarker extends AppCompatActivity {
         Intent intent = getIntent();
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         userMarker = (UserMarker) intent.getSerializableExtra(UserSchema.USER_MARKER);
-//        latitude =  intent.getDoubleExtra("latitude",0);
-//        longitude = intent.getDoubleExtra("longitude", 0);
         mDatabase = FirebaseDatabase.getInstance();
-
-//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-//        teamID = pref.getString("teamID","error");
-//        markerPath = "location_icon";
-        userMarker.iconId = R.drawable.location_icon;
-
         markerIcon = findViewById(R.id.addIcon_iconView);
         markTitleEditText = findViewById(R.id.addIcon_editText);
+        switch (userMarker.markType){
+            case TASK:
+                markerIcon.setClickable(false);
+                userMarker.iconId = R.drawable.check_in_record_icon;
+                markerIcon.setImageResource(userMarker.iconId);
+                break;
+            case CUSTOMIZE:
+                markerIcon.setClickable(true);
+                userMarker.iconId = R.drawable.location_icon;
+                markerIcon.setImageResource(userMarker.iconId);
+                break;
+        }
         if(StringUtils.isNotBlank(userMarker.title)){
             markTitleEditText.setText(userMarker.title);
         }
@@ -86,20 +86,9 @@ public class CreateNewMarker extends AppCompatActivity {
         */
 
         confirmButton.setOnClickListener(v -> {
-//                Map<String, Object> newMark = new HashMap<>();
             userMarker.title = markTitleEditText.getText().toString();
-//                intent.putExtra("markContext", editText.getText().toString());
-//                intent.putExtra("latitude", latitude);
-//                intent.putExtra("longitude", longitude);
             intent.putExtra(UserSchema.USER_MARKER, userMarker);
             setResult(RESULT_OK, intent);
-//                newMark.put("markContext",editText.getText().toString());
-//                newMark.put("markLatitude",latitude);
-//                newMark.put("markLongitude",longitude);
-//                newMark.put("setRemind",true);
-//                newMark.put("markSetTime",picker.getHour()+" "+picker.getMinute());
-//                newMark.put("markPath",markerPath);
-
             mDatabase.getReference().child("team").child(user.teamId).child("marker").push().setValue(userMarker);
             finish();
         });

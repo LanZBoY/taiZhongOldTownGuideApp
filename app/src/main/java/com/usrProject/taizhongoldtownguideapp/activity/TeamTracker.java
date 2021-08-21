@@ -68,6 +68,7 @@ import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.ServiceSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MarkType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.PopWindowType;
 import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
@@ -250,10 +251,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     @SuppressLint("HandlerLeak")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
-
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -385,7 +383,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 
                         if (userLatitude != null && userLongitude != null) {
                             marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
-                            marker.setTag("user");
+                            marker.setTag(MarkType.USER);
                             if (hashMapMarker.containsKey(userID)) {
                                 Marker delMarker = hashMapMarker.get(userID);
                                 assert delMarker != null;
@@ -413,7 +411,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         UserMarker userMarker = data.getValue(UserMarker.class);
                         assert userMarker != null;
                         Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title));
-                        marker.setTag("customize");
+                        marker.setTag(userMarker.markType);
                     }
                 }
             }
@@ -433,11 +431,13 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude, checkTask.markLongitude)).title(checkTask.markTitle));
             currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             currentTaskMarker.setTitle(checkTask.markTitle);
+            currentTaskMarker.setTag(MarkType.TASK);
 //            currentTaskMarker.setSnippet(checkTask.markContent);
         }else{
             currentTaskMarker.setPosition(new LatLng(checkTask.markLatitude, checkTask.markLongitude));
             currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             currentTaskMarker.setTitle(checkTask.markTitle);
+            currentTaskMarker.setTag(MarkType.TASK);
         }
     }
 
@@ -453,7 +453,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                Double longitude = intent.getDoubleExtra("longitude", 0);
                 assert userMarker != null;
                 Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-                marker.setTag("customize");
+                marker.setTag(MarkType.CUSTOMIZE);
             }
         }
     }
@@ -556,18 +556,16 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 if (mCurrentLocation != null) {
                     //檢查位置
                     if (user.latitude != mCurrentLocation.getLatitude() || user.longitude != mCurrentLocation.getLongitude()) {
-                        Map<String, Object> userLocations = new HashMap<>();
-                        userLocations.put("latitude", mCurrentLocation.getLatitude());
-                        userLocations.put("longitude", mCurrentLocation.getLongitude());
+                        user.latitude = mCurrentLocation.getLatitude();
+                        user.longitude = mCurrentLocation.getLongitude();
+                        Map<String, Object> updateUser = new HashMap<>();
+                        updateUser.put("latitude", user.latitude);
+                        updateUser.put("longitude", user.longitude);
                         //地圖addMarker時可以使用到
-                        user.latitude = currentLocation.getLatitude();
-                        user.longitude = currentLocation.getLongitude();
-                        usersRef.child(user.userId).updateChildren(userLocations);
+                        usersRef.child(user.userId).updateChildren(updateUser);
                     }
 //                      檢查下個任務點距離
                     checkTaskDone(mCurrentLocation);
-
-
                 }
             });
         }
@@ -670,7 +668,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                  初始化所有狀態
 //                currentTaskMarker.remove();
                 isCheckPopUp = false;
-
                 if (!currentTaskProcess.doneFlag) {
                     SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
                     setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
@@ -715,6 +712,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         userMarker.title = marker.getTitle();
         userMarker.latitude = marker.getPosition().latitude;
         userMarker.longitude = marker.getPosition().longitude;
+        userMarker.markType = (MarkType) marker.getTag();
         Intent intent = new Intent(this, CreateNewMarker.class);
         intent.putExtra(UserSchema.USER_DATA, user);
         intent.putExtra(UserSchema.USER_MARKER, userMarker);

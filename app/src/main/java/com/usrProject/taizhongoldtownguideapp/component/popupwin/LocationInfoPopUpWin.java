@@ -26,6 +26,7 @@ import com.usrProject.taizhongoldtownguideapp.component.popupwin.CustomPopUpWin;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MarkType;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -123,10 +124,10 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
         UserMarker userMarker = new UserMarker();
         userMarker.latitude = latitude;
         userMarker.longitude = longitude;
+        userMarker.markType = MarkType.CUSTOMIZE;
         Intent intent = new Intent(this.activity, CreateNewMarker.class);
         intent.putExtra(UserSchema.USER_DATA, user);
         intent.putExtra(UserSchema.USER_MARKER, userMarker);
-
         this.activity.startActivityForResult(intent,ADD_LOCATION_ACTIVITY_REQUEST_CODE);
     }
 

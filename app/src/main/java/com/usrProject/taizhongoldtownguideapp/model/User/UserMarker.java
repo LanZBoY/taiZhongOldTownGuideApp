@@ -1,5 +1,7 @@
 package com.usrProject.taizhongoldtownguideapp.model.User;
 
+import com.usrProject.taizhongoldtownguideapp.schema.type.MarkType;
+
 import java.io.Serializable;
 
 public class UserMarker implements Serializable {
@@ -16,4 +18,6 @@ public class UserMarker implements Serializable {
     public boolean setRemind;
 
     public int iconId;
+
+    public MarkType markType;
 }

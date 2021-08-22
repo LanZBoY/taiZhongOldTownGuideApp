@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -74,7 +75,9 @@ import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 import com.usrProject.taizhongoldtownguideapp.utils.LocationUtils;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.internal.StringUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -666,7 +669,17 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
 //                  初始化所有狀態
-//                currentTaskMarker.remove();
+//              刪除資料庫的marker資料
+                markersRef.get().addOnCompleteListener((task) -> {
+                    if(task.isComplete()){
+                        String title = currentTaskMarker.getTitle();
+                        for(DataSnapshot dataSnapshot : task.getResult().getChildren()){
+                            if(StringUtils.equals(title,dataSnapshot.child("title").getValue(String.class))){
+                                markersRef.child(dataSnapshot.getKey()).removeValue();
+                            }
+                        }
+                    }
+                });
                 isCheckPopUp = false;
                 if (!currentTaskProcess.doneFlag) {
                     SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);

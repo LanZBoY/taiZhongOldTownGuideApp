@@ -43,18 +43,15 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
 
 
         loadImageFromDatabase(mContext);
-        checkInDoneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkInMarkerObject.setChecked(true);
-                currentTaskProcess.currentTask += 1;
-                if(currentTaskProcess.currentTask >= currentTaskProcess.contents.size()){
-                    currentTaskProcess.doneFlag = true;
-                    Toast.makeText(mContext, String.format("恭喜你完成 %s 任務",currentTaskProcess.taskTitle),Toast.LENGTH_LONG).show();
-                }
-//                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
-                dismiss();
+        checkInDoneButton.setOnClickListener(view -> {
+            checkInMarkerObject.setChecked(true);
+            currentTaskProcess.currentTask += 1;
+            if(currentTaskProcess.currentTask >= currentTaskProcess.contents.size()){
+                currentTaskProcess.doneFlag = true;
+                Toast.makeText(mContext, String.format("恭喜你完成 %s 任務",currentTaskProcess.taskTitle),Toast.LENGTH_LONG).show();
             }
+//                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
+            dismiss();
         });
 
     }

@@ -343,8 +343,9 @@ public class MainActivity extends AppCompatActivity {
     private void checkInRange(float xPoint, float yPoint) {
         double finalPointX = (xPoint + mapImageView.getScrollX()) / phoneDensity;
         double finalPointY = (yPoint + mapImageView.getScrollY()) / phoneDensity - 80;
-//        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
+        Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
         for(MapClick mapClick : MapClick.values()){
+
             if(inRange(mapClick,finalPointX,finalPointY)){
                 popWindow(mapClick);
                 break;
@@ -571,7 +572,7 @@ public class MainActivity extends AppCompatActivity {
             if(mapImageView.getScrollY() < 0){
                 mapImageView.scrollTo(mapImageView.getScrollX(),0);
             }
-//            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+            Log.d(ImageView.class.getSimpleName(),String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
             return false;
         }
 

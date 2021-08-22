@@ -1,9 +1,11 @@
 package com.usrProject.taizhongoldtownguideapp.model.User;
 
+import com.google.android.gms.maps.model.Marker;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.type.TeamType;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class User implements Serializable {
 

@@ -17,6 +17,7 @@
             android:textColor="#000"
             android:textSize="14sp"
             android:textStyle="bold" />
+
         <TextView
             android:id="@+id/info_window_content"
             android:layout_width="wrap_content"

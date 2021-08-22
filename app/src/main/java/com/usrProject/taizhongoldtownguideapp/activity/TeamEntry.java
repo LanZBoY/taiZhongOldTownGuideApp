@@ -22,6 +22,7 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class TeamEntry extends AppCompatActivity {
@@ -90,13 +91,8 @@ public class TeamEntry extends AppCompatActivity {
 
 
     public void goSelf(View view) {
-//        Map<String, Object> user = new HashMap<>();
         DatabaseReference teamRef = FirebaseDatabase.getInstance().getReference("team");
         //這裡要check teamID有沒有相撞
-//        userIconPath = pref.getInt("userIconPath",R.drawable.user_icon1);
-//        user.put("userIconPath", userIconPath);
-//        user.put("userName",userName);
-//        user.put("isLeader",true);
         user.isLeader = true;
         user.teamId = teamIDGenerator();
         //這裡在檢查有沒有重複的teamID
@@ -124,8 +120,6 @@ public class TeamEntry extends AppCompatActivity {
         teamRef.child(user.teamId).child("userData").child(user.userId).setValue(user);
 
         teamRef.removeEventListener(listner);
-//        pref.edit().putString("userID", userID).putString("teamID",teamID).putBoolean("inTeam",true).commit();
-//        pref.edit().putString("roomType","singleUser").commit();
 
         Intent intent = new Intent(this, TeamTracker.class);
         intent.putExtra(UserSchema.USER_DATA, user);

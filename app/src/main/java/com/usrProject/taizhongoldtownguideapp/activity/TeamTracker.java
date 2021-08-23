@@ -487,7 +487,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     user.longitude = currentLocation.getLongitude();
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f));
 
-
                 } else {
                     //如果用戶進入app後才開啟GPS定位的話，會需要重啟location的資料才會正常
                     finish();

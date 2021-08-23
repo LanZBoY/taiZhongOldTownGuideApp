@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -48,6 +51,7 @@ import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private Button goSurroundingViewBtn;
     private Button navBtn;
     private GestureDetector GD;
+    private ScaleGestureDetector SGD;
     private ImageView mapImageView;
     private ImageView backgroundImageView;
     private ArrayList<ImageView> cloudImageViews;
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 //    private SharedPreferences pref;
     private Handler handler;
     public boolean clickFlag = true;
+    float mScaleFactor  = 1.0f;
     //記錄照片中心
     private MapType currentMapType;
     //  個人資料
@@ -113,11 +119,34 @@ public class MainActivity extends AppCompatActivity {
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
         mapImageView = findViewById(R.id.mapView);
+        mapImageView.setScaleType(ImageView.ScaleType.MATRIX);
         //預設是第四張照片
 //        Bitmap initImage = ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
 //        mapImageView.setImageBitmap(initImage);
 //        mapImageView.setImageResource(R.drawable.new_map_now);
         changeImage(MapType.NEW_MAP_NOW);
+//      縮放用的
+        SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+                mScaleFactor *= scaleGestureDetector.getScaleFactor();
+                mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor, 2.0f));
+                Log.d("Test",String.valueOf(mScaleFactor));
+                Matrix matrix = mapImageView.getImageMatrix();
+                matrix.setScale(mScaleFactor,mScaleFactor,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY());
+                mapImageView.setImageMatrix(matrix);
+                return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+                return false;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+            }
+        });
     }
 
     @Override
@@ -353,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private boolean inRange(MapClick mapClick, double x, double y){
-         return (mapClick.startX < x && x < mapClick.endX ) && (mapClick.startY < y && y < mapClick.endY);
+         return (mapClick.startX * mScaleFactor < x && x < mapClick.endX * mScaleFactor ) && (mapClick.startY * mScaleFactor < y && y < mapClick.endY * mScaleFactor);
     }
 
 
@@ -482,16 +511,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         GD.onTouchEvent(event);
-
+        SGD.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
     //TODO:手勢控制，目前只做拖移，後續還有縮放要做
-    class AndroidGestureDetector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+    class AndroidGestureDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-
+            e.getAction();
             if (clickFlag) {
                 checkInRange(e.getX() ,e.getY());
             }

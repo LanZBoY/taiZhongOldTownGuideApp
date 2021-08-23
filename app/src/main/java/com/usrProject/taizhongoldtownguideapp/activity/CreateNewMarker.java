@@ -45,6 +45,12 @@ public class CreateNewMarker extends AppCompatActivity {
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         userMarker = (UserMarker) intent.getSerializableExtra(UserSchema.USER_MARKER);
         mDatabase = FirebaseDatabase.getInstance();
+
+//        pref = getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
+//        teamID = pref.getString("teamID","error");
+//        markerPath = "location_icon";
+        userMarker.iconId = R.drawable.location_icon;
+
         markerIcon = findViewById(R.id.addIcon_iconView);
         markTitleEditText = findViewById(R.id.addIcon_editText);
         switch (userMarker.markType){

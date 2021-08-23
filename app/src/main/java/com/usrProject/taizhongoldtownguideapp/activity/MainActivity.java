@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
     private float phoneWidthPixels;
     private float phoneHeightPixels;
     private float phoneDensity;
-//    private SharedPreferences pref;
     private Handler handler;
     public boolean clickFlag = true;
     float mScaleFactor  = 1.0f;
@@ -373,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
         double finalPointX = (xPoint + mapImageView.getScrollX()) / phoneDensity;
         double finalPointY = (yPoint + mapImageView.getScrollY()) / phoneDensity - 80;
         Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
+
         for(MapClick mapClick : MapClick.values()){
 
             if(inRange(mapClick,finalPointX,finalPointY)){

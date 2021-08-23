@@ -96,7 +96,7 @@ public class TeamEntry extends AppCompatActivity {
         user.isLeader = true;
         user.teamId = teamIDGenerator();
         //這裡在檢查有沒有重複的teamID
-        ValueEventListener listner = new ValueEventListener() {
+        ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 while (snapshot.child(user.teamId).getValue() != null) {
@@ -112,14 +112,14 @@ public class TeamEntry extends AppCompatActivity {
 
             }
         };
-        teamRef.addListenerForSingleValueEvent(listner);
+        teamRef.addListenerForSingleValueEvent(listener);
 
         user.userId = teamRef.child(user.teamId).child("userData").push().getKey();
         user.teamType = TeamType.SINGLE;
         user.inTeam = true;
         teamRef.child(user.teamId).child("userData").child(user.userId).setValue(user);
 
-        teamRef.removeEventListener(listner);
+        teamRef.removeEventListener(listener);
 
         Intent intent = new Intent(this, TeamTracker.class);
         intent.putExtra(UserSchema.USER_DATA, user);

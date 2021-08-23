@@ -60,6 +60,7 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
         teamMemberRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
                 UserDTO user = snapshot.getValue(UserDTO.class);
                 friendList.add(user);
                 mAdapter.notifyDataSetChanged();

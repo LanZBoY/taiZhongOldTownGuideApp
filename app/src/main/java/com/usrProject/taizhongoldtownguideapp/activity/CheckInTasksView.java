@@ -19,7 +19,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckTasks;
+import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import java.util.ArrayList;
 
@@ -27,6 +29,7 @@ public class CheckInTasksView extends AppCompatActivity {
     private FirebaseFirestore db;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,31 +38,26 @@ public class CheckInTasksView extends AppCompatActivity {
         tasksItemsList.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         tasksItemsList.setLayoutManager(layoutManager);
-
         final ArrayList<CheckTasks> testDataSet = new ArrayList<>();
+        user = (User) this.getIntent().getSerializableExtra(UserSchema.USER_DATA);
 //      初始化dataset
         adapter = new TaskAdapter(testDataSet);
         tasksItemsList.setAdapter(adapter);
-
         db = FirebaseFirestore.getInstance();
 //      當成功撈上資料時將資料做更新
         db.collection("tasks")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                CheckTasks checkTasks = document.toObject(CheckTasks.class);
-                                checkTasks.Id = document.getId();
-                                testDataSet.add(checkTasks);
-                                adapter.notifyDataSetChanged();
-                            }
-
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            CheckTasks checkTasks = document.toObject(CheckTasks.class);
+                            checkTasks.Id = document.getId();
+                            testDataSet.add(checkTasks);
+                            adapter.notifyDataSetChanged();
                         }
+
                     }
                 });
-
     }
 
 
@@ -97,11 +95,10 @@ public class CheckInTasksView extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull TaskAdapter.ViewHolder holder, final int position) {
             holder.taskTitle.setText(dataset.get(position).taskTitle);
-//            holder.taskDesc.setText(dataset.get(position).taskDesc);
             holder.taskTitle.setOnClickListener(view -> {
-//                    Log.d("onClick", dataset.get(position).taskTitle);
                 Intent intent = new Intent(getApplicationContext(), TaskInfoActivity.class);
                 intent.putExtra(TaskSchema.TASK_INFO, dataset.get(position));
+                intent.putExtra(UserSchema.USER_DATA, user);
                 startActivity(intent);
             });
         }

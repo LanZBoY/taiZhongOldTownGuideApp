@@ -160,6 +160,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //      打卡任務列表
         checkInRecordBtn.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), CheckInTasksView.class);
+            intent.putExtra(UserSchema.USER_DATA, user);
             startActivity(intent);
         });
 //      打卡任務進度確認
@@ -432,16 +433,12 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
         if(currentTaskMarker == null){
             currentTaskMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(checkTask.markLatitude, checkTask.markLongitude)).title(checkTask.markTitle));
-            currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            currentTaskMarker.setTitle(checkTask.markTitle);
-            currentTaskMarker.setTag(MarkType.TASK);
-//            currentTaskMarker.setSnippet(checkTask.markContent);
         }else{
             currentTaskMarker.setPosition(new LatLng(checkTask.markLatitude, checkTask.markLongitude));
-            currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            currentTaskMarker.setTitle(checkTask.markTitle);
-            currentTaskMarker.setTag(MarkType.TASK);
         }
+        currentTaskMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        currentTaskMarker.setTitle(checkTask.markTitle);
+        currentTaskMarker.setTag(MarkType.TASK);
     }
 
     //等待使用者在createNewMarker頁面把增加marker的資訊返回
@@ -667,7 +664,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                 params = getWindow().getAttributes();
                 params.alpha = 1f;
                 getWindow().setAttributes(params);
-//                  初始化所有狀態
+//              初始化所有狀態
 //              刪除資料庫的marker資料
                 markersRef.get().addOnCompleteListener((task) -> {
                     if(task.isComplete()){
@@ -677,19 +674,19 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                                 markersRef.child(dataSnapshot.getKey()).removeValue();
                             }
                         }
+                        isCheckPopUp = false;
+                        if (!currentTaskProcess.doneFlag) {
+                            SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
+                            setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
+//                          引導
+                            popWindow(PopWindowType.CHECK_IN_COMPLETED);
+                        } else {
+                            SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
+                            currentTaskProcess = null;
+                            currentTaskMarker = null;
+                        }
                     }
                 });
-                isCheckPopUp = false;
-                if (!currentTaskProcess.doneFlag) {
-                    SharedPreferencesManager.setCurrentTaskProcess(TeamTracker.this, currentTaskProcess);
-                    setTaskMark(currentTaskProcess.contents.get(currentTaskProcess.currentTask));
-//                  引導
-                    popWindow(PopWindowType.CHECK_IN_COMPLETED);
-                } else {
-                    SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
-                    currentTaskProcess = null;
-                    currentTaskMarker = null;
-                }
             });
         }
     }

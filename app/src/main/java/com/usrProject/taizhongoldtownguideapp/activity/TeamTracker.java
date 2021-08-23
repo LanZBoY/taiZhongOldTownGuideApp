@@ -685,6 +685,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                             currentTaskProcess = null;
                             currentTaskMarker = null;
                         }
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                        notificationManager.cancel(R.string.ChannelID);
                     }
                 });
             });

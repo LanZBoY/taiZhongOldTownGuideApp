@@ -1,4 +1,4 @@
-package com.usrProject.taizhongoldtownguideapp.activity;
+package com.usrProject.taizhongoldtownguideapp.component;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.usrProject.taizhongoldtownguideapp.R;
+import com.usrProject.taizhongoldtownguideapp.activity.TaskInfoActivity;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckTasks;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;

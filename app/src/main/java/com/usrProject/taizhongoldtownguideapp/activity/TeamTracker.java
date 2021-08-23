@@ -40,7 +40,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,6 +55,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.usrProject.taizhongoldtownguideapp.Loading;
 import com.usrProject.taizhongoldtownguideapp.R;
+import com.usrProject.taizhongoldtownguideapp.component.CheckInTasksView;
 import com.usrProject.taizhongoldtownguideapp.component.CustomInfoWindowAdapter;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInOnCompletePopUpWin;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.CheckInPopUpWin;
@@ -77,7 +77,6 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.internal.StringUtil;
 
 import java.io.IOException;
 import java.util.HashMap;

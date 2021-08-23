@@ -23,7 +23,7 @@
             android:name=".activity.TaskInfoActivity"
             android:label="任務"/>
         <activity
-            android:name=".activity.CheckInTasksView"
+            android:name=".component.CheckInTasksView"
             android:label="任務列表"
             android:parentActivityName=".activity.TeamTracker"
             android:screenOrientation="nosensor" />

@@ -53,7 +53,7 @@ public class PersonInfoPopUpWin extends CustomPopUpWin {
         inviteCodeTextView = getView().findViewById(R.id.personInfo_inviteCode_TextView);
         inviteCode = "團隊號碼："+ user.teamId;
         inviteCodeTextView.setText(inviteCode);
-        mAdapter = new PersonalInfoPopUpWinRecycleViewAdapter(mContext, friendList, teamMemberRef, map);
+        mAdapter = new PersonalInfoPopUpWinRecycleViewAdapter(mContext, friendList, teamMemberRef,this, map);
         mRecyclerView = getView().findViewById(R.id.showFriend_recycleView);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));

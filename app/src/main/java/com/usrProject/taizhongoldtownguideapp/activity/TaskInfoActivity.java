@@ -1,10 +1,8 @@
 package com.usrProject.taizhongoldtownguideapp.activity;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,8 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -24,7 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.gson.Gson;
 import com.usrProject.taizhongoldtownguideapp.GlideApp;
 import com.usrProject.taizhongoldtownguideapp.R;
-import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
+import com.usrProject.taizhongoldtownguideapp.component.CheckInTasksView;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckTasks;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.ContentDTO;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
@@ -35,7 +31,6 @@ import com.usrProject.taizhongoldtownguideapp.schema.type.MarkType;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 

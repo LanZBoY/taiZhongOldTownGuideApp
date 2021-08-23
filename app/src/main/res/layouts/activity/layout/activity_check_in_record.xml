@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.CheckInTasksView">
+    tools:context=".component.CheckInTasksView">
 
     <TextView
         android:id="@+id/checkIn_record_progressBar_background"

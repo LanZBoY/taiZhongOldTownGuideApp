@@ -405,7 +405,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        //TODO:每次firebase裡有marker更新時，更新本地所有marker資料
+        //每次firebase裡有marker更新時，更新本地所有marker資料
         markersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -493,7 +493,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    //    TODO:打卡系統進入點 目前彈出視窗問題還沒解決
+    //    打卡系統進入點 目前彈出視窗問題還沒解決
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkTaskDone(Location mCurrentLocation) {
         if (mCurrentLocation == null || currentTaskProcess == null || currentTaskProcess.contents == null || currentTaskProcess.contents.isEmpty()) {
@@ -536,7 +536,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    //    TODO:打卡任務列表的東西
+    //    打卡任務列表的東西
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void checkLocationChange() {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);

@@ -128,14 +128,15 @@ public class MainActivity extends AppCompatActivity {
         SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                Log.d(currentMapType.name(), String.format("ScaleFactor = %f",currentMapType.baseScaleFactor));
+//                Log.d(currentMapType.name(), String.format("ScaleFactor = %f",currentMapType.baseScaleFactor));
                 currentMapType.baseScaleFactor *= scaleGestureDetector.getScaleFactor();
                 currentMapType.baseScaleFactor = Math.max(0.5f, Math.min(currentMapType.baseScaleFactor, 1.5f));
-                Log.d("baseScaleFactor",String.valueOf(currentMapType.baseScaleFactor));
+//                Log.d("baseScaleFactor",String.valueOf(currentMapType.baseScaleFactor));
                 Matrix matrix = mapImageView.getImageMatrix();
                 matrix.setScale(currentMapType.baseScaleFactor,currentMapType.baseScaleFactor);
 //              TODO:尚未解決縮放中心點的問題
-                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
+
+//                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
                 mapImageView.setImageMatrix(matrix);
                 int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
                 int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
@@ -624,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
             if(mapImageView.getScrollY() < 0){
                 mapImageView.scrollTo(mapImageView.getScrollX(),0);
             }
-            Log.d("onScroll",String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+//            Log.d("onScroll",String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
             return true;
         }
 

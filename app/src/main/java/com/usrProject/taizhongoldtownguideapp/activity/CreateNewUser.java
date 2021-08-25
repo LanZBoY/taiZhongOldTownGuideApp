@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
@@ -45,6 +46,10 @@ public class CreateNewUser extends AppCompatActivity {
 
     public void goSelect(View view) {
         user.userName = editText.getText().toString();
+        if(StringUtils.isBlank(user.userName)){
+            Toast.makeText(this,"名字不能為空！",Toast.LENGTH_SHORT).show();
+            return;
+        }
         user.userIconPath = userIconPath;
         Intent intent = new Intent(this, TeamEntry.class);
         intent.putExtra(UserSchema.USER_DATA, user);

@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private float phoneDensity;
     private Handler handler;
     public boolean clickFlag = true;
-    //記錄照片中心
+    // 照片的參數設定
     private MapType currentMapType;
     //  個人資料
     private User user;
@@ -118,11 +118,7 @@ public class MainActivity extends AppCompatActivity {
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
         mapImageView = findViewById(R.id.mapView);
-//        mapImageView.setScaleType(ImageView.ScaleType.MATRIX);
-        //預設是第四張照片
-//        Bitmap initImage = ImageLoader.decodeSampledBitmapFromResource(getResources(),R.drawable.new_map_now,(int)phoneWidthPixels,(int)phoneHeightPixels);
-//        mapImageView.setImageBitmap(initImage);
-//        mapImageView.setImageResource(R.drawable.new_map_now);
+        //預設是 MapType.NEW_MAP_NOW
         changeImage(MapType.NEW_MAP_NOW);
 //      縮放用的
         SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
@@ -157,10 +153,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-                if(currentMapType == MapType.NEW_MAP_NOW){
-                    return true;
+                if(currentMapType != MapType.NEW_MAP_NOW){
+                    return false;
                 }
-                return false;
+                return true;
             }
 
             @Override

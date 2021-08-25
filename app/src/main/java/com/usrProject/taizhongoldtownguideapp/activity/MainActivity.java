@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.LocationManager;
 import android.os.Build;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private Button goSurroundingViewBtn;
     private Button navBtn;
     private GestureDetector GD;
-    private ScaleGestureDetector SGD;
+//    private ScaleGestureDetector SGD;
     private ImageView mapImageView;
     private ImageView backgroundImageView;
     private ArrayList<ImageView> cloudImageViews;
@@ -84,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
     private float phoneDensity;
     private Handler handler;
     public boolean clickFlag = true;
-    float mScaleFactor  = 1.0f;
     //記錄照片中心
     private MapType currentMapType;
     //  個人資料
@@ -125,27 +125,32 @@ public class MainActivity extends AppCompatActivity {
 //        mapImageView.setImageResource(R.drawable.new_map_now);
         changeImage(MapType.NEW_MAP_NOW);
 //      縮放用的
-        SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                mScaleFactor *= scaleGestureDetector.getScaleFactor();
-                mScaleFactor = Math.max(0.5f, Math.min(mScaleFactor, 2.0f));
-                Log.d("Test",String.valueOf(mScaleFactor));
-                Matrix matrix = mapImageView.getImageMatrix();
-                matrix.setScale(mScaleFactor,mScaleFactor,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY());
-                mapImageView.setImageMatrix(matrix);
-                return true;
-            }
-
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-                return false;
-            }
-
-            @Override
-            public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-            }
-        });
+//        SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
+//            @Override
+//            public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+//                Log.d(currentMapType.name(), String.format("ScaleFactor = %f",currentMapType.baseScaleFactor));
+//                currentMapType.baseScaleFactor *= scaleGestureDetector.getScaleFactor();
+//                currentMapType.baseScaleFactor = Math.max(0.5f, Math.min(currentMapType.baseScaleFactor, 2.0f));
+//                Log.d("Test",String.valueOf(currentMapType.baseScaleFactor));
+//                Matrix matrix = mapImageView.getImageMatrix();
+//                matrix.setScale(currentMapType.baseScaleFactor,currentMapType.baseScaleFactor,mapImageView.getScrollX() + scaleGestureDetector.getFocusX()  ,mapImageView.getScrollY() + scaleGestureDetector.getFocusY());
+//                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
+//                mapImageView.setImageMatrix(matrix);
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+//                if(currentMapType == MapType.NEW_MAP_NOW){
+//                    return true;
+//                }
+//                return false;
+//            }
+//
+//            @Override
+//            public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+//            }
+//        });
     }
 
     @Override
@@ -382,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private boolean inRange(MapClick mapClick, double x, double y){
-         return (mapClick.startX * mScaleFactor < x && x < mapClick.endX * mScaleFactor ) && (mapClick.startY * mScaleFactor < y && y < mapClick.endY * mScaleFactor);
+         return (mapClick.startX * currentMapType.baseScaleFactor < x && x < mapClick.endX * currentMapType.baseScaleFactor ) && (mapClick.startY * currentMapType.baseScaleFactor < y && y < mapClick.endY * currentMapType.baseScaleFactor);
     }
 
 
@@ -446,9 +451,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         mapImageView.setImageResource(changeType.resId);
+        Matrix matrix = mapImageView.getImageMatrix();
+        matrix.setScale(changeType.baseScaleFactor,changeType.baseScaleFactor);
+        mapImageView.setImageMatrix(matrix);
         Log.d(MapType.class.getSimpleName(),String.format("%s,真實寬高(%d,%d)",changeType.name(),mapImageView.getDrawable().getIntrinsicWidth(),mapImageView.getDrawable().getIntrinsicHeight()));
         currentMapType = changeType;
-        mapImageView.scrollTo( (int)(mapImageView.getDrawable().getIntrinsicWidth() - phoneWidthPixels) / 2,(int) (mapImageView.getDrawable().getIntrinsicHeight() - phoneHeightPixels) / 2);
+        mapImageView.scrollTo( (int)(mapImageView.getDrawable().getIntrinsicWidth() * currentMapType.baseScaleFactor - phoneWidthPixels) / 2,(int) (mapImageView.getDrawable().getIntrinsicHeight() * currentMapType.baseScaleFactor - phoneHeightPixels) / 2);
     }
 
     //到氣象資料開放平台拿取資料
@@ -510,13 +518,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.d(MotionEvent.class.getSimpleName(),event.toString());
         GD.onTouchEvent(event);
-        SGD.onTouchEvent(event);
+//        SGD.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
     //TODO:手勢控制，目前只做拖移，後續還有縮放要做
-    class AndroidGestureDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+    class AndroidGestureDetector implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -587,8 +596,8 @@ public class MainActivity extends AppCompatActivity {
 
             mapImageView.scrollBy(goX, 0);
             mapImageView.scrollBy(0, goY);
-            int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() - phoneWidthPixels);
-            int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() - phoneHeightPixels);
+            int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
+            int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
             if(mapImageView.getScrollX() > maxWidth){
                 mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
             }

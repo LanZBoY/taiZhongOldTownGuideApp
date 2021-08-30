@@ -447,9 +447,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         if (requestCode == ADD_LOCATION_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 UserMarker userMarker = (UserMarker) intent.getSerializableExtra(UserSchema.USER_MARKER);
-//                String returnString = intent.getStringExtra("markContext");
-//                Double latitude = intent.getDoubleExtra("latitude", 0);
-//                Double longitude = intent.getDoubleExtra("longitude", 0);
                 assert userMarker != null;
                 Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 marker.setTag(MarkType.CUSTOMIZE);
@@ -502,7 +499,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         LatLng currentPosition = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         LatLng taskPosition = new LatLng(currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLatitude, currentTaskProcess.contents.get(currentTaskProcess.currentTask).markLongitude);
         double distance = LocationUtils.getDistance(currentPosition, taskPosition);
-        if (distance < 15.0f && !currentTaskProcess.doneFlag) {
+        if (distance < 50.0f && !currentTaskProcess.doneFlag) {
             if (isStopped) {
                 Intent intent = getIntent();
                 intent.setClass(getBaseContext(), TeamTracker.class);

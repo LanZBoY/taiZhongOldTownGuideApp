@@ -39,7 +39,7 @@
         android:id="@+id/check_in_oncomplete_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/CheckDesc"
         app:layout_constraintBottom_toTopOf="@+id/check_In_ImageView"
         app:layout_constraintEnd_toEndOf="@+id/check_in_background"
@@ -53,7 +53,6 @@
         app:layout_constraintBottom_toTopOf="@+id/check_in_oncomplete_done_button"
         app:layout_constraintEnd_toEndOf="@+id/check_in_background"
         app:layout_constraintStart_toStartOf="@+id/check_in_background"
-        app:layout_constraintTop_toTopOf="@+id/check_in_background"
         app:srcCompat="@android:drawable/ic_delete" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,15 +1,23 @@
 package com.usrProject.taizhongoldtownguideapp.activity;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -52,7 +60,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskTitleView = findViewById(R.id.taskTitleView);
         taskDescView = findViewById(R.id.taskDescView);
         taskImageView = findViewById(R.id.taskImgView);
-
         Intent intent = this.getIntent();
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         tasksInfo = (CheckTasks) intent.getSerializableExtra(TaskSchema.TASK_INFO);
@@ -96,6 +103,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private void initMarkDatasById(String Id){
         FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
         FirebaseDatabase realtimeDB = FirebaseDatabase.getInstance();
+
         DatabaseReference markersRef = realtimeDB.getReference("team").child(user.teamId).child("marker");
         markersRef.get().addOnCompleteListener((task)-> {
             if(task.isComplete()){
@@ -106,6 +114,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                 }
             }
         });
+
         firestoreDB.collection(TaskSchema.Database.COLLECTION_NAME)
                 .document(Id)
                 .get()
@@ -113,8 +122,8 @@ public class TaskInfoActivity extends AppCompatActivity {
             DocumentSnapshot taskDoc = task.getResult();
             DocumentReference contentsReference = taskDoc.getDocumentReference("contents");
             if(contentsReference != null){
-                contentsReference.get().addOnCompleteListener(task11 -> {
-                    DocumentSnapshot contentDoc = task11.getResult();
+                contentsReference.get().addOnCompleteListener(task1 -> {
+                    DocumentSnapshot contentDoc = task1.getResult();
                     ContentDTO contentDTO = contentDoc.toObject(ContentDTO.class);
                     currentTaskProcess.contents = contentDTO.contents;
                     Toast.makeText(getApplicationContext(),String.format("成功接取 %s 任務", currentTaskProcess.taskTitle),Toast.LENGTH_SHORT).show();

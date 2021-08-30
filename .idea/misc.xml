@@ -4,8 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_task_info.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_team_tracker.xml" value="0.23072916666666668" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/custom_info_window.xml" value="0.23072916666666668" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/popupwin/layout/check_in_completed_pop_up_win.xml" value="0.2046875" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/popupwin/layout/check_in_oncomplete_win.xml" value="0.2046875" />
       </map>
     </option>
   </component>

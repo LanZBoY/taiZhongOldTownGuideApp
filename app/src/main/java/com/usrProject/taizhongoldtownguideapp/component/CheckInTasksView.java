@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,11 +33,16 @@ public class CheckInTasksView extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private User user;
+
+//  Compat
+    Animation animation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.check_in_item_view);
         RecyclerView tasksItemsList = findViewById(R.id.tasksList);
+        animation = new AlphaAnimation(0f, 1.0f);
+        animation.setDuration(100);
         tasksItemsList.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         tasksItemsList.setLayoutManager(layoutManager);
@@ -95,6 +102,7 @@ public class CheckInTasksView extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull TaskAdapter.ViewHolder holder, final int position) {
+            holder.taskTitle.startAnimation(animation);
             holder.taskTitle.setText(dataset.get(position).taskTitle);
             holder.taskTitle.setOnClickListener(view -> {
                 Intent intent = new Intent(getApplicationContext(), TaskInfoActivity.class);

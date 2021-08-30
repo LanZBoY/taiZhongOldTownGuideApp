@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
     private CurrentTaskProcess currentTaskProcess;
     private CheckInMarkerObject checkInMarkerObject;
+    private TextView checkInTitle;
     private TextView checkInDesc;
     private ImageView checkInImageView;
     private Button checkInDoneButton;
@@ -33,15 +36,16 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
         super(mContext, xmlLayout, fullWidth);
 //        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, Context.MODE_PRIVATE);
         this.currentTaskProcess = (CurrentTaskProcess) bundle.getSerializable(TaskSchema.CURRENT_TASK);
+        checkInTitle = getView().findViewById(R.id.check_in_oncompleted_title);
         checkInDesc = getView().findViewById(R.id.check_in_oncomplete_desc);
+
         checkInDoneButton = getView().findViewById(R.id.check_in_oncomplete_done_button);
         checkInImageView = getView().findViewById(R.id.check_In_ImageView);
         if(currentTaskProcess.contents != null || !currentTaskProcess.contents.isEmpty()){
             checkInMarkerObject = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
         }
-        checkInDesc.setText(checkInMarkerObject.markTitle);
-
-
+        checkInTitle.setText(checkInMarkerObject.markTitle);
+        checkInDesc.setText(checkInMarkerObject.markContent);
         loadImageFromDatabase(mContext);
         checkInDoneButton.setOnClickListener(view -> {
             checkInMarkerObject.setChecked(true);

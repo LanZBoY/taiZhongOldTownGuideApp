@@ -41,7 +41,7 @@
         android:background="#00FFFFFF"
         android:text="2020年"
         android:textColor="#000"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/seekBar"
@@ -120,19 +120,6 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="26dp" />
 
-    <TextView
-        android:id="@+id/meibianzhiyuan_textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:alpha="0.9"
-        android:background="#fff"
-        android:textSize="20dp"
-        android:text="@string/laoshi_meibianzhiyuan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/team_tracker_btn"
         android:layout_width="50dp"
@@ -178,9 +165,19 @@
         android:layout_height="70dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="110dp"
+        android:background="@drawable/navbtn_layout"
+        android:onClick="navButtonOnClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/navbtn_layout"
-        android:onClick="navButtonOnClick"/>
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <TextView
+        android:id="@+id/showCurrentScale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/factor"
+        android:textColor="#424242"
+        app:layout_constraintEnd_toEndOf="@+id/mapView"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

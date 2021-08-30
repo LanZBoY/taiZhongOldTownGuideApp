@@ -38,4 +38,5 @@
     <string name="next_stop">下一站</string>
     <string name="stop_guide">引導</string>
     <string name="todo">TODO</string>
+    <string name="factor">x</string>
 </resources>

@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ImageView> cloudImageViews;
     private SeekBar seekBar;
     private TextView seekBarTextView;
-    private TextView meibianzhiyuan;
+    private TextView currentScaleTextView;
     private WindowManager.LayoutParams params;
     private float phoneWidthPixels;
     private float phoneHeightPixels;
@@ -95,12 +97,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         user = SharedPreferencesManager.getUser(this);
+
         initSeekBar();
         initWeather();
 
         DisplayMetrics metric = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metric);
-
+        currentScaleTextView = findViewById(R.id.showCurrentScale);
+        currentScaleTextView.setVisibility(View.INVISIBLE);
         //獲取手機高寬密度
         phoneDensity = metric.density;
         phoneHeightPixels = metric.heightPixels;
@@ -111,8 +115,7 @@ public class MainActivity extends AppCompatActivity {
         GD = new GestureDetector(MainActivity.this, androidGestureDetector);
         //設置滑軌監聽
         seekBarController();
-        meibianzhiyuan = findViewById(R.id.meibianzhiyuan_textView);
-        meibianzhiyuan.setVisibility(View.INVISIBLE);
+
         goTeamTrackerBtn = findViewById(R.id.team_tracker_btn);
         goNewsBtn = findViewById(R.id.news_btn);
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         mapImageView = findViewById(R.id.mapView);
         //預設是 MapType.NEW_MAP_NOW
         changeImage(MapType.NEW_MAP_NOW);
+        currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
 //      縮放用的
         SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
@@ -129,11 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 currentMapType.baseScaleFactor = Math.max(0.5f, Math.min(currentMapType.baseScaleFactor, 1.5f));
 //                Log.d("baseScaleFactor",String.valueOf(currentMapType.baseScaleFactor));
                 Matrix matrix = mapImageView.getImageMatrix();
-                matrix.setScale(currentMapType.baseScaleFactor,currentMapType.baseScaleFactor);
-//              TODO:尚未解決縮放中心點的問題
-
+                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor);
+//                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor, mapImageView.getScrollX() + scaleGestureDetector.getFocusX(),mapImageView.getScrollY() + scaleGestureDetector.getFocusY());
 //                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
+//              TODO:尚未解決縮放中心點的問題
                 mapImageView.setImageMatrix(matrix);
+                currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
                 int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
                 int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
                 if(mapImageView.getScrollX() > maxWidth){
@@ -156,11 +161,19 @@ public class MainActivity extends AppCompatActivity {
                 if(currentMapType != MapType.NEW_MAP_NOW){
                     return false;
                 }
+                Animation showAnimation =  new AlphaAnimation(0f, 1.0f);
+                showAnimation.setDuration(500);
+                currentScaleTextView.startAnimation(showAnimation);
+                currentScaleTextView.setVisibility(View.VISIBLE);
                 return true;
             }
 
             @Override
             public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+                Animation fadeAnimation =  new AlphaAnimation(1.0f, 0f);
+                fadeAnimation.setDuration(500);
+                currentScaleTextView.startAnimation(fadeAnimation);
+                currentScaleTextView.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -249,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(@NotNull Message msg) {
                 if (msg.what == 1) {
                     String weather = msg.getData().getString("WEATHER");
+                    if(StringUtils.isBlank(weather)){
+                        weather = new String("晴");
+                    }
                     cloudImageViews = new ArrayList<>();
                     cloudImageViews.add(findViewById(R.id.cloudView_1));
                     cloudImageViews.add(findViewById(R.id.cloudView_2));
@@ -265,13 +281,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         backgroundImageView.setVisibility(View.VISIBLE);
                     } else if (weather.equals("陰带雨")|| weather.equals("雨")) {
-                        String uri = "@drawable/rain_effect";
-                        int imageResource = getResources().getIdentifier(uri, null, getPackageName());
                         for (ImageView cloudImageView : cloudImageViews) {
                             cloudImageView.setVisibility(View.INVISIBLE);
                         }
                         backgroundImageView.setVisibility(View.VISIBLE);
-                        backgroundImageView.setImageResource(imageResource);
+                        backgroundImageView.setImageResource(R.drawable.rain_effect);
                     } else {
                         for (ImageView cloudImageView : cloudImageViews) {
                             cloudController(cloudImageView);
@@ -399,7 +413,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private boolean inRange(MapClick mapClick, double x, double y){
-         return (mapClick.startX * currentMapType.baseScaleFactor < x && x < mapClick.endX * currentMapType.baseScaleFactor ) && (mapClick.startY * currentMapType.baseScaleFactor < y && y < mapClick.endY * currentMapType.baseScaleFactor);
+         return (mapClick.startX * currentMapType.baseScaleFactor < x && x < mapClick.endX * currentMapType.baseScaleFactor )
+                 && (mapClick.startY * currentMapType.baseScaleFactor < y && y < mapClick.endY * currentMapType.baseScaleFactor);
     }
 
 
@@ -412,25 +427,18 @@ public class MainActivity extends AppCompatActivity {
                 if (progress <= 25) {
                     seekBarTextView.setText("乾隆40~51年");
                     changeImage(MapType.MAP_51);
-                    meibianzhiyuan.setText(R.string.meibianzhiyuan);
                     clickFlag = false;
-
                 } else if (progress <= 50) {
                     seekBarTextView.setText("1911年");
                     changeImage(MapType.MAP_1911);
-                    meibianzhiyuan.setText(R.string.meibianzhiyuan);
                     clickFlag = false;
-
                 } else if (progress <= 75) {
                     seekBarTextView.setText("1937年");
                     changeImage(MapType.MAP_1937);
-                    meibianzhiyuan.setText(R.string.meibianzhiyuan);
                     clickFlag = false;
-
                 } else {
                     seekBarTextView.setText(new SimpleDateFormat("yyyy").format(new Date()) + "年");
                     changeImage(MapType.NEW_MAP_NOW);
-                    meibianzhiyuan.setText(R.string.laoshi_meibianzhiyuan);
                     clickFlag = true;
                 }
             }

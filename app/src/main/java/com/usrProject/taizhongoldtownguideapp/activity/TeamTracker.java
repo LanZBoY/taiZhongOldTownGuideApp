@@ -680,6 +680,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                             SharedPreferencesManager.remove(TeamTracker.this, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
                             currentTaskProcess = null;
                             currentTaskMarker = null;
+                            Button checkInProcessButton = findViewById(R.id.checkInBotton);
+                            checkInProcessButton.setVisibility(View.INVISIBLE);
                         }
                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
                         notificationManager.cancel(R.string.ChannelID);

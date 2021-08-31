@@ -19,6 +19,8 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 
 public class CheckInPopUpWin extends CustomPopUpWin {
     private CurrentTaskProcess currentTaskProcess;
@@ -40,9 +42,6 @@ public class CheckInPopUpWin extends CustomPopUpWin {
         titleTextView = this.getView().findViewById(R.id.check_in_record_pop_up_win_completed_title_textView);
         progressBar = this.getView().findViewById(R.id.check_in_record_pop_up_win_progressBar);
 
-//        final SharedPreferences pref = mContext.getSharedPreferences(UserSchema.SharedPreferences.USER_DATA, MODE_PRIVATE);
-//        Gson gson = new Gson();
-//        currentTaskProcess = gson.fromJson(pref.getString(TaskSchema.CURRENT_TASK, null), CurrentTaskProcess.class);
         currentTaskProcess = (CurrentTaskProcess) bundle.getSerializable(TaskSchema.CURRENT_TASK);
         View.OnClickListener listener;
 
@@ -51,10 +50,10 @@ public class CheckInPopUpWin extends CustomPopUpWin {
             titleTextView.setText("此任務無打卡進度");
             completedCountTextView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
+            guideButton.setEnabled(false);
             cancelButton.setText(R.string.DoneDirectly);
             listener = view -> {
                 SharedPreferencesManager.remove(mContext, TaskSchema.TASK_PREF, TaskSchema.CURRENT_TASK);
-//                    pref.edit().remove(TaskSchema.CURRENT_TASK).commit();
                 Toast.makeText(getView().getContext(),"完成進度",Toast.LENGTH_SHORT).show();
                 dismiss();
             };

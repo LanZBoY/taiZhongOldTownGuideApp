@@ -45,7 +45,7 @@ public class CreateNewUser extends AppCompatActivity {
     }
 
     public void goSelect(View view) {
-        user.userName = editText.getText().toString();
+        user.userName = StringUtils.trim(editText.getText().toString());
         if(StringUtils.isBlank(user.userName)){
             Toast.makeText(this,"名字不能為空！",Toast.LENGTH_SHORT).show();
             return;

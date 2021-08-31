@@ -128,7 +128,7 @@ public class TeamEntry extends AppCompatActivity {
     }
 
     public String teamIDGenerator(){
-        String uuid = StringUtils.substring(UUID.randomUUID().toString(),0,8);
+        String uuid = String.valueOf((int) (Math.random() * 100000));
         return uuid;
     }
 }

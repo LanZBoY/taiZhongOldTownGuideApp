@@ -108,7 +108,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     private static final int ADD_LOCATION_ACTIVITY_REQUEST_CODE = 0;
     private Handler messageHandler = null;
     //    private String responseJsonString = "";
-    HashMap<String, Marker> hashMapMarker = new HashMap<>();
+    HashMap<String, Marker> userMarkerMap = new HashMap<>();
+    HashMap<String, Marker> customMarkerMap = new HashMap<>();
     HashMap<String, Marker> foodMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> shoppingMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> roomMarkerHashMap = new HashMap<>();
@@ -387,13 +388,13 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         if (userLatitude != null && userLongitude != null) {
                             marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
                             marker.setTag(MarkType.USER);
-                            if (hashMapMarker.containsKey(userID)) {
-                                Marker delMarker = hashMapMarker.get(userID);
+                            if (userMarkerMap.containsKey(userID)) {
+                                Marker delMarker = userMarkerMap.get(userID);
                                 assert delMarker != null;
                                 delMarker.remove();
-                                hashMapMarker.remove(userID);
+                                userMarkerMap.remove(userID);
                             }
-                            hashMapMarker.put(userID, marker);
+                            userMarkerMap.put(userID, marker);
                         }
                     }
 
@@ -415,6 +416,13 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                         assert userMarker != null;
                         Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userMarker.latitude, userMarker.longitude)).title(userMarker.title));
                         marker.setTag(userMarker.markType);
+                        if(customMarkerMap.containsKey(userMarker.title)){
+                            Marker delMarker = customMarkerMap.get(userMarker.title);
+                            assert delMarker != null;
+                            delMarker.remove();
+                            customMarkerMap.remove(userMarker.title);
+                        }
+                        customMarkerMap.put(userMarker.title, marker);
                     }
                 }
             }
@@ -593,6 +601,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         if (popWindowType == PopWindowType.LOCATION_INFO) {
             Bundle bundle = new Bundle();
             bundle.putSerializable(UserSchema.USER_DATA, user);
+            bundle.putSerializable(UserSchema.USER_MARKER, customMarkerMap);
             LocationInfoPopUpWin locationInfoPopWin = new LocationInfoPopUpWin(this, R.layout.location_info_pop_win, mMap, this, bundle);
             locationInfoPopWin.showAtLocation(findViewById(R.id.map), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
             params = getWindow().getAttributes();

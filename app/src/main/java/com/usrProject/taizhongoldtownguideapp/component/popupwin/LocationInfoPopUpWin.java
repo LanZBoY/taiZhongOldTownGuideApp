@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +32,7 @@ import com.usrProject.taizhongoldtownguideapp.schema.type.MarkType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class LocationInfoPopUpWin extends CustomPopUpWin {
@@ -94,7 +96,13 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                removeLocation(locationList, snapshot.getKey());
+                UserMarker userMarker = removeLocation(locationList, snapshot.getKey());
+                HashMap<String, Marker> customMarkerMap = (HashMap<String, Marker>) bundle.getSerializable(UserSchema.USER_MARKER);
+                if(customMarkerMap.containsKey(userMarker.title)){
+                    Marker delMarker = customMarkerMap.get(userMarker.title);
+                    delMarker.remove();
+                    customMarkerMap.remove(userMarker.title);
+                }
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -111,14 +119,15 @@ public class LocationInfoPopUpWin extends CustomPopUpWin {
 
     }
 
-    private void removeLocation(List<UserMarker> locationList, String key){
+    private UserMarker removeLocation(List<UserMarker> locationList, String key){
         for(int i = 0; i < locationList.size(); i++){
             UserMarker currentUserMarker = locationList.get(i);
             if(StringUtils.equals(currentUserMarker.id, key)){
                 locationList.remove(i);
-                return;
+                return currentUserMarker;
             }
         }
+        return null;
     }
     public void addLocation(double latitude, double longitude) {
         UserMarker userMarker = new UserMarker();

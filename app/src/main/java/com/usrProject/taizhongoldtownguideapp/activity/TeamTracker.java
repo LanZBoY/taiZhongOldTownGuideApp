@@ -551,7 +551,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
         final Task<Location> location = mFusedLocationProviderClient.getLastLocation();
 
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+//        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
 
         if (!isExiting) {
             location.addOnSuccessListener(currentLocation -> {

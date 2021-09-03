@@ -1,17 +1,23 @@
 <resources>
     <string name="app_name">臺中城中城導覽</string>
-    <string name="fivetwotwo_title">四維街日式招待所</string>
-    <string name="fivetwotwo_content">建築格局為ㄇ字型，形制保存完整，材質、形式大抵為日治時期興建之原貌，同時為本市極少數尚存之兩層樓木造雨淋板建築。</string>
-    <string name="fivezeroone_title">彰化銀行繼光街宿舍</string>
-    <string name="fivezeroone_content">由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。</string>
-    <string name="fivezerosix_title">合作金庫銀行</string>
-    <string name="fivezerosix_content">原為台中州立圖書館，落成於昭和4年（1929年），為早期中部地區文教機構代表。民國61年（1972年）省立圖書館遷館，原圖書館舍售予合作金庫商業銀行改為金融機構使用迄今。</string>
-    <string name="fiveninenine_title">彰化銀行舊總行</string>
-    <string name="fiveninenine_content">為台灣大型商業銀行之一，創設於1905年，因總行初設於彰化而得名。</string>
-    <string name="fivetwofour_title">中山綠橋</string>
-    <string name="fivetwofour_content">興建於日治明治41年(西元1908年)，拱形橋樑，寬十公尺，跨二十二公尺，附有燈柱及欄干，欄干開口有新藝風格鑄鐵間隔。為台中市日治初期市政建設之代表，即鐵路開通、公園建設及市區計畫之具體象徵，具高度歷史意義，和保存及建築研究價值。</string>
-    <string name="fivethreesix_title">臺中市後火車站</string>
-    <string name="fivethreesix_content">於民國53(1964)年完成興建，後火車站的興建不僅開啟了自50年代後，東區復興路周邊商業發展動能，亦銜接當時的帝國糖廠、20號倉庫等產業脈絡，是戰後重要的鐵道文化資產。</string>
+    <string name="四維街日式招待所">mtilloeSIq1qRRUtVXKx</string>
+    <string name="彰化銀行繼光街宿舍">PaQMltSaXPbvOOyn5Tf3</string>
+    <string name="合作金庫銀行">2ycR2K92VwWyRMLHbeYB</string>
+    <string name="彰化銀行舊總行">1PAIBVknLfchZnvuCOYz</string>
+    <string name="中山綠橋">AiOkOtED7zMOQ88njDyH</string>
+    <string name="臺中市後火車站">noYXpMLl63DdFdFaROxk</string>
+<!--    <string name="fivetwotwo_title">四維街日式招待所</string>-->
+<!--    <string name="fivetwotwo_content">建築格局為ㄇ字型，形制保存完整，材質、形式大抵為日治時期興建之原貌，同時為本市極少數尚存之兩層樓木造雨淋板建築。</string>-->
+<!--    <string name="fivezeroone_title">彰化銀行繼光街宿舍</string>-->
+<!--    <string name="fivezeroone_content">由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。由彰化銀行株式會社於日治時期昭和10年(1935年)興建，建築為日式木造複層仿西式大型獨棟官舍宅院。</string>-->
+<!--    <string name="fivezerosix_title">合作金庫銀行</string>-->
+<!--    <string name="fivezerosix_content">原為台中州立圖書館，落成於昭和4年（1929年），為早期中部地區文教機構代表。民國61年（1972年）省立圖書館遷館，原圖書館舍售予合作金庫商業銀行改為金融機構使用迄今。</string>-->
+<!--    <string name="fiveninenine_title">彰化銀行舊總行</string>-->
+<!--    <string name="fiveninenine_content">為台灣大型商業銀行之一，創設於1905年，因總行初設於彰化而得名。</string>-->
+<!--    <string name="fivetwofour_title">中山綠橋</string>-->
+<!--    <string name="fivetwofour_content">興建於日治明治41年(西元1908年)，拱形橋樑，寬十公尺，跨二十二公尺，附有燈柱及欄干，欄干開口有新藝風格鑄鐵間隔。為台中市日治初期市政建設之代表，即鐵路開通、公園建設及市區計畫之具體象徵，具高度歷史意義，和保存及建築研究價值。</string>-->
+<!--    <string name="fivethreesix_title">臺中市後火車站</string>-->
+<!--    <string name="fivethreesix_content">於民國53(1964)年完成興建，後火車站的興建不僅開啟了自50年代後，東區復興路周邊商業發展動能，亦銜接當時的帝國糖廠、20號倉庫等產業脈絡，是戰後重要的鐵道文化資產。</string>-->
 
     <string name="meibianzhiyuan">此地圖為示意圖，後續將請美術設計團隊重繪</string>
     <string name="laoshi_meibianzhiyuan">地圖目前尚未完成，美術設計團隊後續將持續更新</string>

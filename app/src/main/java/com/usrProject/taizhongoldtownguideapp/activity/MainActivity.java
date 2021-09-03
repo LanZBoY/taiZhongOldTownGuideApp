@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         //預設是 MapType.NEW_MAP_NOW
         changeImage(MapType.NEW_MAP_NOW);
         currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
-//      縮放用的
+//      縮放用的監聽器
         SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector scaleGestureDetector) {

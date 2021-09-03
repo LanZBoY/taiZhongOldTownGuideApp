@@ -29,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -47,6 +50,7 @@ import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
 import com.usrProject.taizhongoldtownguideapp.component.popupwin.IntroductionCustomPopUpWin;
+import com.usrProject.taizhongoldtownguideapp.model.MapClickDTO;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapClick;
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private TextView seekBarTextView;
     private TextView currentScaleTextView;
+    private ProgressBar loadProgressBar;
     private WindowManager.LayoutParams params;
     private float phoneWidthPixels;
     private float phoneHeightPixels;
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
         mapImageView = findViewById(R.id.mapView);
+        loadProgressBar = findViewById(R.id.mainActProgressBar);
         //預設是 MapType.NEW_MAP_NOW
         changeImage(MapType.NEW_MAP_NOW);
         currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
@@ -307,19 +313,28 @@ public class MainActivity extends AppCompatActivity {
 
     //彈出介紹視窗
     public void popWindow(MapClick mapClick) {
-        IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, mapClick);
-        //设置Popupwindow显示位置（从底部弹出）
-        popUpWin.showAtLocation(findViewById(R.id.mapView), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
-        params = getWindow().getAttributes();
-        //当弹出Popupwindow时，背景变半透明
-        params.alpha = 0.7f;
-        getWindow().setAttributes(params);
+        loadProgressBar.setVisibility(View.VISIBLE);
+        String documentId = getString(mapClick.documentId);
+        CollectionReference mapClickReference = FirebaseFirestore.getInstance().collection("MapClick");
+        mapClickReference.document(documentId).get().addOnCompleteListener(task -> {
+            if(task.isComplete()){
+                loadProgressBar.setVisibility(View.GONE);
+                MapClickDTO result = task.getResult().toObject(MapClickDTO.class);
+                IntroductionCustomPopUpWin popUpWin = new IntroductionCustomPopUpWin(this, R.layout.introdution_custom_pop_up_win, result);
+                //设置Popupwindow显示位置（从底部弹出）
+                popUpWin.showAtLocation(findViewById(R.id.mapView), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                params = getWindow().getAttributes();
+                //当弹出Popupwindow时，背景变半透明
+                params.alpha = 0.7f;
+                getWindow().setAttributes(params);
 
-        //设置Popupwindow关闭监听，当Popupwindow关闭，背景恢复1f
-        popUpWin.setOnDismissListener(() -> {
-            params = getWindow().getAttributes();
-            params.alpha = 1f;
-            getWindow().setAttributes(params);
+                //设置Popupwindow关闭监听，当Popupwindow关闭，背景恢复1f
+                popUpWin.setOnDismissListener(() -> {
+                    params = getWindow().getAttributes();
+                    params.alpha = 1f;
+                    getWindow().setAttributes(params);
+                });
+            }
         });
     }
 

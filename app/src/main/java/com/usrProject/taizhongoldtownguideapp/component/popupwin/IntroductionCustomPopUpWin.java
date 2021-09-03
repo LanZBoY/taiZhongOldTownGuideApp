@@ -19,21 +19,15 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
     private TextView descTextView;
     private ImageView imgImageView;
 
-    public IntroductionCustomPopUpWin(Context mContext, int xmlLayout, MapClick mapClick) {
+    public IntroductionCustomPopUpWin(Context mContext, int xmlLayout, MapClickDTO mapClickDTO) {
         super(mContext, xmlLayout,true);
         titleTextView = getView().findViewById(R.id.title_TextView);
         descTextView =  getView().findViewById(R.id.contentTextView);
         imgImageView = getView().findViewById(R.id.contentImageView);
 
         //這裡可能要寫成看資料有多少再去找
-        String documentId = mContext.getString(mapClick.documentId);
-        CollectionReference mapClickReference = FirebaseFirestore.getInstance().collection("MapClick");
-        mapClickReference.document(documentId).get().addOnCompleteListener(task -> {
-           if(task.isComplete()){
-               MapClickDTO result = task.getResult().toObject(MapClickDTO.class);
-               titleTextView.setText(result.title);
-               descTextView.setText(result.desc);
-           }
-        });
+        titleTextView.setText(mapClickDTO.title);
+        descTextView.setText(mapClickDTO.desc);
+
     }
 }

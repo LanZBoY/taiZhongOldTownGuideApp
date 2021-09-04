@@ -2,5 +2,5 @@
 <resources>
     <string name="opendata_base_url">https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001</string>
     <string name="USR_API">http://140.134.48.76/USR/API/API/Default/APPGetData?name=point&amp;token=2EV7tVz0Pv6bLgB/aXRURg==</string>
-    <string name="firestore">gs://taichungoldtown.appspot.com</string>
+    <string name="storage">gs://taichungoldtown.appspot.com</string>
 </resources>

@@ -42,17 +42,17 @@
                 android:textSize="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
             <ImageView
                 android:id="@+id/contentImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/contentTextView"
                 android:layout_marginTop="0dp"
-                android:src="@drawable/chuanting"/>
+                android:src="@drawable/file" />
         </RelativeLayout>
 
     </ScrollView>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

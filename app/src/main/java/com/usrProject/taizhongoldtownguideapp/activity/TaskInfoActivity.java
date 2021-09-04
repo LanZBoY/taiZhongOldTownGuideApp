@@ -1,23 +1,15 @@
 package com.usrProject.taizhongoldtownguideapp.activity;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -68,7 +60,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskDescView.setText(tasksInfo.taskDesc);
 
         if(StringUtils.isNotBlank(tasksInfo.taskImg)){
-            FirebaseStorage storage = FirebaseStorage.getInstance(getString(R.string.firestore));
+            FirebaseStorage storage = FirebaseStorage.getInstance(getString(R.string.storage));
             GlideApp.with(this)
                     .load(storage.getReference(tasksInfo.taskImg))
                     .into(taskImageView);

@@ -8,6 +8,6 @@ public class MapClickDTO {
 
     public String desc;
 
-    public List<String> imgs;
+    public String imgId;
 
 }

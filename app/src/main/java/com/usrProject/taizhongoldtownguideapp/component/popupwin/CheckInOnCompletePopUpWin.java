@@ -1,12 +1,8 @@
 package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,13 +10,11 @@ import android.widget.Toast;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.gson.Gson;
 import com.usrProject.taizhongoldtownguideapp.GlideApp;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
-import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -64,7 +58,7 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
         if(checkInMarkerObject == null || StringUtils.isBlank(checkInMarkerObject.markImg)){
             return;
         }
-        FirebaseStorage storage = FirebaseStorage.getInstance(mContext.getString(R.string.firestore));
+        FirebaseStorage storage = FirebaseStorage.getInstance(mContext.getString(R.string.storage));
         StorageReference storageReference = storage.getReference(checkInMarkerObject.markImg);
         Log.d(StorageReference.class.getSimpleName(), storageReference.getPath());
         GlideApp.with(mContext)

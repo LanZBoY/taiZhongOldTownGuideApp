@@ -45,11 +45,15 @@
 
             <ImageView
                 android:id="@+id/contentImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_below="@+id/contentTextView"
                 android:layout_marginTop="0dp"
-                android:src="@drawable/file" />
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/file"
+                android:visibility="invisible"
+                tools:visibility="invisible" />
         </RelativeLayout>
 
     </ScrollView>

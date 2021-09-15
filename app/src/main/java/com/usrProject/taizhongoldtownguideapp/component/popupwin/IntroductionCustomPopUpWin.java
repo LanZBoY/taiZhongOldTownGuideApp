@@ -1,10 +1,11 @@
 package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -25,8 +26,11 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
     private TextView descTextView;
     private ImageView imgImageView;
     private StorageReference storageReference;
-    private ArrayList<String> allImgName;
+
+    private boolean initFlag = false;
+    private ArrayList<String> allImgNames;
     private HashMap<String, byte[]> imgMap;
+
     private int currentImg = 0;
 //  目前限制傳輸量最多為3MB
     private final long ONE_MEGABYTE = 3 * 1024 * 1024;
@@ -42,22 +46,27 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
         //這裡可能要寫成看資料有多少再去找
         titleTextView.setText(mapClickDTO.title);
         descTextView.setText(mapClickDTO.desc);
-        imgImageView.setOnClickListener(view -> {
-            currentImg = (currentImg + 1) % allImgName.size();
-            loadImgResource();
-        });
+
     }
     private void initImageView(){
         if(StringUtils.isNotBlank(mapClickDTO.imgId)){
-            allImgName = new ArrayList<>();
+            allImgNames = new ArrayList<>();
             imgMap = new HashMap<>();
             Log.d(FirebaseStorage.class.getSimpleName(),storageReference.child("MapClick").child(mapClickDTO.imgId).getPath());
             storageReference.child("MapClick").child(mapClickDTO.imgId).listAll().addOnCompleteListener(task -> {
                 if(task.isComplete()){
                     for(StorageReference temp : task.getResult().getItems()){
                         Log.d(FirebaseStorage.class.getSimpleName(),temp.getName());
-                        allImgName.add(temp.getName());
+                        allImgNames.add(temp.getName());
                         imgMap.put(temp.getName(), null);
+                    }
+                    if(allImgNames.size() > 1){
+                        imgImageView.setOnClickListener(view -> {
+                            currentImg = (currentImg + 1) % allImgNames.size();
+                            GlideApp.with(mContext)
+                                    .load(imgMap.get(allImgNames.get(currentImg)))
+                                    .into(imgImageView);
+                        });
                     }
                     loadImgResource();
                 }
@@ -66,18 +75,20 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
     }
 
     private void loadImgResource(){
-        if(imgMap.get(allImgName.get(currentImg)) == null){
-            imgImageView.setImageResource(R.drawable.file);
-            storageReference.child("MapClick").child(mapClickDTO.imgId).child(allImgName.get(currentImg)).getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
-                imgMap.put(allImgName.get(currentImg), bytes);
-                GlideApp.with(mContext)
-                        .load(bytes)
-                        .into(imgImageView);
+        if(imgMap.size() == 0){
+            return;
+        }
+        for(String imgName : allImgNames){
+            storageReference.child("MapClick").child(mapClickDTO.imgId).child(imgName).getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+                imgMap.put(imgName, bytes);
+                if(!initFlag){
+                    GlideApp.with(mContext)
+                            .load(bytes)
+                            .into(imgImageView);
+                    imgImageView.setVisibility(View.VISIBLE);
+                    initFlag = true;
+                }
             });
-        }else{
-            GlideApp.with(mContext)
-                    .load(imgMap.get(allImgName.get(currentImg)))
-                    .into(imgImageView);
         }
     }
 }

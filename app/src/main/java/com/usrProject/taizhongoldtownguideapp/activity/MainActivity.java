@@ -142,11 +142,14 @@ public class MainActivity extends AppCompatActivity {
                 matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor);
 //                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor, mapImageView.getScrollX() + scaleGestureDetector.getFocusX(),mapImageView.getScrollY() + scaleGestureDetector.getFocusY());
 //                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
+//                Log.d("onScroll",String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
 //              TODO:尚未解決縮放中心點的問題
                 mapImageView.setImageMatrix(matrix);
                 currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
+
                 int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
                 int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
+                Log.d(ImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",mapImageView.getScrollX(), mapImageView.getScrollY()));
                 if(mapImageView.getScrollX() > maxWidth){
                     mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
                 }
@@ -180,6 +183,13 @@ public class MainActivity extends AppCompatActivity {
                 fadeAnimation.setDuration(500);
                 currentScaleTextView.startAnimation(fadeAnimation);
                 currentScaleTextView.setVisibility(View.INVISIBLE);
+//                float[] matrixInfo = new float[9];
+//                float transX = matrixInfo[Matrix.MTRANS_X];
+//                float transY = matrixInfo[Matrix.MTRANS_Y];
+//                Matrix matrix = mapImageView.getImageMatrix();
+//                matrix.preTranslate(-transX,-transY);
+//                mapImageView.setImageMatrix(matrix);
+
             }
         });
     }
@@ -632,6 +642,7 @@ public class MainActivity extends AppCompatActivity {
             mapImageView.scrollBy(0, goY);
             int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
             int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
+//            Log.d(ImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",mapImageView.getScrollX(), mapImageView.getScrollY()));
             if(mapImageView.getScrollX() > maxWidth){
                 mapImageView.scrollTo(maxWidth, mapImageView.getScrollY());
             }

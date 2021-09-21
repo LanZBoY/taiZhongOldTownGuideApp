@@ -5,11 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +22,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -189,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
 //                Matrix matrix = mapImageView.getImageMatrix();
 //                matrix.preTranslate(-transX,-transY);
 //                mapImageView.setImageMatrix(matrix);
-
             }
         });
     }
@@ -250,21 +246,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void navButtonOnClick(View view){
         if (navBtn.isSelected()) {
+            Animation goTeamTrackerBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
+            goTeamTrackerBtnAnim.setDuration(100);
+            Animation goNewsBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
+            goNewsBtnAnim.setDuration(200);
+            Animation goSurroundingViewBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
+            goSurroundingViewBtnAnim.setDuration(300);
             navBtn.setSelected(false);
+            goTeamTrackerBtn.startAnimation(goTeamTrackerBtnAnim);
             goTeamTrackerBtn.setEnabled(false);
             goTeamTrackerBtn.setVisibility(View.INVISIBLE);
+            goNewsBtn.startAnimation(goNewsBtnAnim);
             goNewsBtn.setEnabled(false);
             goNewsBtn.setVisibility(View.INVISIBLE);
+            goSurroundingViewBtn.startAnimation(goSurroundingViewBtnAnim);
             goSurroundingViewBtn.setEnabled(false);
             goSurroundingViewBtn.setVisibility(View.INVISIBLE);
         } else {
+            Animation goTeamTrackerBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
+            goTeamTrackerBtnAnim.setDuration(300);
+            Animation goNewsBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
+            goNewsBtnAnim.setDuration(200);
+            Animation goSurroundingViewBtnAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
+            goSurroundingViewBtnAnim.setDuration(100);
             navBtn.setSelected(true);
             goTeamTrackerBtn.setEnabled(true);
             goTeamTrackerBtn.setVisibility(View.VISIBLE);
+            goTeamTrackerBtn.startAnimation(goTeamTrackerBtnAnim);
             goNewsBtn.setEnabled(true);
             goNewsBtn.setVisibility(View.VISIBLE);
+            goNewsBtn.startAnimation(goNewsBtnAnim);
             goSurroundingViewBtn.setEnabled(true);
             goSurroundingViewBtn.setVisibility(View.VISIBLE);
+            goSurroundingViewBtn.startAnimation(goSurroundingViewBtnAnim);
         }
     }
 
@@ -279,7 +293,8 @@ public class MainActivity extends AppCompatActivity {
                 if (msg.what == 1) {
                     String weather = msg.getData().getString("WEATHER");
                     if(StringUtils.isBlank(weather)){
-                        weather = new String("晴");
+                        Log.d("WeatherAccess","no weather info.");
+                        weather = "晴";
                     }
                     cloudImageViews = new ArrayList<>();
                     cloudImageViews.add(findViewById(R.id.cloudView_1));

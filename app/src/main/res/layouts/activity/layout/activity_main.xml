@@ -113,12 +113,14 @@
     <ImageView
         android:id="@+id/backGroundImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="731dp"
         android:alpha="0.2"
         android:scaleType="center"
-        app:srcCompat="@drawable/black_bg"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="26dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/black_bg" />
 
     <Button
         android:id="@+id/team_tracker_btn"
@@ -182,16 +184,17 @@
 
     <ProgressBar
         android:id="@+id/mainActProgressBar"
-        style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
+        style="@android:style/Widget.Material.Light.ProgressBar"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="128dp"
-        android:layout_marginEnd="128dp"
-        android:layout_marginBottom="128dp"
+        android:layout_marginStart="150dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="150dp"
+        android:layout_marginBottom="150dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

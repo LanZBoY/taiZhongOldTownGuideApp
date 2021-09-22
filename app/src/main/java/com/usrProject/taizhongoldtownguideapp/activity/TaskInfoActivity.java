@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private CurrentTaskProcess currentTaskProcess;
     private TextView taskTitleView;
     private TextView taskDescView;
+    private ProgressBar taskImgProgressBar;
     private ImageView taskImageView;
     private User user;
 //    private SharedPreferences pref;
@@ -60,6 +62,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskTitleView = findViewById(R.id.taskTitleView);
         taskDescView = findViewById(R.id.taskDescView);
         taskImageView = findViewById(R.id.taskImgView);
+        taskImgProgressBar = findViewById(R.id.taskImgLoadProgressBar);
         Intent intent = this.getIntent();
         user = (User) intent.getSerializableExtra(UserSchema.USER_DATA);
         tasksInfo = (CheckTasks) intent.getSerializableExtra(TaskSchema.TASK_INFO);
@@ -68,6 +71,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskDescView.setText(tasksInfo.taskDesc);
 
         if(StringUtils.isNotBlank(tasksInfo.taskImg)){
+            taskImgProgressBar.setVisibility(View.VISIBLE);
             FirebaseStorage storage = FirebaseStorage.getInstance(getString(R.string.storage));
             GlideApp.with(this)
                     .load(storage.getReference(tasksInfo.taskImg))
@@ -83,6 +87,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                             fadeInAnimation.setDuration(400);
                             taskImageView.startAnimation(fadeInAnimation);
                             taskImageView.setImageDrawable(resource);
+                            taskImgProgressBar.setVisibility(View.GONE);
                             return true;
                         }
                     })

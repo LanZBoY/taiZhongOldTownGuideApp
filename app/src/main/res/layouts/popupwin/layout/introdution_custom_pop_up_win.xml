@@ -65,7 +65,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/file"
                 android:visibility="invisible"
-                tools:visibility="invisible" />
+                tools:visibility="visible" />
 
             <ProgressBar
                 android:id="@+id/progressBar_imgCount"

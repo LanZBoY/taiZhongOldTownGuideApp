@@ -3,15 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layout/activity_checkin_cardview.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_news_info.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_news_list.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_surrounding_view.xml" value="0.36614583333333334" />
-        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_task_info.xml" value="0.2046875" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_task_info.xml" value="0.5" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_team_tracker.xml" value="0.23072916666666668" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/custom_info_window.xml" value="0.23072916666666668" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/popupwin/layout/check_in_completed_pop_up_win.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/popupwin/layout/check_in_oncomplete_win.xml" value="0.2046875" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/popupwin/layout/introdution_custom_pop_up_win.xml" value="0.33" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/recycle_view/layout/check_in_item_view.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/recycle_view/layout/post_recycle_view_item.xml" value="0.36614583333333334" />
       </map>
     </option>
   </component>

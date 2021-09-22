@@ -75,13 +75,14 @@ public class CheckInTasksView extends AppCompatActivity {
         private ArrayList<CheckTasks> dataset;
 //      設定要綁定的元件
         public  class ViewHolder extends RecyclerView.ViewHolder {
+            public CardView taskCardView;
             public TextView taskTitle;
 //            public TextView taskDesc;
             public ViewHolder(View view) {
                 super(view);
                 // Define click listener for the ViewHolder's View
-                taskTitle = view.findViewById(R.id.post_title);
-                taskTitle.setBackgroundResource(R.drawable.task_background);
+                taskTitle = view.findViewById(R.id.cardTitle);
+                taskCardView = view.findViewById(R.id.checkin_title_cardview);
 //                taskDesc = view.findViewById(R.id.taskDesc);
             }
 
@@ -96,7 +97,7 @@ public class CheckInTasksView extends AppCompatActivity {
         @Override
         public TaskAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.post_recycle_view_item, parent, false);
+                    .inflate(R.layout.activity_checkin_cardview, parent, false);
             return new ViewHolder(view);
         }
 

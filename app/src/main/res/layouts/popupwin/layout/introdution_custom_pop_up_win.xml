@@ -9,15 +9,14 @@
 
     <TextView
         android:id="@+id/title_TextView"
-        android:layout_width="0dp"
+        android:layout_width="350dp"
         android:layout_height="75dp"
         android:layout_marginTop="16dp"
-        android:autoText="false"
         android:gravity="center"
         android:text="@string/loading"
         android:textSize="40sp"
-        app:autoSizeMaxTextSize="50sp"
-        app:autoSizeMinTextSize="10sp"
+        app:autoSizeMaxTextSize="40sp"
+        app:autoSizeMinTextSize="8sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

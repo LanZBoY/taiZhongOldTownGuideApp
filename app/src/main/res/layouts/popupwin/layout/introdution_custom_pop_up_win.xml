@@ -43,8 +43,20 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageView
-                android:id="@+id/contentImageView"
+<!--            <ImageView-->
+<!--                android:id="@+id/contentImageView"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_below="@+id/progressBar_imgCount"-->
+<!--                android:layout_marginTop="0dp"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:src="@drawable/file"-->
+<!--                android:visibility="invisible"-->
+<!--                tools:visibility="invisible" />-->
+
+            <ImageSwitcher
+                android:id="@+id/contentImageSwitcher"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@+id/progressBar_imgCount"

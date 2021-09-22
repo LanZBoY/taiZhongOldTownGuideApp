@@ -1,16 +1,23 @@
 package com.usrProject.taizhongoldtownguideapp.component.popupwin;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
+import androidx.annotation.Nullable;
+
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.usrProject.taizhongoldtownguideapp.GlideApp;
@@ -28,7 +35,7 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
     private MapClickDTO mapClickDTO;
     private TextView titleTextView;
     private TextView descTextView;
-    private ImageView imgImageView;
+    private ImageSwitcher imageSwitcher;
     private ProgressBar progressBarImgCount;
 
     private StorageReference storageReference;
@@ -46,7 +53,21 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
         this.mapClickDTO = mapClickDTO;
         titleTextView = getView().findViewById(R.id.title_TextView);
         descTextView =  getView().findViewById(R.id.contentTextView);
-        imgImageView = getView().findViewById(R.id.contentImageView);
+        imageSwitcher = getView().findViewById(R.id.contentImageSwitcher);
+        imageSwitcher.setFactory(() -> {
+            ImageView imageView = new ImageView(mContext);
+//          這邊可已設定imageView的設定
+            return imageView;
+        });
+        imageSwitcher.setAnimateFirstView(true);
+//      設定動畫元件 時間
+        Animation outAnimation,inAnimation;
+        outAnimation = AnimationUtils.loadAnimation(mContext,R.anim.fade_out);
+        outAnimation.setDuration(400);
+        inAnimation = AnimationUtils.loadAnimation(mContext,R.anim.fade_in);
+        inAnimation.setDuration(400);
+        imageSwitcher.setOutAnimation(outAnimation);
+        imageSwitcher.setInAnimation(inAnimation);
         progressBarImgCount = getView().findViewById(R.id.progressBar_imgCount);
         storageReference = FirebaseStorage.getInstance(mContext.getString(R.string.storage)).getReference();
         initImageView();
@@ -69,20 +90,34 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
                         progressBarImgCount.setVisibility(View.VISIBLE);
                         progressBarImgCount.setMax(allImgNames.size());
                         progressBarImgCount.setProgress(currentImg + 1);
-                        imgImageView.setOnClickListener(view -> {
-                            currentImg = (currentImg + 1) % allImgNames.size();
-                            progressBarImgCount.setProgress(currentImg + 1,true);
-                            Animation fade_in = AnimationUtils.loadAnimation(mContext,R.anim.fade_in);
-                            fade_in.setDuration(800);
-                            GlideApp.with(mContext)
-                                    .load(imgMap.get(allImgNames.get(currentImg)))
-                                    .into(imgImageView).getView().startAnimation(fade_in);
-                        });
+                        imageSwitcher.setOnClickListener(view -> showImgResource());
                     }
                     loadImgResource();
                 }
             });
         }
+    }
+
+    private void showImgResource(){
+        currentImg = (currentImg + 1) % allImgNames.size();
+        Log.d("CURRENT",String.format("%d",currentImg));
+        progressBarImgCount.setProgress(currentImg + 1,true);
+        imageSwitcher.showNext();
+        GlideApp.with(mContext)
+                .load(imgMap.get(allImgNames.get(currentImg)))
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        imageSwitcher.setImageDrawable(resource);
+                        return true;
+                    }
+                })
+                .into((ImageView) imageSwitcher.getCurrentView());
     }
 
     private void loadImgResource(){
@@ -94,12 +129,24 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
                 imgMap.put(imgName, bytes);
                 Log.d(FirebaseStorage.class.getSimpleName(),imgName);
                 if(!initFlag){
-                    Animation fade_in = AnimationUtils.loadAnimation(mContext,R.anim.fade_in);
-                    fade_in.setDuration(800);
+                    currentImg = allImgNames.indexOf(imgName);
                     GlideApp.with(mContext)
                             .load(bytes)
-                            .into(imgImageView).getView().startAnimation(fade_in);
-                    imgImageView.setVisibility(View.VISIBLE);
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    imageSwitcher.setImageDrawable(resource);
+                                    return true;
+                                }
+                            })
+                            .into((ImageView) imageSwitcher.getCurrentView());
+                    progressBarImgCount.setProgress(currentImg + 1 ,true);
+                    imageSwitcher.setVisibility(View.VISIBLE);
                     initFlag = true;
                 }
             });

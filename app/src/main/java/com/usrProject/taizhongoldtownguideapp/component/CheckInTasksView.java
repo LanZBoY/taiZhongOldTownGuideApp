@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.AnimationUtilsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,15 +36,12 @@ public class CheckInTasksView extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private User user;
 
-//  Compat
-    Animation animation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.check_in_item_view);
         RecyclerView tasksItemsList = findViewById(R.id.tasksList);
-        animation = new AlphaAnimation(0f, 1.0f);
-        animation.setDuration(100);
         tasksItemsList.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         tasksItemsList.setLayoutManager(layoutManager);
@@ -102,7 +101,7 @@ public class CheckInTasksView extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull TaskAdapter.ViewHolder holder, final int position) {
-            holder.taskTitle.startAnimation(animation);
+            holder.taskTitle.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_from_right));
             holder.taskTitle.setText(dataset.get(position).taskTitle);
             holder.taskTitle.setOnClickListener(view -> {
                 Intent intent = new Intent(getApplicationContext(), TaskInfoActivity.class);

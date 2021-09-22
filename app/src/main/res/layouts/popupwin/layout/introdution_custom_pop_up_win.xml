@@ -9,18 +9,23 @@
 
     <TextView
         android:id="@+id/title_TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="75dp"
         android:layout_marginTop="16dp"
-        android:text="Loading..."
-        android:textSize="40dp"
+        android:autoText="false"
+        android:gravity="center"
+        android:text="@string/loading"
+        android:textSize="40sp"
+        app:autoSizeMaxTextSize="50sp"
+        app:autoSizeMinTextSize="10sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/contentView"
-        android:layout_width="403dp"
+        android:layout_width="0dp"
         android:layout_height="382dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,27 +43,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="48dp"
-                android:text="Loading..."
-                android:textSize="20dp"
+                android:gravity="center"
+                android:text="@string/loading"
+                android:textSize="20sp"
+                app:autoSizeMaxTextSize="24sp"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeTextType="uniform"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-<!--            <ImageView-->
-<!--                android:id="@+id/contentImageView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_below="@+id/progressBar_imgCount"-->
-<!--                android:layout_marginTop="0dp"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:scaleType="fitCenter"-->
-<!--                android:src="@drawable/file"-->
-<!--                android:visibility="invisible"-->
-<!--                tools:visibility="invisible" />-->
+            <!--            <ImageView-->
+            <!--                android:id="@+id/contentImageView"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:layout_below="@+id/progressBar_imgCount"-->
+            <!--                android:layout_marginTop="0dp"-->
+            <!--                android:adjustViewBounds="true"-->
+            <!--                android:scaleType="fitCenter"-->
+            <!--                android:src="@drawable/file"-->
+            <!--                android:visibility="invisible"-->
+            <!--                tools:visibility="invisible" />-->
 
             <ImageSwitcher
                 android:id="@+id/contentImageSwitcher"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="300dp"
                 android:layout_below="@+id/progressBar_imgCount"
                 android:layout_marginTop="0dp"
                 android:adjustViewBounds="true"

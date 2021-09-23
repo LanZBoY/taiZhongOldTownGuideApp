@@ -10,7 +10,6 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import androidx.annotation.Nullable;
 
@@ -28,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 
 public class IntroductionCustomPopUpWin extends CustomPopUpWin {
@@ -82,7 +82,7 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
             Log.d(FirebaseStorage.class.getSimpleName(),storageReference.child("MapClick").child(mapClickDTO.imgId).getPath());
             storageReference.child("MapClick").child(mapClickDTO.imgId).listAll().addOnCompleteListener(task -> {
                 if(task.isComplete()){
-                    for(StorageReference temp : task.getResult().getItems()){
+                    for(StorageReference temp : Objects.requireNonNull(task.getResult()).getItems()){
                         allImgNames.add(temp.getName());
                         imgMap.put(temp.getName(), null);
                     }

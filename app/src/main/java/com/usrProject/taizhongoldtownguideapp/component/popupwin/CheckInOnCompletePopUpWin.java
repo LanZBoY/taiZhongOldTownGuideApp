@@ -50,6 +50,7 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
             }
 //                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
             dismiss();
+
         });
 
     }

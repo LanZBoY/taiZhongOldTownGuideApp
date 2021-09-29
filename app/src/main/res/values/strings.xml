@@ -68,6 +68,8 @@
     <string name="CheckHint">打卡提示</string>
     <string name="CheckProcess">打卡進度</string>
 
+    <string name="LongPressAddMarker">長按以加入標記點</string>
+
     <string name="nextStopTittle">下一站 -> %s</string>
     <string name="stop_name">站名</string>
     <string name="next_stop">下一站</string>

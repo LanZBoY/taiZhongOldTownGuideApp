@@ -260,7 +260,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMarkerClickListener(marker -> false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(TeamTracker.this));
         mMap.setOnInfoWindowLongClickListener(marker -> {

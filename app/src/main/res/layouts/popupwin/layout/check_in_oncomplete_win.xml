@@ -17,10 +17,14 @@
 
     <TextView
         android:id="@+id/check_in_oncompleted_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
         android:text="@string/CheckHint"
-        android:textSize="34sp"
+        android:textSize="20sp"
+        app:autoSizeMaxTextSize="34sp"
+        app:autoSizeMinTextSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/check_in_background"
         app:layout_constraintStart_toStartOf="@+id/check_in_background"
         app:layout_constraintTop_toTopOf="@+id/check_in_background" />
@@ -37,10 +41,17 @@
 
     <TextView
         android:id="@+id/check_in_oncomplete_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
         android:text="@string/CheckDesc"
+        android:textSize="8sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeMinTextSize="6sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/check_In_ImageView"
         app:layout_constraintEnd_toEndOf="@+id/check_in_background"
         app:layout_constraintStart_toStartOf="@+id/check_in_background"
@@ -48,8 +59,11 @@
 
     <ImageView
         android:id="@+id/check_In_ImageView"
-        android:layout_width="350dp"
-        android:layout_height="366dp"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/check_in_oncomplete_done_button"
         app:layout_constraintEnd_toEndOf="@+id/check_in_background"
         app:layout_constraintStart_toStartOf="@+id/check_in_background"

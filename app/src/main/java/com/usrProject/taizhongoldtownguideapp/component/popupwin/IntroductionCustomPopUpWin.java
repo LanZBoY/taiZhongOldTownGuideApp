@@ -100,7 +100,7 @@ public class IntroductionCustomPopUpWin extends CustomPopUpWin {
 
     private void showImgResource(){
         currentImg = (currentImg + 1) % allImgNames.size();
-        Log.d("CURRENT",String.format("%d",currentImg));
+        Log.d("Method: showImgResource",String.format("%d",currentImg));
         progressBarImgCount.setProgress(currentImg + 1,true);
         imageSwitcher.showNext();
         GlideApp.with(mContext)

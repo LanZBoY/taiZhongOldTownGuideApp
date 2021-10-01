@@ -78,6 +78,7 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -280,7 +281,9 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
             public void handleMessage(@NotNull Message msg) {
                 if (msg.what == 1) {
                     Bundle bundle = msg.getData();
-                    JsonArray jsonArray = JsonParser.parseString(bundle.getString(ServiceSchema.LOCATION_MARK)).getAsJsonArray();
+                    String json = bundle.getString(ServiceSchema.LOCATION_MARK);
+                    Log.d("RawData",json);
+                    JsonArray jsonArray = JsonParser.parseString(json).getAsJsonArray();
 //                        Double xPoint;
 //                        Double yPoint = 0.0;
 //                        String title = "";
@@ -740,27 +743,27 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     void getPointJson() {
         String url = getString(R.string.USR_API);
         Log.d("USR_API", url);
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (response.isSuccessful()) {
-//                    responseJsonString = response.body().string();
-                    Message msg = new Message();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(ServiceSchema.LOCATION_MARK, response.body().string());
-                    msg.setData(bundle);
-                    msg.what = 1;
-                    messageHandler.sendMessage(msg);
-                }
-            }
-        });
+//        TODO: API端仍有Bug
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder().url(url).build();
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Request request, IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Response response) throws IOException {
+//                if (response.isSuccessful()) {
+//                    Message msg = new Message();
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString(ServiceSchema.LOCATION_MARK, response.body().string().toString());
+//                    msg.setData(bundle);
+//                    msg.what = 1;
+//                    messageHandler.sendMessage(msg);
+//                }
+//            }
+//        });
 
     }
 

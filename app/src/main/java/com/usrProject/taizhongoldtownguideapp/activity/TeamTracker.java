@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +41,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -358,40 +360,60 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         }
 
         //每次fireBase裡朋友資料更新時，更新本地朋友資料
-        usersRef.addValueEventListener(new ValueEventListener() {
+
+        usersRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Marker marker;
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    String userName = data.child("userName").getValue(String.class);
-                    Integer userIconPath = data.child("userIconPath").getValue(Integer.class);
-                    String userID = data.getKey();
+                String userName = snapshot.child("userName").getValue(String.class);
+                Integer userIconPath = snapshot.child("userIconPath").getValue(Integer.class);
+                String userID = snapshot.getKey();
+                if (userName != null && userIconPath != null && userID != null) {
+                    Bitmap userBitmap = new BitmapFactory().decodeResource(getResources(), userIconPath);
+                    Double userLatitude = snapshot.child("latitude").getValue(Double.class);
+                    Double userLongitude = snapshot.child("longitude").getValue(Double.class);
 
-                    if (userName != null && userIconPath != null && userID != null) {
-                        Bitmap userBitmap = new BitmapFactory().decodeResource(getResources(), userIconPath);
-                        Double userLatitude = data.child("latitude").getValue(Double.class);
-                        Double userLongitude = data.child("longitude").getValue(Double.class);
-
-                        if (userLatitude != null && userLongitude != null) {
-                            marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
-                            marker.setTag(MarkType.USER);
-                            if (userMarkerMap.containsKey(userID)) {
-                                Marker delMarker = userMarkerMap.get(userID);
-                                assert delMarker != null;
-                                delMarker.remove();
-                                userMarkerMap.remove(userID);
-                            }
-                            userMarkerMap.put(userID, marker);
+                    if (userLatitude != null && userLongitude != null) {
+                        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
+                        marker.setTag(MarkType.USER);
+                        if (userMarkerMap.containsKey(userID)) {
+                            Marker delMarker = userMarkerMap.get(userID);
+                            assert delMarker != null;
+                            delMarker.remove();
+                            userMarkerMap.remove(userID);
                         }
+                        userMarkerMap.put(userID, marker);
                     }
-
                 }
             }
 
             @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                String userID = snapshot.getKey();
+                if (userMarkerMap.containsKey(userID)) {
+                    Marker delMarker = userMarkerMap.get(userID);
+                    assert delMarker != null;
+                    delMarker.remove();
+                    userMarkerMap.remove(userID);
+                }
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+
 
         //每次firebase裡有marker更新時，更新本地所有marker資料
         markersRef.addValueEventListener(new ValueEventListener() {
@@ -756,6 +778,7 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
      *
      * @param view the view
      */
+    @SuppressLint("NonConstantResourceId")
     public void switchLayer(View view) {
 
         boolean checked = ((CheckBox) view).isChecked();

@@ -1,7 +1,7 @@
 -marker闹钟提醒未完成
 *-user recycleList 未排序
 *-user recycleList 未设定队长标志
--未实作realtime database的delete功能
+*-未实作realtime database的delete功能
 *-未解决第一次载入时请求权限导致的问题
 *-未自动开启使用者的GPS定位功能
 -GPS定位会抖动导致检查是否移动时，发生true的几率极高

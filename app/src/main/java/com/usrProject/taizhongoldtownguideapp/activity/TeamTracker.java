@@ -31,7 +31,6 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,10 +49,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.usrProject.taizhongoldtownguideapp.Loading;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.component.CheckInTasksView;
@@ -80,8 +75,6 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -286,82 +279,69 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
                     String json = bundle.getString(ServiceSchema.LOCATION_MARK);
                     Log.d("RawData",json);
                     JsonArray jsonArray = JsonParser.parseString(json).getAsJsonArray();
-//                        Double xPoint;
-//                        Double yPoint = 0.0;
-//                        String title = "";
-//                        String type = "";
-//                        String content = "";
-//                        String id = "";
-//                        float markerColor = 0;
                     Gson gson = new Gson();
                     for (JsonElement jsonElement : jsonArray) {
                         Log.d("LOCATION", jsonElement.getAsString());
                         LocationDTO locationDTO = gson.fromJson(jsonElement, LocationDTO.class);
-//                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                            xPoint = Double.parseDouble(jsonObject.get("PO_X").toString());
-//                            yPoint = Double.parseDouble(jsonObject.get("PO_Y").toString());
-//                            title = jsonObject.get("PO_TITLE").toString();
-//                            type = jsonObject.get("PO_TYPES").toString();
-//                            content = jsonObject.get("PO_CONTENT").toString();
-//                            id = jsonObject.get("PO_ID").toString();
-//                        Marker marker = null;
-//                            switch (Integer.parseInt(type)) {
-//                                case 0://美食
-//                                    markerColor = BitmapDescriptorFactory.HUE_AZURE;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("food");
-//                                    foodMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 1://購物
-//                                    markerColor = BitmapDescriptorFactory.HUE_BLUE;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("shopping");
-//                                    shoppingMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 2://住宿
-//                                    markerColor = BitmapDescriptorFactory.HUE_CYAN;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("room");
-//                                    roomMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 3://歷史
-//                                    markerColor = BitmapDescriptorFactory.HUE_RED;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setTag("history");
-//                                    historyMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 4://遊憩
-//                                    markerColor = BitmapDescriptorFactory.HUE_MAGENTA;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("play");
-//                                    playMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 5://交通
-//                                    markerColor = BitmapDescriptorFactory.HUE_ORANGE;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("traffic");
-//                                    trafficMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 6://服務
-//                                    markerColor = BitmapDescriptorFactory.HUE_GREEN;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("service");
-//                                    serviceMarkerHashMap.put(id, marker);
-//                                    break;
-//                                case 7://宗教
-//                                    markerColor = BitmapDescriptorFactory.HUE_ROSE;
-//                                    marker = mMap.addMarker(new MarkerOptions().position(new LatLng(yPoint, xPoint)).title(title).icon(BitmapDescriptorFactory.defaultMarker(markerColor)).snippet(content));
-//                                    marker.setVisible(false);
-//                                    marker.setTag("religion");
-//                                    religionMarkerHashMap.put(id, marker);
-//                                    break;
-//                            }
+                        Marker marker = null;
+                        switch (locationDTO.PO_TYPES){
+                            case FOOD:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("food");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case SHOPPING:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Shopping");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case ROOM:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Room");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case HISTORY:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("History");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case PLAY:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Play");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case TRAFFIC:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Traffic");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case SERVICE:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Service");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                            case RELIGION:
+                                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(locationDTO.PO_Y, locationDTO.PO_X)).title(locationDTO.PO_TITLE).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).snippet(locationDTO.PO_CONTENT));
+                                assert marker != null;
+                                marker.setVisible(false);
+                                marker.setTag("Religion");
+                                foodMarkerHashMap.put(locationDTO.PO_ID, marker);
+                                break;
+                        }
                     }
                 }
             }

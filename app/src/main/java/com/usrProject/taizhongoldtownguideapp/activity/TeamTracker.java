@@ -46,6 +46,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -66,6 +67,7 @@ import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CheckInMarkerObject;
 import com.usrProject.taizhongoldtownguideapp.model.CheckIn.CurrentTaskProcess;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.model.User.UserMarker;
+import com.usrProject.taizhongoldtownguideapp.model.service.LocationDTO;
 import com.usrProject.taizhongoldtownguideapp.schema.ServiceSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.TaskSchema;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
@@ -291,8 +293,10 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                        String content = "";
 //                        String id = "";
 //                        float markerColor = 0;
+                    Gson gson = new Gson();
                     for (JsonElement jsonElement : jsonArray) {
                         Log.d("LOCATION", jsonElement.getAsString());
+                        LocationDTO locationDTO = gson.fromJson(jsonElement, LocationDTO.class);
 //                            JSONObject jsonObject = jsonArray.getJSONObject(i);
 //                            xPoint = Double.parseDouble(jsonObject.get("PO_X").toString());
 //                            yPoint = Double.parseDouble(jsonObject.get("PO_Y").toString());

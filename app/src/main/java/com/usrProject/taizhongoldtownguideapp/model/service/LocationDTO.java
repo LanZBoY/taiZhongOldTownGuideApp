@@ -10,7 +10,7 @@ public class LocationDTO {
 
     public double PO_Y;
 
-    public String PO_TYPES;
+    public int PO_TYPES;
 
     public String PO_CONTENT;
 }

@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.MotionEventCompat;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     //  個人資料
     private User user;
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         loadProgressBar = findViewById(R.id.mainActProgressBar);
         //預設是 MapType.NEW_MAP_NOW
         changeImage(MapType.NEW_MAP_NOW);
-        currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
+        currentScaleTextView.setText(String.format("%.1f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
 //      縮放用的監聽器
         SGD = new ScaleGestureDetector(MainActivity.this, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
@@ -137,12 +139,15 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("baseScaleFactor",String.valueOf(currentMapType.baseScaleFactor));
                 Matrix matrix = mapImageView.getImageMatrix();
                 matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor);
-//                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor, mapImageView.getScrollX() + scaleGestureDetector.getFocusX(),mapImageView.getScrollY() + scaleGestureDetector.getFocusY());
-//                Log.d("Focus",String.format("(X,Y)=(%f,%f)",scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY()));
-//                Log.d("onScroll",String.format("Current(%d,%d)",mapImageView.getScrollX(),mapImageView.getScrollY()));
+//                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor, (float)mapImageView.getScrollX() + phoneWidthPixels/2f, (float)mapImageView.getScrollY() + phoneHeightPixels/2f);
+//                float[] matrixInfo = new float[9];
+//                matrix.getValues(matrixInfo);
+//                transX += matrixInfo[Matrix.MTRANS_X];
+//                transY += matrixInfo[Matrix.MTRANS_Y];
+//                Log.d("MATRIX", String.format("(%f,%f)",matrixInfo[Matrix.MTRANS_X], matrixInfo[Matrix.MTRANS_Y]));
 //              TODO:尚未解決縮放中心點的問題
                 mapImageView.setImageMatrix(matrix);
-                currentScaleTextView.setText(String.format("%f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
+                currentScaleTextView.setText(String.format("%.1f%s",currentMapType.baseScaleFactor,getResources().getString(R.string.factor)));
 
                 int maxWidth = (int) (mapImageView.getDrawable().getBounds().width() * currentMapType.baseScaleFactor - phoneWidthPixels);
                 int maxHeight = (int) (mapImageView.getDrawable().getBounds().height() * currentMapType.baseScaleFactor - phoneHeightPixels);
@@ -184,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 //                float transX = matrixInfo[Matrix.MTRANS_X];
 //                float transY = matrixInfo[Matrix.MTRANS_Y];
 //                Matrix matrix = mapImageView.getImageMatrix();
-//                matrix.preTranslate(-transX,-transY);
+//                matrix.postTranslate(-transX,-transY);
 //                mapImageView.setImageMatrix(matrix);
             }
         });
@@ -381,7 +386,6 @@ public class MainActivity extends AppCompatActivity {
                 alert.create().show();
             } else {
                 //查看使用者是否已經加入團隊
-//                boolean newUser = pref.getBoolean("inTeam", false);
                 Intent intent;
                 if(user.inTeam) {
                     intent = new Intent(this, TeamTracker.class);

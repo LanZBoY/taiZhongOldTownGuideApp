@@ -51,6 +51,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.usrProject.taizhongoldtownguideapp.Loading;
 import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.component.CheckInTasksView;
@@ -77,6 +81,7 @@ import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -763,7 +768,8 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
 //                if (response.isSuccessful()) {
 //                    Message msg = new Message();
 //                    Bundle bundle = new Bundle();
-//                    bundle.putString(ServiceSchema.LOCATION_MARK, response.body().string().toString());
+//                    String text = response.body().string();
+//                    bundle.putString(ServiceSchema.LOCATION_MARK,StringUtils.strip(text,"\""));
 //                    msg.setData(bundle);
 //                    msg.what = 1;
 //                    messageHandler.sendMessage(msg);

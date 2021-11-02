@@ -369,7 +369,20 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         usersRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                Marker marker;
+                String userName = snapshot.child("userName").getValue(String.class);
+                Integer userIconPath = snapshot.child("userIconPath").getValue(Integer.class);
+                String userID = snapshot.getKey();
+                if (userName != null && userIconPath != null && userID != null) {
+                    Bitmap userBitmap = new BitmapFactory().decodeResource(getResources(), userIconPath);
+                    Double userLatitude = snapshot.child("latitude").getValue(Double.class);
+                    Double userLongitude = snapshot.child("longitude").getValue(Double.class);
+                    if (userLatitude != null && userLongitude != null) {
+                        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
+                        marker.setTag(MarkType.USER);
+                        userMarkerMap.put(userID, marker);
+                    }
+                }
             }
 
             @Override

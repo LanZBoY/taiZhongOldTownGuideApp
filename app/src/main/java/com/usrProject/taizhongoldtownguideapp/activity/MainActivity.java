@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView backgroundImageView;
     private ArrayList<ImageView> cloudImageViews;
     private TextView currentScaleTextView;
-    private ProgressBar loadProgressBar;
-    private WindowManager.LayoutParams params;
     private Handler handler;
     // 照片的參數設定
     //  個人資料
@@ -85,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         goNewsBtn = findViewById(R.id.news_btn);
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
+
         mapImageView = findViewById(R.id.mapView);
         //預設是 MapType.NEW_MAP_NOW
         mapImageView.changeImage(MapType.NEW_MAP_NOW);
@@ -123,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 alert.setNegativeButton("否", (dialog, which) -> Toast.makeText(MainActivity.this, "請先開啟GPS定位", Toast.LENGTH_LONG).show());
                 alert.create().show();
             } else {
-//                boolean newUser = pref.getBoolean("inTeam", false);
                 //這裡可以去firebase看現在自己的房間ID是否存在，存在的話就去TeamTracker，反之去createNewUser
                 Intent intent;
                 if (user.inTeam) {
@@ -262,9 +260,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "獲取裝置GPS權限失敗", Toast.LENGTH_LONG).show();
         }
     }
-
-
-
 
     //對雲朵進行操控
     @SuppressLint("NonConstantResourceId")

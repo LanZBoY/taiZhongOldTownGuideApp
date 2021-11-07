@@ -118,12 +118,12 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
         currentMapType = mapType;
         MapImageView.this.setImageResource(currentMapType.resId);
         Matrix matrix = MapImageView.this.getImageMatrix();
-        matrix.setScale(currentMapType.baseScaleFactor,currentMapType.baseScaleFactor);
+        matrix.setScale(currentMapType.currentScaleFactor,currentMapType.currentScaleFactor);
         MapImageView.this.setImageMatrix(matrix);
         MapImageView.this.scrollTo( (int)(
-                MapImageView.this.getDrawable().getIntrinsicWidth() * currentMapType.baseScaleFactor
+                MapImageView.this.getDrawable().getIntrinsicWidth() * currentMapType.currentScaleFactor
                 - getContext().getResources().getDisplayMetrics().widthPixels) / 2,
-                (int) (MapImageView.this.getDrawable().getIntrinsicHeight() * currentMapType.baseScaleFactor
+                (int) (MapImageView.this.getDrawable().getIntrinsicHeight() * currentMapType.currentScaleFactor
                 - getContext().getResources().getDisplayMetrics().heightPixels) / 2);
     }
 
@@ -205,11 +205,8 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
             }
 
             private boolean inRange(MapClick mapClick, double x, double y){
-                if(mapClick == MapClick.AI){
-                    Log.d("TAP",String.format("%f,%f,%f",mapClick.startX * currentMapType.baseScaleFactor, x, mapClick.endX * currentMapType.baseScaleFactor));
-                }
-                return (mapClick.startX * currentMapType.baseScaleFactor < x && x < mapClick.endX * currentMapType.baseScaleFactor )
-                        && (mapClick.startY * currentMapType.baseScaleFactor < y && y < mapClick.endY * currentMapType.baseScaleFactor);
+                return (mapClick.startX * currentMapType.currentScaleFactor < x && x < mapClick.endX * currentMapType.currentScaleFactor)
+                        && (mapClick.startY * currentMapType.currentScaleFactor < y && y < mapClick.endY * currentMapType.currentScaleFactor);
             }
 
             public void popWindow(MapClick mapClick) {
@@ -246,17 +243,14 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 int goX = (int) distanceX;
                 int goY = (int) distanceY;
 
-                int maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.baseScaleFactor
+                int maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().widthPixels);
-                int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.baseScaleFactor
+                int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().heightPixels);
                 Log.d(MapImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
-                MapImageView.this.scrollTo(
-                        Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth)),
-                        Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight))
-                );
-                currentScrollX = MapImageView.this.getScrollX();
-                currentScrollY = MapImageView.this.getScrollY();
+                currentScrollX = Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth));
+                currentScrollY = Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight));
+                MapImageView.this.scrollTo(currentScrollX, currentScrollY);
                 return true;
             }
 
@@ -273,30 +267,30 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 //      縮放用的監聽器
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
             Matrix matrix;
-            float[] matrixInfo;
             @Override
             public boolean onScaleBegin(ScaleGestureDetector detector) {
+                if(currentMapType != MapType.NEW_MAP_NOW){
+                    return false;
+                }
                 matrix = MapImageView.this.getImageMatrix();
-                matrixInfo = new float[9];
                 return true;
             }
 
             @Override
             public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-                currentMapType.baseScaleFactor *= scaleGestureDetector.getScaleFactor();
-                currentMapType.baseScaleFactor = Math.max(0.5f, Math.min(currentMapType.baseScaleFactor, 1.5f));
+                currentMapType.currentScaleFactor *= scaleGestureDetector.getScaleFactor();
+                currentMapType.currentScaleFactor = Math.max(0.5f, Math.min(currentMapType.currentScaleFactor, 1.5f));
                 Log.d(MapImageView.class.getSimpleName(),String.format("(%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
-                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor);
+                //              TODO:尚未解決縮放中心點的問題
+                matrix.setScale(currentMapType.currentScaleFactor, currentMapType.currentScaleFactor);
 //                matrix.setScale(currentMapType.baseScaleFactor,
 //                        currentMapType.baseScaleFactor,
 //                        MapImageView.this.getScrollX() + scaleGestureDetector.getFocusX(),
 //                        MapImageView.this.getScrollY() + scaleGestureDetector.getFocusY());
-                MapImageView.this.scrollTo(
-                        (int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.baseScaleFactor),
-                        (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.baseScaleFactor)
-                );
-//              TODO:尚未解決縮放中心點的問題
-                matrix.getValues(matrixInfo);
+                currentScrollX = (int) ((currentScrollX + MapImageView.this.getWidth() / (2 * context.getResources().getDisplayMetrics().density)) * currentMapType.currentScaleFactor);
+                currentScrollY = (int) ((currentScrollY + MapImageView.this.getHeight() / (2 * context.getResources().getDisplayMetrics().density)) * currentMapType.currentScaleFactor);
+                MapImageView.this.scrollTo(currentScrollX, currentScrollY);
+
                 return true;
             }
 

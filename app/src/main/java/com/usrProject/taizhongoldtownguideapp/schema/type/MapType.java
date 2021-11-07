@@ -1,7 +1,5 @@
 package com.usrProject.taizhongoldtownguideapp.schema.type;
 
-import android.content.Context;
-
 import com.usrProject.taizhongoldtownguideapp.R;
 
 public enum MapType {
@@ -11,10 +9,10 @@ public enum MapType {
     MAP_NOW(R.drawable.map_now,1.0f),
     NEW_MAP_NOW(R.drawable.new_map_now,0.5f);
     public int resId;
-    public float baseScaleFactor;
-    MapType(int resId, float baseScaleFactor){
+    public float currentScaleFactor;
+    MapType(int resId, float currentScaleFactor){
         this.resId = resId;
-        this.baseScaleFactor = baseScaleFactor;
+        this.currentScaleFactor = currentScaleFactor;
     }
 
 }

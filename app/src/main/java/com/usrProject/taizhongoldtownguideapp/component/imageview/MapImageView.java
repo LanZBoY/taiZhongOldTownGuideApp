@@ -290,7 +290,6 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 currentScrollX = (int) ((currentScrollX + MapImageView.this.getWidth() / (2 * context.getResources().getDisplayMetrics().density)) * currentMapType.currentScaleFactor);
                 currentScrollY = (int) ((currentScrollY + MapImageView.this.getHeight() / (2 * context.getResources().getDisplayMetrics().density)) * currentMapType.currentScaleFactor);
                 MapImageView.this.scrollTo(currentScrollX, currentScrollY);
-
                 return true;
             }
 

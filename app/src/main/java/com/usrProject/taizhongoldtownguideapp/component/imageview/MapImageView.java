@@ -41,6 +41,8 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
     private ProgressBar loadProgressBar;
     private Window window;
     private WindowManager.LayoutParams params;
+    private int currentScrollX;
+    private int currentScrollY;
     public MapImageView(@NonNull Context context) {
         super(context);
         init(context);
@@ -123,17 +125,6 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 - getContext().getResources().getDisplayMetrics().widthPixels) / 2,
                 (int) (MapImageView.this.getDrawable().getIntrinsicHeight() * currentMapType.baseScaleFactor
                 - getContext().getResources().getDisplayMetrics().heightPixels) / 2);
-    }
-
-    public void changeImageWithFocus(MapType mapType, float x, float y){
-        if(mapType == null){
-            return;
-        }
-        MapImageView.this.setImageResource(currentMapType.resId);
-        Matrix matrix = MapImageView.this.getImageMatrix();
-        matrix.setScale(currentMapType.baseScaleFactor,currentMapType.baseScaleFactor);
-        MapImageView.this.setImageMatrix(matrix);
-        MapImageView.this.scrollTo( (int)x, (int)y);
     }
 
 //  初始化監聽器
@@ -260,8 +251,12 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.baseScaleFactor
                         - context.getResources().getDisplayMetrics().heightPixels);
                 Log.d(MapImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
-                MapImageView.this.setScrollX(Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth)));
-                MapImageView.this.setScrollY(Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight)));
+                MapImageView.this.scrollTo(
+                        Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth)),
+                        Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight))
+                );
+                currentScrollX = MapImageView.this.getScrollX();
+                currentScrollY = MapImageView.this.getScrollY();
                 return true;
             }
 
@@ -291,10 +286,15 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 currentMapType.baseScaleFactor *= scaleGestureDetector.getScaleFactor();
                 currentMapType.baseScaleFactor = Math.max(0.5f, Math.min(currentMapType.baseScaleFactor, 1.5f));
                 Log.d(MapImageView.class.getSimpleName(),String.format("(%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
-                matrix.setScale(currentMapType.baseScaleFactor,
-                        currentMapType.baseScaleFactor,
-                        MapImageView.this.getScrollX() + scaleGestureDetector.getFocusX(),
-                        MapImageView.this.getScrollY() + scaleGestureDetector.getFocusY());
+                matrix.setScale(currentMapType.baseScaleFactor, currentMapType.baseScaleFactor);
+//                matrix.setScale(currentMapType.baseScaleFactor,
+//                        currentMapType.baseScaleFactor,
+//                        MapImageView.this.getScrollX() + scaleGestureDetector.getFocusX(),
+//                        MapImageView.this.getScrollY() + scaleGestureDetector.getFocusY());
+                MapImageView.this.scrollTo(
+                        (int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.baseScaleFactor),
+                        (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.baseScaleFactor)
+                );
 //              TODO:尚未解決縮放中心點的問題
                 matrix.getValues(matrixInfo);
                 return true;
@@ -302,7 +302,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 
             @Override
             public void onScaleEnd(ScaleGestureDetector detector) {
-                matrix.setTranslate( -matrixInfo[Matrix.MTRANS_X], -matrixInfo[Matrix.MTRANS_Y]);
+//                matrix.setTranslate( -matrixInfo[Matrix.MTRANS_X], -matrixInfo[Matrix.MTRANS_Y]);
             }
         });
     }

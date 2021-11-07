@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         goNewsBtn = findViewById(R.id.news_btn);
         goSurroundingViewBtn = findViewById(R.id.surrounding_view_btn);
         navBtn = findViewById(R.id.nav_btn);
-
         mapImageView = findViewById(R.id.mapView);
         //預設是 MapType.NEW_MAP_NOW
         mapImageView.changeImage(MapType.NEW_MAP_NOW);

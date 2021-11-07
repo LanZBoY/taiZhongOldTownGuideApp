@@ -89,19 +89,10 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * The type Team tracker.
- */
 public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    /**
-     * The M current location.
-     */
     Location mCurrentLocation = null;
-    /**
-     * The M fused location provider client.
-     */
     FusedLocationProviderClient mFusedLocationProviderClient;
     private WindowManager.LayoutParams params;
     private DatabaseReference usersRef;
@@ -122,7 +113,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     HashMap<String, Marker> serviceMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> religionMarkerHashMap = new HashMap<>();
     Set<String> checkedLayerSet = new HashSet<>();
-
     private Boolean isExiting = false;//判斷使用者是否正在退出團隊
     private CurrentTaskProcess currentTaskProcess;
     private Marker currentTaskMarker;

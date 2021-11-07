@@ -153,6 +153,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                         seekBar.setEnabled(false);
                     }
                 }
+
                 if (e.getY() > context.getResources().getDisplayMetrics().heightPixels * 0.7) {
                     if (seekBar.getVisibility() != View.VISIBLE) {
                         seekBar.startAnimation(inAnim);

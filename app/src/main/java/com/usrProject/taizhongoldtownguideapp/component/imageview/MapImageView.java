@@ -248,7 +248,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                         - context.getResources().getDisplayMetrics().widthPixels);
                 int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().heightPixels);
-                Log.d(MapImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
+//                Log.d(MapImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
                 currentScrollX = Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth));
                 currentScrollY = Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight));
                 MapImageView.this.scrollTo(currentScrollX, currentScrollY);
@@ -292,11 +292,10 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 //                int targetY = (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.currentScaleFactor / initScaleFactor);
 //                currentScrollX = (int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getWidth() / 2;
 //                currentScrollY = (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getHeight() / 2;
-                currentScrollX = Math.max(0, Math.min((int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getWidth() / 2, maxWidth));
-                currentScrollY = Math.max(0, Math.min((int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getHeight() / 2, maxHeight));
-
+                currentScrollX = Math.max(0, Math.min((int) (((currentScrollX + scaleGestureDetector.getFocusX()) * currentMapType.currentScaleFactor / initScaleFactor) - scaleGestureDetector.getFocusX()), maxWidth));
+                currentScrollY = Math.max(0, Math.min((int) (((currentScrollY + scaleGestureDetector.getFocusY()) * currentMapType.currentScaleFactor / initScaleFactor) - scaleGestureDetector.getFocusY()), maxHeight));
                 MapImageView.this.scrollTo(currentScrollX, currentScrollY);
-                Log.d(MapImageView.class.getSimpleName(), String.format("SCROLL(%d,%d)", currentScrollX,currentScrollY));
+//                Log.d(MapImageView.class.getSimpleName(), String.format("SCROLL(%d,%d)", currentScrollX,currentScrollY));
                 return true;
             }
 

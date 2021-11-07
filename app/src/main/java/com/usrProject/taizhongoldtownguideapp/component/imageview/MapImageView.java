@@ -302,7 +302,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 
             @Override
             public void onScaleEnd(ScaleGestureDetector detector) {
-//                matrix.setTranslate( -matrixInfo[Matrix.MTRANS_X], -matrixInfo[Matrix.MTRANS_Y]);
+
             }
         });
     }

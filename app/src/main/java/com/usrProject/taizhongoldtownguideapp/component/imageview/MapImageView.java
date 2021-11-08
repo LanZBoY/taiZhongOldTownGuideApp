@@ -43,6 +43,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
     private WindowManager.LayoutParams params;
     private int currentScrollX;
     private int currentScrollY;
+//    private int actionBarHeight;
     public MapImageView(@NonNull Context context) {
         super(context);
         init(context);
@@ -129,6 +130,11 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 
 //  初始化監聽器
     private void init(Context context) {
+//        actionBarHeight = 0;
+//        TypedValue tv = new TypedValue();
+//        if(context.getTheme().resolveAttribute(R.attr.actionBarSize, tv,true)){
+//            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+//        }
 //      手勢的監聽器
         gestureDetector = new GestureDetector(context, new GestureDetector.OnGestureListener() {
             @Override
@@ -293,7 +299,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
 //                currentScrollX = (int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getWidth() / 2;
 //                currentScrollY = (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.currentScaleFactor / initScaleFactor) - MapImageView.this.getHeight() / 2;
                 currentScrollX = Math.max(0, Math.min((int) (((currentScrollX + scaleGestureDetector.getFocusX()) * currentMapType.currentScaleFactor / initScaleFactor) - scaleGestureDetector.getFocusX()), maxWidth));
-                currentScrollY = Math.max(0, Math.min((int) (((currentScrollY + scaleGestureDetector.getFocusY()) * currentMapType.currentScaleFactor / initScaleFactor) - scaleGestureDetector.getFocusY()), maxHeight));
+                currentScrollY = Math.max(0, Math.min((int) (((currentScrollY + scaleGestureDetector.getFocusY() - 80) * currentMapType.currentScaleFactor / initScaleFactor) - (scaleGestureDetector.getFocusY() - 80)), maxHeight));
                 MapImageView.this.scrollTo(currentScrollX, currentScrollY);
 //                Log.d(MapImageView.class.getSimpleName(), String.format("SCROLL(%d,%d)", currentScrollX,currentScrollY));
                 return true;

@@ -41,6 +41,8 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
     private ProgressBar loadProgressBar;
     private Window window;
     private WindowManager.LayoutParams params;
+    private int maxHeight;
+    private int maxWidth;
     private int currentScrollX;
     private int currentScrollY;
 //    private int actionBarHeight;
@@ -113,7 +115,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
     }
 
     public void changeImage(MapType mapType) {
-        if(mapType == null){
+        if(mapType == null || mapType == currentMapType){
             return;
         }
         currentMapType = mapType;
@@ -126,20 +128,21 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 - getContext().getResources().getDisplayMetrics().widthPixels) / 2,
                 (int) (MapImageView.this.getDrawable().getIntrinsicHeight() * currentMapType.currentScaleFactor
                 - getContext().getResources().getDisplayMetrics().heightPixels) / 2);
+        Log.d("CHAGNE", String.format("%d,%d", MapImageView.this.getScrollX(),MapImageView.this.getScrollX()));
+//        TODO: 目前有問題的地方
+        maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
+                - getContext().getResources().getDisplayMetrics().widthPixels);
+        maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
+                - getContext().getResources().getDisplayMetrics().heightPixels);
     }
 
 //  初始化監聽器
     private void init(Context context) {
-//        actionBarHeight = 0;
-//        TypedValue tv = new TypedValue();
-//        if(context.getTheme().resolveAttribute(R.attr.actionBarSize, tv,true)){
-//            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-//        }
 //      手勢的監聽器
         gestureDetector = new GestureDetector(context, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
-                if(seekBar==null||seekBarTextView==null){
+                if(seekBar == null || seekBarTextView == null){
                     return false;
                 }
                 //設置scrollBar的animation
@@ -250,13 +253,14 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 int goX = (int) distanceX;
                 int goY = (int) distanceY;
 
-                int maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
-                        - context.getResources().getDisplayMetrics().widthPixels);
-                int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
-                        - context.getResources().getDisplayMetrics().heightPixels);
+//                int maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
+//                        - context.getResources().getDisplayMetrics().widthPixels);
+//                int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
+//                        - context.getResources().getDisplayMetrics().heightPixels);
 //                Log.d(MapImageView.class.getSimpleName(),String.format("img(X,Y) = (%d,%d)",MapImageView.this.getScrollX(), MapImageView.this.getScrollY()));
-                currentScrollX = Math.max(0, Math.min(MapImageView.this.getScrollX() + goX, maxWidth));
-                currentScrollY = Math.max(0, Math.min(MapImageView.this.getScrollY() + goY, maxHeight));
+
+                currentScrollX = Math.max(0, Math.min(currentScrollX + goX, maxWidth));
+                currentScrollY = Math.max(0, Math.min(currentScrollY + goY, maxHeight));
                 MapImageView.this.scrollTo(currentScrollX, currentScrollY);
                 return true;
             }
@@ -288,11 +292,10 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 float initScaleFactor = currentMapType.currentScaleFactor;
                 currentMapType.currentScaleFactor *= scaleGestureDetector.getScaleFactor();
                 currentMapType.currentScaleFactor = Math.max(0.5f, Math.min(currentMapType.currentScaleFactor, 1.5f));
-                //              TODO:尚未解決縮放中心點的問題
                 matrix.setScale(currentMapType.currentScaleFactor, currentMapType.currentScaleFactor);
-                int maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
+                maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().widthPixels);
-                int maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
+                maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().heightPixels);
 //                int targetX = (int) ((currentScrollX + MapImageView.this.getWidth() / 2) * currentMapType.currentScaleFactor / initScaleFactor);
 //                int targetY = (int) ((currentScrollY + MapImageView.this.getHeight() / 2) * currentMapType.currentScaleFactor / initScaleFactor);

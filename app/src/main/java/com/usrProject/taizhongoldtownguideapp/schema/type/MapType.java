@@ -8,6 +8,10 @@ public enum MapType {
     MAP_1937(R.drawable.map_1937,1.0f),
     MAP_NOW(R.drawable.map_now,1.0f),
     NEW_MAP_NOW(R.drawable.new_map_now,0.5f);
+
+    public Integer currentScrollX;
+    public Integer currentScrollY;
+
     public int resId;
     public float currentScaleFactor;
     MapType(int resId, float currentScaleFactor){

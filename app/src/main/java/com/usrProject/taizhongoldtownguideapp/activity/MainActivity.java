@@ -14,13 +14,11 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,8 +36,10 @@ import com.usrProject.taizhongoldtownguideapp.R;
 import com.usrProject.taizhongoldtownguideapp.SurroundingView;
 import com.usrProject.taizhongoldtownguideapp.component.NewsList;
 import com.usrProject.taizhongoldtownguideapp.component.imageview.MapImageView;
+import com.usrProject.taizhongoldtownguideapp.component.imageview.ObjectView;
 import com.usrProject.taizhongoldtownguideapp.model.User.User;
 import com.usrProject.taizhongoldtownguideapp.schema.UserSchema;
+import com.usrProject.taizhongoldtownguideapp.schema.type.MapAnimation;
 import com.usrProject.taizhongoldtownguideapp.schema.type.MapType;
 import com.usrProject.taizhongoldtownguideapp.utils.SharedPreferencesManager;
 import com.usrProject.taizhongoldtownguideapp.utils.URLBuilder;
@@ -85,10 +85,14 @@ public class MainActivity extends AppCompatActivity {
         navBtn = findViewById(R.id.nav_btn);
         mapImageView = findViewById(R.id.mapView);
         //預設是 MapType.NEW_MAP_NOW
-        mapImageView.changeImage(MapType.NEW_MAP_NOW);
+        mapImageView.setObjectView(findViewById(R.id.trainView));
+        mapImageView.changeImage(MapType.MAP_NOW);
         mapImageView.initSeekBar(findViewById(R.id.seekBar), findViewById(R.id.yearTextView));
         mapImageView.initProgressBar(findViewById(R.id.mainActProgressBar));
         mapImageView.initWindow(getWindow());
+//        trainImageView.setScaleX(4.0f);
+//        trainImageView.setScaleY(4.0f);
+//        trainImageView.scrollTo((int)MapAnimation.Train.startX, (int) MapAnimation.Train.startY);
     }
 
     @Override

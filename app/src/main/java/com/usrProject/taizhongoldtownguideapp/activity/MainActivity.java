@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         navBtn = findViewById(R.id.nav_btn);
         mapImageView = findViewById(R.id.mapView);
         //預設是 MapType.NEW_MAP_NOW
-        mapImageView.setObjectView(findViewById(R.id.trainView));
         mapImageView.changeImage(MapType.MAP_NOW);
         mapImageView.initSeekBar(findViewById(R.id.seekBar), findViewById(R.id.yearTextView));
         mapImageView.initProgressBar(findViewById(R.id.mainActProgressBar));

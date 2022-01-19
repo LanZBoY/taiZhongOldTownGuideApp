@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
-    private ObjectView objectView;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private MapType currentMapType;
@@ -58,16 +57,6 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
     public MapImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
-    }
-
-    public void setObjectView(ObjectView objectView){
-        this.objectView = objectView;
-//        this.objectView.setScaleX(5.0f);
-//        this.objectView.setScaleY(5.0f);
-    }
-
-    public ObjectView getObjectView(){
-        return this.objectView;
     }
 
     @SuppressLint({"SimpleDateFormat", "SetTextI18n"})
@@ -256,11 +245,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 int goY = (int) distanceY;
                 currentMapType.currentScrollX = Math.max(0, Math.min(currentMapType.currentScrollX + goX, maxWidth));
                 currentMapType.currentScrollY = Math.max(0, Math.min(currentMapType.currentScrollY + goY, maxHeight));
-                objectView.currentScrollX = Math.max(0, Math.min(objectView.currentScrollX + goX, maxWidth)) ;
-                objectView.currentScrollY = Math.max(0, Math.min(objectView.currentScrollY + goY, maxHeight));
-                objectView.scrollTo(objectView.currentScrollX, objectView.currentScrollY);
                 MapImageView.this.scrollTo(currentMapType.currentScrollX, currentMapType.currentScrollY);
-                Log.d(ObjectView.class.getSimpleName(), String.format("(%d,%d)",objectView.currentScrollX, objectView.currentScrollY));
                 Log.d(MapImageView.class.getSimpleName(), String.format("(%d,%d)",currentMapType.currentScrollX, currentMapType.currentScrollY));
                 return true;
             }
@@ -277,13 +262,14 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
         });
 //      縮放用的監聽器
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.OnScaleGestureListener() {
-            Matrix matrix;
+            Matrix mapMatrix;
+            Matrix trainMatrix;
             @Override
             public boolean onScaleBegin(ScaleGestureDetector detector) {
                 if(currentMapType != MapType.MAP_NOW){
                     return false;
                 }
-                matrix = MapImageView.this.getImageMatrix();
+                mapMatrix = MapImageView.this.getImageMatrix();
                 return true;
             }
 
@@ -292,7 +278,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 float initScaleFactor = currentMapType.currentScaleFactor;
                 currentMapType.currentScaleFactor *= scaleGestureDetector.getScaleFactor();
                 currentMapType.currentScaleFactor = Math.max(0.5f, Math.min(currentMapType.currentScaleFactor, 1.5f));
-                matrix.setScale(currentMapType.currentScaleFactor, currentMapType.currentScaleFactor);
+                mapMatrix.setScale(currentMapType.currentScaleFactor, currentMapType.currentScaleFactor);
                 maxWidth = (int) (MapImageView.this.getDrawable().getBounds().width() * currentMapType.currentScaleFactor
                         - context.getResources().getDisplayMetrics().widthPixels);
                 maxHeight = (int) (MapImageView.this.getDrawable().getBounds().height() * currentMapType.currentScaleFactor
@@ -300,10 +286,6 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 currentMapType.currentScrollX = Math.max(0, Math.min((int) (((currentMapType.currentScrollX + scaleGestureDetector.getFocusX()) * currentMapType.currentScaleFactor / initScaleFactor) - scaleGestureDetector.getFocusX()), maxWidth));
                 currentMapType.currentScrollY = Math.max(0, Math.min((int) (((currentMapType.currentScrollY + scaleGestureDetector.getFocusY() - 80) * currentMapType.currentScaleFactor / initScaleFactor) - (scaleGestureDetector.getFocusY() - 80)), maxHeight));
                 MapImageView.this.scrollTo(currentMapType.currentScrollX, currentMapType.currentScrollY);
-//                if(MapImageView.this.objectView != null){
-//                    MapImageView.this.objectView.setScaleX(5.0f * (0.5f + currentMapType.currentScaleFactor));
-//                    MapImageView.this.objectView.setScaleY(5.0f * (0.5f + currentMapType.currentScaleFactor));
-//                }
                 return true;
             }
 

@@ -39,7 +39,7 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
             checkInMarkerObject = currentTaskProcess.contents.get(currentTaskProcess.currentTask);
         }
         checkInTitle.setText(checkInMarkerObject.markTitle);
-        checkInDesc.setText(checkInMarkerObject.markContent);
+        checkInDesc.setText(checkInMarkerObject.markContent.get(0));
         loadImageFromDatabase(mContext);
         checkInDoneButton.setOnClickListener(view -> {
             checkInMarkerObject.setChecked(true);
@@ -48,7 +48,6 @@ public class CheckInOnCompletePopUpWin extends CustomPopUpWin{
                 currentTaskProcess.doneFlag = true;
                 Toast.makeText(mContext, String.format("恭喜你完成 %s 任務",currentTaskProcess.taskTitle),Toast.LENGTH_LONG).show();
             }
-//                pref.edit().putString(TaskSchema.CURRENT_TASK, new Gson().toJson(currentTaskProcess));
             dismiss();
 
         });

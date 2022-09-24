@@ -22,21 +22,15 @@ public class SurroundingView extends AppCompatActivity {
         cardView2 = findViewById(R.id.cardView2);
         cardView3 = findViewById(R.id.cardView3);
 
-        cardView1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri uri = Uri.parse("http://140.134.48.76/USR360/WanChuen/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
+        cardView1.setOnClickListener(v -> {
+            Uri uri = Uri.parse("http://140.134.48.76/USR360/WanChuen/");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         });
-        cardView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri uri = Uri.parse("http://140.134.48.76/USR360/Lechun/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
+        cardView2.setOnClickListener(v -> {
+            Uri uri = Uri.parse("http://140.134.48.76/USR360/Lechun/");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         });
         /*
         cardView3.setOnClickListener(new View.OnClickListener() {

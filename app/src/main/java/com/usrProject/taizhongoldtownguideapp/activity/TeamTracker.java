@@ -89,19 +89,10 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * The type Team tracker.
- */
 public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    /**
-     * The M current location.
-     */
     Location mCurrentLocation = null;
-    /**
-     * The M fused location provider client.
-     */
     FusedLocationProviderClient mFusedLocationProviderClient;
     private WindowManager.LayoutParams params;
     private DatabaseReference usersRef;
@@ -122,7 +113,6 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
     HashMap<String, Marker> serviceMarkerHashMap = new HashMap<>();
     HashMap<String, Marker> religionMarkerHashMap = new HashMap<>();
     Set<String> checkedLayerSet = new HashSet<>();
-
     private Boolean isExiting = false;//判斷使用者是否正在退出團隊
     private CurrentTaskProcess currentTaskProcess;
     private Marker currentTaskMarker;
@@ -369,7 +359,20 @@ public class TeamTracker extends AppCompatActivity implements OnMapReadyCallback
         usersRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                Marker marker;
+                String userName = snapshot.child("userName").getValue(String.class);
+                Integer userIconPath = snapshot.child("userIconPath").getValue(Integer.class);
+                String userID = snapshot.getKey();
+                if (userName != null && userIconPath != null && userID != null) {
+                    Bitmap userBitmap = new BitmapFactory().decodeResource(getResources(), userIconPath);
+                    Double userLatitude = snapshot.child("latitude").getValue(Double.class);
+                    Double userLongitude = snapshot.child("longitude").getValue(Double.class);
+                    if (userLatitude != null && userLongitude != null) {
+                        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(userLatitude, userLongitude)).title(userName).icon(BitmapDescriptorFactory.fromBitmap(userBitmap)));
+                        marker.setTag(MarkType.USER);
+                        userMarkerMap.put(userID, marker);
+                    }
+                }
             }
 
             @Override

@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioWorkspace/taiZhongOldTownGuideApp/app/src/main/res/layout/activity_checkin_cardview.xml" value="0.38645833333333335" />
+        <entry key="..\:/AndroidStudioWorkspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_news_list.xml" value="0.38645833333333335" />
+        <entry key="..\:/AndroidStudioWorkspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_surrounding_view.xml" value="0.38645833333333335" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layout-v26/activity_checkin_cardview.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layout/activity_checkin_cardview.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudio_Workspace/taiZhongOldTownGuideApp/app/src/main/res/layouts/activity/layout/activity_main.xml" value="0.33" />
@@ -21,7 +24,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -53,6 +53,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -266,40 +267,15 @@ public class MainActivity extends AppCompatActivity {
     //對雲朵進行操控
     @SuppressLint("NonConstantResourceId")
     private void cloudController(ImageView imageView) {
-        switch (imageView.getId()) {
-            case R.id.cloudView_1:
-                Animation am1 = new TranslateAnimation(1000f, -800f, 0f, 0f);
-                am1.setDuration(55000);
-                am1.setRepeatCount(-1);
-                imageView.startAnimation(am1);
-                break;
-            case R.id.cloudView_2:
-                Animation am2 = new TranslateAnimation(1800f, -800f, 900f, 900f);
-                am2.setDuration(55000);
-                am2.setRepeatCount(-1);
-                am2.setStartTime(100000);
-                imageView.startAnimation(am2);
-                break;
-            case R.id.cloudView_3:
-                Animation am3 = new TranslateAnimation(1400f, -800f, 200f, 200f);
-                am3.setDuration(50000);
-                am3.setRepeatCount(-1);
-                imageView.startAnimation(am3);
-                break;
-            case R.id.cloudView_4:
-                Animation am4 = new TranslateAnimation(1500f, -800f, 800f, 800f);
-                am4.setDuration(50000);
-                am4.setRepeatCount(-1);
-                imageView.startAnimation(am4);
-                break;
-            case R.id.cloudView_5:
-                Animation am5 = new TranslateAnimation(1200f, -800f, 700f, 700f);
-                am5.setDuration(50000);
-                am5.setRepeatCount(-1);
-                am5.setStartTime(100000);
-                imageView.startAnimation(am5);
-                break;
-        }
+        float FROM_MAX = 1800f;
+        float FROM_MIN = 1000f;
+        float YDelta_MAX = 900f;
+        float YDelta_MIN = 0f;
+        Random random = new Random();
+        Animation am1 = new TranslateAnimation(random.nextFloat() * (FROM_MAX - FROM_MIN) + FROM_MIN, -800f, random.nextFloat() * (YDelta_MAX - YDelta_MIN) + YDelta_MIN, random.nextFloat() * (YDelta_MAX - YDelta_MIN) + YDelta_MIN);
+        am1.setDuration(55000);
+        am1.setRepeatCount(-1);
+        imageView.startAnimation(am1);
     }
     //到氣象資料開放平台拿取資料
     private void getWeather() {

@@ -197,6 +197,7 @@ public class MapImageView extends androidx.appcompat.widget.AppCompatImageView{
                 double finalPointX = (xPoint + MapImageView.this.getScrollX()) / context.getResources().getDisplayMetrics().density;
                 double finalPointY = (yPoint + MapImageView.this.getScrollY()) / context.getResources().getDisplayMetrics().density - 80;
                 Log.d("onSingleTapConfirmed",String.format("(%f,%f)", finalPointX,finalPointY));
+//              TODO:串接後端API後需要再修改的邏輯區域
                 for(MapClick mapClick : MapClick.values()){
                     if(inRange(mapClick,finalPointX,finalPointY)){
                         popWindow(mapClick);
